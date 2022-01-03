@@ -19,9 +19,9 @@ import java.util.Set;
 @AllArgsConstructor
 @ToString
 @EqualsAndHashCode
+@Table(name = "app_user")
 public class User {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private String userId;
 
     @Column(nullable = false)

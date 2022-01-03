@@ -16,6 +16,7 @@ import java.util.Set;
 @Setter
 @ToString
 @EqualsAndHashCode
+@Table(name = "orders")
 public class Order {
 
     @Id
@@ -23,7 +24,7 @@ public class Order {
     private Long orderId;
 
     @NotNull
-    private String resOrderId;
+    private String orderIdExchange;
 
     @NotNull
     private Date startTime;

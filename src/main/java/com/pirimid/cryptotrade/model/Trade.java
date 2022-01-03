@@ -19,7 +19,7 @@ public class Trade {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long tradeId;
-    private String resTradeId;
+    private String tradeIdExchange;
 
     @ManyToOne(targetEntity = Order.class)
     @JoinColumn(name = "order_id",referencedColumnName = "orderId")
