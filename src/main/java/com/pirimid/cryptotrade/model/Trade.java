@@ -3,9 +3,11 @@ package com.pirimid.cryptotrade.model;
 
 import com.sun.istack.NotNull;
 import lombok.*;
+import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 import java.util.Date;
+import java.util.UUID;
 
 @Entity
 @AllArgsConstructor
@@ -17,8 +19,8 @@ import java.util.Date;
 public class Trade {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long tradeId;
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private UUID tradeId;
     private String tradeIdExchange;
 
     @ManyToOne(targetEntity = Order.class)

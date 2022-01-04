@@ -3,10 +3,12 @@ package com.pirimid.cryptotrade.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.sun.istack.NotNull;
 import lombok.*;
+import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 
 @Entity
 @ToString
@@ -18,7 +20,8 @@ import java.util.Set;
 public class Account {
 
     @Id
-    private Long accountId;
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private UUID accountId;
 
     @ManyToOne(targetEntity = User.class)
     @JoinColumn(name = "user_id",referencedColumnName = "userId")
