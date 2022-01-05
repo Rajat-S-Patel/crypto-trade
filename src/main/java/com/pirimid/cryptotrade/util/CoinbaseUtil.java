@@ -13,9 +13,6 @@ import java.util.Base64;
 @Component
 public class CoinbaseUtil {
 
-   /* @Value("${api.exchange.coinbase.secretkey}")
-    static String secretKeyString;
-*/
    private static String secretKeyString="QSbSkFaeoy7yb/yIwPSoQDom8LbYQR23ESAu3CXpnchZy5AKKJEb15bBuZ0jUvUk5Up/pEY5L8cect7arDz70A==";;
 
    public static String getSignature(String timestamp,String method,String path,String body) throws NoSuchAlgorithmException, InvalidKeyException {
