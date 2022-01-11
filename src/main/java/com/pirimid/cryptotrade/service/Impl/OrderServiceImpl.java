@@ -1,11 +1,9 @@
 package com.pirimid.cryptotrade.service.Impl;
 
 import com.pirimid.cryptotrade.DTO.PlaceOrderReqDTO;
-import com.pirimid.cryptotrade.helper.EXCHANGE;
-import com.pirimid.cryptotrade.model.Account;
-import com.pirimid.cryptotrade.model.Order;
-import com.pirimid.cryptotrade.model.Status;
-import com.pirimid.cryptotrade.model.User;
+import com.pirimid.cryptotrade.DTO.PlaceOrderResDTO;
+import com.pirimid.cryptotrade.helper.exchange.EXCHANGE;
+import com.pirimid.cryptotrade.model.*;
 import com.pirimid.cryptotrade.repository.AccountRepository;
 import com.pirimid.cryptotrade.repository.OrderRepository;
 import com.pirimid.cryptotrade.repository.UserRepository;
@@ -81,9 +79,19 @@ public class OrderServiceImpl implements OrderService {
             Account account = optAccount.get();
             Order order = new Order();
             //api call
-            exchangeUtil
+            PlaceOrderResDTO placeOrderResDTO = exchangeUtil
                     .getObject(EXCHANGE.valueOf(account.getExchange().getName().toUpperCase()))
                     .createOrder(account.getApiKey(),account.getSecretKey(), account.getPassPhrase(), req);
+            order.setOrderIdExchange(placeOrderResDTO.getId());
+            order.setSide(Side.valueOf(placeOrderResDTO.getSide().toUpperCase()));
+            order.setOrderStatus(Status.valueOf(placeOrderResDTO.getStatus().toUpperCase()));
+            order.setOrderQty(placeOrderResDTO.getSize());
+            order.setOrderType(OrderType.valueOf(placeOrderResDTO.getType().toUpperCase()));
+            order.setStartTime(placeOrderResDTO.getCreatedAt());
+            order.setSymbol(placeOrderResDTO.getSymbol());
+            order.setPrice(placeOrderResDTO.getPrice());
+            order.setFilledQuantity(placeOrderResDTO.getExecuted_amount());
+            order.setAccount(account);
             orderRepository.save(order);
         }
     }

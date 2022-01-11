@@ -1,7 +1,7 @@
 package com.pirimid.cryptotrade.controller;
 
 import com.pirimid.cryptotrade.DTO.SymbolResDTO;
-import com.pirimid.cryptotrade.helper.EXCHANGE;
+import com.pirimid.cryptotrade.helper.exchange.EXCHANGE;
 import com.pirimid.cryptotrade.model.Exchange;
 import com.pirimid.cryptotrade.service.ExchangeService;
 import com.pirimid.cryptotrade.util.ExchangeUtil;
