@@ -1,4 +1,4 @@
-package com.pirimid.cryptotrade.helper;
+package com.pirimid.cryptotrade.helper.exchange;
 
 public enum EXCHANGE {
     AAX("AAX"),

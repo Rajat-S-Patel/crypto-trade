@@ -6,5 +6,6 @@ public enum Status {
     FILLED,
     REJECTED,
     CANCELLED,
-    EXPIRED
+    EXPIRED,
+    OPEN
 }
