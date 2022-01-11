@@ -10,11 +10,11 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PlaceOrderReqDTO {
-    String accountId;
+    UUID accountId;
     String type;    //limit or market
     String symbol;  // BTC/USD
-    String price;   // limit order amount per currency
-    String fund;    // total amt can be send market order
-    String size;    // amount/quantity of currency
+    Double price;   // limit order amount per currency
+    Double funds;    // total amt can be send market order
+    Double size;    // amount/quantity of currency
     String side;    // buy or sell
 }

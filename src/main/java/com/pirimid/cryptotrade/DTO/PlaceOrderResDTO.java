@@ -3,6 +3,7 @@ package com.pirimid.cryptotrade.DTO;
 
 import lombok.*;
 
+import java.util.Date;
 import java.util.UUID;
 
 @Builder
@@ -12,12 +13,12 @@ import java.util.UUID;
 @AllArgsConstructor
 public class PlaceOrderResDTO {
     String id;
-    String price;
-    String size;
+    Double price;
+    Double size;
     String symbol; // BTC/ETH
     String side;
     String type;
-    String createdAt;
-    String executed_amount;
+    Date createdAt;
+    Double executed_amount;
     String status;
 }
