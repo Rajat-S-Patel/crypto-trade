@@ -11,7 +11,6 @@ import org.springframework.stereotype.Component;
 public class ExchangeUtil {
     @Autowired
     public ExcCoinbase exc_coinbase;
-
     @Autowired
     public ExcGemini excGemini;
 
