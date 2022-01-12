@@ -1,20 +1,16 @@
 package com.pirimid.cryptotrade.helper.exchange.coinbase.dto.request;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.springframework.stereotype.Component;
 
-import java.util.UUID;
-
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Component
 @ToString
-
 public class PlaceOrderReqCoinbaseDTO {
     private  String type;    //limit or market
     private String product_id;  // BTC/USD

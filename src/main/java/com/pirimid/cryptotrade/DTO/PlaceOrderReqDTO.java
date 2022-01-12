@@ -1,6 +1,12 @@
 package com.pirimid.cryptotrade.DTO;
 
-import lombok.*;
+import com.pirimid.cryptotrade.model.OrderType;
+import com.pirimid.cryptotrade.model.Side;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.UUID;
 
@@ -11,10 +17,10 @@ import java.util.UUID;
 @AllArgsConstructor
 public class PlaceOrderReqDTO {
     UUID accountId;
-    String type;    //limit or market
+    OrderType type;    //limit or market
     String symbol;  // BTC/USD
     Double price;   // limit order amount per currency
     Double funds;    // total amt can be send market order
     Double size;    // amount/quantity of currency
-    String side;    // buy or sell
+    Side side;    // buy or sell
 }

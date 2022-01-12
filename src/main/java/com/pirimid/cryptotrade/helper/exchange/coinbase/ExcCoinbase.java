@@ -9,7 +9,7 @@ import com.pirimid.cryptotrade.DTO.SymbolResDTO;
 import com.pirimid.cryptotrade.helper.exchange.coinbase.dto.request.PlaceOrderReqCoinbaseDTO;
 import com.pirimid.cryptotrade.helper.exchange.coinbase.dto.response.PlaceOrderResCoinbaseDTO;
 import com.pirimid.cryptotrade.helper.exchange.coinbase.dto.response.SymbolResCoinbaseDTO;
-import com.pirimid.cryptotrade.helper.exchange.EXC_Parent;
+import com.pirimid.cryptotrade.helper.exchange.ExcParent;
 import com.pirimid.cryptotrade.util.CoinbaseUtil;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
@@ -27,7 +27,7 @@ import java.time.Instant;
 import java.util.List;
 
 @Component
-public class EXC_Coinbase implements EXC_Parent {
+public class ExcCoinbase implements ExcParent {
     @Value("${api.exchange.coinbase.baseurl}")
     private String baseUrl;
 
@@ -66,9 +66,10 @@ public class EXC_Coinbase implements EXC_Parent {
         List<SymbolResCoinbaseDTO> symbolResCoinbaseDTOS;
         List<SymbolResDTO> symbolResDTOS;
         try {
-            ResponseEntity<String> response =  apiCallerOpen(baseUrl + "/products");
-            Type SymbolListType = new TypeToken<List<SymbolResCoinbaseDTO>>(){}.getType();
-            symbolResCoinbaseDTOS = gson.fromJson(response.getBody(),SymbolListType);
+            ResponseEntity<String> response = apiCallerOpen(baseUrl + "/products");
+            Type SymbolListType = new TypeToken<List<SymbolResCoinbaseDTO>>() {
+            }.getType();
+            symbolResCoinbaseDTOS = gson.fromJson(response.getBody(), SymbolListType);
             symbolResDTOS = CoinbaseUtil.getPairsResDTO(symbolResCoinbaseDTOS);
             return symbolResDTOS;
         } catch (IOException e) {
@@ -85,10 +86,7 @@ public class EXC_Coinbase implements EXC_Parent {
         String timestamp = Instant.now().getEpochSecond() + "";
         String signature;
         try {
-            signature = CoinbaseUtil.getSignature(timestamp, "GET", "/accounts", "");
-
-            System.out.println(signature);
-
+            signature = CoinbaseUtil.getSignature(timestamp, secretKey, "GET", "/accounts", "");
             return apiCallerRestricted(baseUrl + "/accounts", "GET", apiKey, passphrase, signature, timestamp, "");
         } catch (Exception e) {
             e.printStackTrace();
@@ -98,27 +96,21 @@ public class EXC_Coinbase implements EXC_Parent {
 
     @Override
     public PlaceOrderResDTO createOrder(String apiKey, String secretKey, String passphrase, PlaceOrderReqDTO placeOrderReqDTO) {
-        String timestamp = Instant.now().getEpochSecond() + "";
+        String timestamp = String.valueOf(Instant.now().getEpochSecond());
         String signature;
         Gson gson = new Gson();
         PlaceOrderReqCoinbaseDTO placeOrderReqCoinbaseDTO = CoinbaseUtil.getPlaceOrderReqDTO(placeOrderReqDTO);
         PlaceOrderResCoinbaseDTO placeOrderResCoinbaseDTO;
         try {
-            String  b = gson.toJson(placeOrderReqCoinbaseDTO);
-            System.out.println(b);
-            signature = CoinbaseUtil.getSignature(timestamp, "POST", "/orders", b);
+            String b = gson.toJson(placeOrderReqCoinbaseDTO);
+            signature = CoinbaseUtil.getSignature(timestamp, secretKey, "POST", "/orders", b);
             ResponseEntity<String> response = apiCallerRestricted(baseUrl + "/orders", "POST", apiKey, passphrase, signature, timestamp, gson.toJson(placeOrderReqCoinbaseDTO));
             String se = response.getBody();
-            System.out.println("hello");
-            System.out.println(se);
-            System.out.println("hello");
             placeOrderResCoinbaseDTO = gson.fromJson(se, PlaceOrderResCoinbaseDTO.class);
             PlaceOrderResDTO placeOrderResDTO = CoinbaseUtil.getPlaceOrderResDTO(placeOrderResCoinbaseDTO);
-            System.out.println(placeOrderResCoinbaseDTO);
-            System.out.println(placeOrderResDTO);
             return placeOrderResDTO;
         } catch (Exception e) {
-
+            e.printStackTrace();
         }
         return null;
 
@@ -129,59 +121,20 @@ public class EXC_Coinbase implements EXC_Parent {
     public boolean cancelOrder(String apiKey, String secretKey, String passphrase, String orderId) {
         String timestamp = Instant.now().getEpochSecond() + "";
         String signature;
-        int pos=-1;
+        int pos = -1;
         ////// Coinbase will return orderid if order is canceled successfully else will return {"message":"message "}
         try {
-            signature = CoinbaseUtil.getSignature(timestamp, "DELETE", "/orders/"+orderId, "");
-            ResponseEntity<String> response =  apiCallerRestricted(baseUrl + "/orders/"+orderId, "DELETE", apiKey, passphrase, signature, timestamp, "");
+            signature = CoinbaseUtil.getSignature(timestamp, secretKey, "DELETE", "/orders/" + orderId, "");
+            ResponseEntity<String> response = apiCallerRestricted(baseUrl + "/orders/" + orderId, "DELETE", apiKey, passphrase, signature, timestamp, "");
             String res = response.getBody();
             pos = res.indexOf("message");
-            System.out.println(pos);
         } catch (Exception e) {
-
+            e.printStackTrace();
         }
-        if(pos == -1)
+        if (pos == -1)
             return true;
         return false;
 
     }
-
-
-/*
-    @Override
-    public ResponseEntity<String> getAllOrders(String apiKey, String secretKey, String passphrase) {
-        String timestamp = Instant.now().getEpochSecond() + "";
-        String signature;
-        try {
-            signature = CoinbaseUtil.getSignature(timestamp, "GET", "/orders", "");
-
-            return apiCallerRestricted(baseUrl + "/orders", "GET", apiKey, passphrase, signature, timestamp, "");
-
-
-        } catch (Exception e) {
-
-        }
-
-
-        return null;
-    }
-
-    public ResponseEntity<String> getOrder(String apiKey, String secretKey, String passphrase, String orderid) {
-        String timestamp = Instant.now().getEpochSecond() + "";
-        String signature;
-        try {
-            signature = CoinbaseUtil.getSignature(timestamp, "GET", "/orders/" + orderid, "");
-
-            return apiCallerRestricted(baseUrl + "/orders/" + orderid, "GET", apiKey, passphrase, signature, timestamp, "");
-
-
-        } catch (Exception e) {
-
-        }
-
-
-        return null;
-    }
-*/
 
 }

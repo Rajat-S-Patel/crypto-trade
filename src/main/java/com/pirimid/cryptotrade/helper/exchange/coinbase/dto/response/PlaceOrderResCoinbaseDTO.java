@@ -1,6 +1,10 @@
 package com.pirimid.cryptotrade.helper.exchange.coinbase.dto.response;
 
-import lombok.*;
+import com.pirimid.cryptotrade.model.OrderType;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
@@ -14,8 +18,8 @@ import java.util.UUID;
 public class PlaceOrderResCoinbaseDTO {
 
     private UUID id;
-    private double price;
-    private double size;
+    private Double price;
+    private Double size;
     private String product_id;
     private String side;
     private String type;
@@ -23,6 +27,6 @@ public class PlaceOrderResCoinbaseDTO {
     private Date end_at;
     private String status;
     private String filled_size;
-    private double executed_value;
+    private Double executed_value;
 
 }

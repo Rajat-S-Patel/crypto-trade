@@ -1,24 +1,32 @@
 package com.pirimid.cryptotrade.DTO;
 
 
-import lombok.*;
+import com.pirimid.cryptotrade.model.OrderType;
+import com.pirimid.cryptotrade.model.Side;
+import com.pirimid.cryptotrade.model.Status;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 import java.util.Date;
-import java.util.UUID;
 
 @Builder
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString
 public class PlaceOrderResDTO {
     String id;
     Double price;
     Double size;
     String symbol; // BTC/ETH
-    String side;
-    String type;
+    Side side;
+    OrderType type;
     Date createdAt;
-    Double executed_amount;
-    String status;
+    Double executedAmount;
+    Status status;
 }

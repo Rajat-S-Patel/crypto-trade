@@ -6,7 +6,8 @@ public enum EXCHANGE {
     GEMINI("Gemini"),
     KUCOIN("Kucoin");
     String value;
-    EXCHANGE(String value){
+
+    EXCHANGE(String value) {
         this.value = value;
     }
 }

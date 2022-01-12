@@ -7,6 +7,9 @@ import com.pirimid.cryptotrade.DTO.SymbolResDTO;
 import com.pirimid.cryptotrade.helper.exchange.coinbase.dto.request.PlaceOrderReqCoinbaseDTO;
 import com.pirimid.cryptotrade.helper.exchange.coinbase.dto.response.PlaceOrderResCoinbaseDTO;
 import com.pirimid.cryptotrade.helper.exchange.coinbase.dto.response.SymbolResCoinbaseDTO;
+import com.pirimid.cryptotrade.model.OrderType;
+import com.pirimid.cryptotrade.model.Side;
+import com.pirimid.cryptotrade.model.Status;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.Mac;
@@ -17,20 +20,19 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
+import java.util.Locale;
 
 @Component
 public class CoinbaseUtil {
 
-   private static String secretKeyString="QSbSkFaeoy7yb/yIwPSoQDom8LbYQR23ESAu3CXpnchZy5AKKJEb15bBuZ0jUvUk5Up/pEY5L8cect7arDz70A==";
 
-   public static String getSignature(String timestamp,String method,String path,String body) throws NoSuchAlgorithmException, InvalidKeyException {
+   public static String getSignature(String timestamp,String secretKeyString,String method,String path,String body) throws NoSuchAlgorithmException, InvalidKeyException {
         String prehash = timestamp+method+path+body;
-      // System.out.println(prehash);
-       byte[] secretKeyDecoded = Base64.getDecoder().decode(secretKeyString);
+        byte[] secretKeyDecoded = Base64.getDecoder().decode(secretKeyString);
         SecretKey secretKey = new SecretKeySpec(secretKeyDecoded, "HmacSHA256");
         Mac hmacSha256 = Mac.getInstance("HmacSHA256");
         hmacSha256.init(secretKey);
-       String sin =  Base64.getEncoder().encodeToString(hmacSha256.doFinal(prehash.getBytes()));
+        String sin =  Base64.getEncoder().encodeToString(hmacSha256.doFinal(prehash.getBytes()));
 
        return sin;
     }
@@ -40,7 +42,10 @@ public class CoinbaseUtil {
         Gson gson = new Gson();
         String orderCoinbaseres = gson.toJson(placeOrderResCoinbaseDTO);
         placeOrderResDTO = gson.fromJson(orderCoinbaseres,PlaceOrderResDTO.class);
-        placeOrderResDTO.setExecuted_amount(placeOrderResCoinbaseDTO.getExecuted_value());
+        placeOrderResDTO.setExecutedAmount(placeOrderResCoinbaseDTO.getExecuted_value());
+        placeOrderResDTO.setType(OrderType.valueOf(placeOrderResCoinbaseDTO.getType().toUpperCase()));
+        placeOrderResDTO.setSide(Side.valueOf(placeOrderResCoinbaseDTO.getSide().toUpperCase()));
+        placeOrderResDTO.setStatus(Status.valueOf(placeOrderResCoinbaseDTO.getStatus().toUpperCase()));
         placeOrderResDTO.setCreatedAt(placeOrderResCoinbaseDTO.getCreated_at());
         placeOrderResDTO.setSymbol(placeOrderResCoinbaseDTO.getProduct_id());
         return placeOrderResDTO;
@@ -50,6 +55,8 @@ public class CoinbaseUtil {
         Gson gson = new Gson();
         String orderCoinbasereq = gson.toJson(placeOrderReqDTO);
         placeOrderReqCoinbaseDTO = gson.fromJson(orderCoinbasereq,PlaceOrderReqCoinbaseDTO.class);
+        placeOrderReqCoinbaseDTO.setType(placeOrderReqDTO.getType().getValue());
+        placeOrderReqCoinbaseDTO.setSide(placeOrderReqDTO.getSide().getValue());
         placeOrderReqCoinbaseDTO.setProduct_id(placeOrderReqDTO.getSymbol());
         return placeOrderReqCoinbaseDTO;
    }

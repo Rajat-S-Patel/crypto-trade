@@ -11,7 +11,6 @@ import com.pirimid.cryptotrade.service.OrderService;
 import com.pirimid.cryptotrade.util.ExchangeUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -73,7 +72,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public void createOrder(PlaceOrderReqDTO req) {
+    public PlaceOrderResDTO createOrder(PlaceOrderReqDTO req) {
         Optional<Account> optAccount = accountRepository.findById(req.getAccountId());
         if(optAccount.isPresent()) {
             Account account = optAccount.get();
@@ -82,22 +81,27 @@ public class OrderServiceImpl implements OrderService {
             PlaceOrderResDTO placeOrderResDTO = exchangeUtil
                     .getObject(EXCHANGE.valueOf(account.getExchange().getName().toUpperCase()))
                     .createOrder(account.getApiKey(),account.getSecretKey(), account.getPassPhrase(), req);
+            if(placeOrderResDTO == null){
+                return null;
+            }
             order.setOrderIdExchange(placeOrderResDTO.getId());
-            order.setSide(Side.valueOf(placeOrderResDTO.getSide().toUpperCase()));
-            order.setOrderStatus(Status.valueOf(placeOrderResDTO.getStatus().toUpperCase()));
+            order.setSide(placeOrderResDTO.getSide());
+            order.setOrderStatus(placeOrderResDTO.getStatus());
             order.setOrderQty(placeOrderResDTO.getSize());
-            order.setOrderType(OrderType.valueOf(placeOrderResDTO.getType().toUpperCase()));
+            order.setOrderType(placeOrderResDTO.getType());
             order.setStartTime(placeOrderResDTO.getCreatedAt());
             order.setSymbol(placeOrderResDTO.getSymbol());
             order.setPrice(placeOrderResDTO.getPrice());
-            order.setFilledQuantity(placeOrderResDTO.getExecuted_amount());
+            order.setFilledQuantity(placeOrderResDTO.getExecutedAmount());
             order.setAccount(account);
             orderRepository.save(order);
+            return  placeOrderResDTO;
         }
+        return null;
     }
 
     @Override
-    public boolean cancelOrderById(UUID id,String exchangeName) {
+    public String cancelOrderById(UUID id,String exchangeName) {
 //        User user = userRepository.findById(user.getUserId()).get();
         EXCHANGE exchange = EXCHANGE.valueOf(exchangeName);
         Optional<Order> optOrder = orderRepository.findById(id);
@@ -108,12 +112,12 @@ public class OrderServiceImpl implements OrderService {
                     .cancelOrder(account.getApiKey(),account.getSecretKey(),account.getPassPhrase(),optOrder.get().getOrderIdExchange())) {
                 optOrder.get().setOrderStatus(Status.CANCELLED);
                 orderRepository.save(optOrder.get());
-                return true;
+                return String.valueOf(id);
             }else{
                 // cancel order failed
-                return false;
+                return null;
             }
         }
-        return false;
+        return null;
     }
 }
