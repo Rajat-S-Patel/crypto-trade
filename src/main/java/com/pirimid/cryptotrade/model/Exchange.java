@@ -3,8 +3,6 @@ package com.pirimid.cryptotrade.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.sun.istack.NotNull;
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.annotations.GenericGenerator;
 
@@ -14,8 +12,6 @@ import java.util.Set;
 import java.util.UUID;
 
 @Entity
-@Getter
-@Setter
 public class Exchange {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
