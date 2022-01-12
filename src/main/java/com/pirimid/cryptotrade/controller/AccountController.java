@@ -21,14 +21,14 @@ public class AccountController {
     @GetMapping("/accounts")    // accounts?exchange=
     public ResponseEntity<Set<Account>> getAccountsByExchange(@RequestParam String exchange){
         Set<Account> accounts = accountService.getAllAccounts();
-        if(accounts.isEmpty() && accounts.size()==0) return ResponseEntity.badRequest().body(null);
+        if(accounts == null || accounts.isEmpty()) return ResponseEntity.badRequest().body(null);
         return ResponseEntity.status(HttpStatus.ACCEPTED).body(accounts);
     }
 
     @GetMapping("/accounts/{accountId}/orders")
     public ResponseEntity<Set<Order>> getOrderByAccount(@PathVariable UUID accountId){
         Set<Order> orders = accountService.getOrderByAccount(accountId);
-        if(orders.isEmpty() || orders.size()==0) return ResponseEntity.badRequest().body(null);
+        if(orders == null || orders.isEmpty()) return ResponseEntity.badRequest().body(null);
         return ResponseEntity.status(HttpStatus.ACCEPTED).body(orders);
     }
     @GetMapping("/account-info/{accountId}")

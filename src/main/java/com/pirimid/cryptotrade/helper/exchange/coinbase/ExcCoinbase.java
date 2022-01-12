@@ -83,7 +83,7 @@ public class ExcCoinbase implements ExcParent {
     @Override
     public ResponseEntity<String> accountInfo(String apiKey, String secretKey, String passphrase) {
 
-        String timestamp = Instant.now().getEpochSecond() + "";
+        String timestamp = String.valueOf(Instant.now().getEpochSecond());
         String signature;
         try {
             signature = CoinbaseUtil.getSignature(timestamp, secretKey, "GET", "/accounts", "");

@@ -58,7 +58,6 @@ public class OrderServiceImpl implements OrderService {
     public Set<Order> getAllOrders(String exchangeName) {
         try {
             EXCHANGE exchange = EXCHANGE.valueOf(exchangeName);
-//            User user = new User();
             Set<Order> orders = new HashSet<>();
             user.getAccountSet()
                     .stream()
@@ -102,7 +101,6 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public String cancelOrderById(UUID id,String exchangeName) {
-//        User user = userRepository.findById(user.getUserId()).get();
         EXCHANGE exchange = EXCHANGE.valueOf(exchangeName);
         Optional<Order> optOrder = orderRepository.findById(id);
         if(optOrder.isPresent()){

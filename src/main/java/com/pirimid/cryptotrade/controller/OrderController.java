@@ -31,7 +31,7 @@ public class OrderController {
             orders = orderService.getAllOrders();
         else
             orders = orderService.getAllOrders(exchange);
-        if (orders.isEmpty() || orders.size() == 0) return ResponseEntity.badRequest().body(null);
+        if (orders == null || orders.isEmpty()) return ResponseEntity.badRequest().body(null);
         return ResponseEntity.status(HttpStatus.ACCEPTED).body(orders);
     }
 

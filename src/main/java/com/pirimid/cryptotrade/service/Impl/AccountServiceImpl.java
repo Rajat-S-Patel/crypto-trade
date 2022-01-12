@@ -21,25 +21,16 @@ public class AccountServiceImpl implements AccountService {
     private AccountRepository accountRepository;
     @Autowired
     User user;
+
     @Override
     public Set<Account> getAllAccounts() {
-//        UUID userid=UUID.randomUUID();
-//        Optional<User> optUser = userRepository.findById(userid);
-//        if(optUser.isPresent()){
-//            return optUser.get().getAccountSet();
-//        }
         return user.getAccountSet();
     }
 
     @Override
     public Account getAccountById(UUID id) {
-//        UUID userid=UUID.randomUUID();
-//        Optional<User> optUser = userRepository.findById(userid);
         Optional<Account> optAccount = accountRepository.findById(id);
-//        if(optUser.isPresent() && optAccount.isPresent() && optUser.get().getAccountSet().contains(optAccount.get())){
-//            return optAccount.get();
-//        }
-        if(optAccount.isPresent() && user.getAccountSet().contains(optAccount.get()))
+        if (optAccount.isPresent() && user.getAccountSet().contains(optAccount.get()))
             return optAccount.get();
         return null;
     }
@@ -47,7 +38,7 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public Set<Order> getOrderByAccount(UUID id) {
         Optional<Account> optAccount = accountRepository.findById(id);
-        if(optAccount.isPresent()){
+        if (optAccount.isPresent()) {
             return optAccount.get().getOrderSet();
         }
         return null;

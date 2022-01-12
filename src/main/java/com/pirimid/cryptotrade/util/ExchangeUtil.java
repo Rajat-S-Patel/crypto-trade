@@ -15,7 +15,7 @@ public class ExchangeUtil {
         switch (exchange){
             case COINBASE:
                 return exc_coinbase;
-            case KUCOIN:
+            case GEMINI:
                 break;
         }
         return null;
