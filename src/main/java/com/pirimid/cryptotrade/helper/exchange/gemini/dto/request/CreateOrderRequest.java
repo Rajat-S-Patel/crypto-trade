@@ -20,8 +20,8 @@ public class CreateOrderRequest {
     private String request;
 
     private String symbol;
-    private double amount;
-    private double price;
+    private Double amount;
+    private Double price;
     private String side;
     private String type;
 

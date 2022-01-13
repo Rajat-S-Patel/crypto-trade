@@ -1,8 +1,8 @@
 package com.pirimid.cryptotrade.util;
 
 import com.pirimid.cryptotrade.helper.exchange.EXCHANGE;
-import com.pirimid.cryptotrade.helper.exchange.EXC_Parent;
-import com.pirimid.cryptotrade.helper.exchange.gemini.EXC_Gemini;
+import com.pirimid.cryptotrade.helper.exchange.ExcParent;
+import com.pirimid.cryptotrade.helper.exchange.gemini.ExcGemini;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -10,9 +10,9 @@ import org.springframework.stereotype.Component;
 public class ExchangeUtil {
 
     @Autowired
-    public EXC_Gemini gemini;
+    public ExcGemini gemini;
 
-    public EXC_Parent getObject(EXCHANGE exchange){
+    public ExcParent getObject(EXCHANGE exchange){
         switch (exchange){
             case GEMINI:
                 return gemini;

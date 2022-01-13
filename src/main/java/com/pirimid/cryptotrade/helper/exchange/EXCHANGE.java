@@ -1,10 +1,8 @@
 package com.pirimid.cryptotrade.helper.exchange;
 
 public enum EXCHANGE {
-    AAX("AAX"),
     COINBASE("Coinbase"),
-    GEMINI("Gemini"),
-    KUCOIN("Kucoin");
+    GEMINI("Gemini");
     String value;
     EXCHANGE(String value){
         this.value = value;

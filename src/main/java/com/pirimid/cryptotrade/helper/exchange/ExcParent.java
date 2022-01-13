@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 @Component
-public interface EXC_Parent {
+public interface ExcParent {
     List<SymbolResDTO> getPairs();
     ResponseEntity<String> accountInfo(String apiKey,String secretKey,String passphrase,String timestamp);
     PlaceOrderResDTO createOrder(String apiKey, String secretKey, String passphrase, PlaceOrderReqDTO req);
