@@ -1,5 +1,4 @@
 package com.pirimid.cryptotrade.DTO;
-
 import com.pirimid.cryptotrade.model.OrderType;
 import com.pirimid.cryptotrade.model.Side;
 import lombok.Builder;
@@ -24,4 +23,3 @@ public class PlaceOrderReqDTO {
     Double size;    // amount/quantity of currency
     Side side;    // buy or sell
 }
-

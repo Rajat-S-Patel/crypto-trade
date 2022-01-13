@@ -46,17 +46,16 @@ public class GeminiUtil {
         if(response.isLive())
             placeOrderResDTO.setStatus(Status.valueOf("PENDING"));
         else placeOrderResDTO.setStatus(Status.valueOf("FILLED"));
-
         return placeOrderResDTO;
     }
 
     public static CreateOrderRequest getCreateOrderReqDTO(PlaceOrderReqDTO req){
         CreateOrderRequest createOrderRequest = new CreateOrderRequest();
-        createOrderRequest.setSymbol(req.getSymbol());
+        createOrderRequest.setSymbol(req.getSymbol());          // logic to parse it to standard symbol DTO is not yet implemented
         createOrderRequest.setAmount(req.getSize());
         createOrderRequest.setPrice(req.getPrice());
         createOrderRequest.setSide(req.getSide().getValue());
-        createOrderRequest.setType("exchange "+req.getType());
+        createOrderRequest.setType("exchange "+req.getType().getValue());
         return createOrderRequest;
     }
 
