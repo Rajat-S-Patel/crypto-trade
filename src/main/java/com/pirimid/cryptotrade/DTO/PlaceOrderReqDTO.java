@@ -24,3 +24,4 @@ public class PlaceOrderReqDTO {
     Double size;    // amount/quantity of currency
     Side side;    // buy or sell
 }
+

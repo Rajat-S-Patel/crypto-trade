@@ -1,5 +1,4 @@
 package com.pirimid.cryptotrade.DTO;
-
 import com.pirimid.cryptotrade.model.OrderType;
 import com.pirimid.cryptotrade.model.Side;
 import com.pirimid.cryptotrade.model.Status;

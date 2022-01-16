@@ -14,11 +14,8 @@ public class CreateOrderRequest {
 
     @JsonProperty("client_order_id")
     private String clientOrderId;
-
     private long nonce;
-
     private String request;
-
     private String symbol;
     private Double amount;
     private Double price;
