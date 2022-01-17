@@ -10,14 +10,14 @@ import org.springframework.stereotype.Component;
 @Component
 public class ExchangeUtil {
     @Autowired
-    public ExcCoinbase exc_coinbase;
+    public ExcCoinbase excCoinbase;
     @Autowired
     public ExcGemini excGemini;
 
     public ExcParent getObject(EXCHANGE exchange) {
         switch (exchange) {
             case COINBASE:
-                return exc_coinbase;
+                return excCoinbase;
             case GEMINI:
                 return excGemini;
 

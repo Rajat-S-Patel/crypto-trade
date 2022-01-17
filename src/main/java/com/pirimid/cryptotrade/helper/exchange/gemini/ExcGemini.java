@@ -27,19 +27,18 @@ import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Base64;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Component
 public class ExcGemini implements ExcParent {
 
     @Value("${api.exchange.gemini.baseurl}")
     private String baseUrl;
-    private long getNonce(){
-        return new Date().getTime();
-    }
-    private byte[] getB64(String payload){
-        return Base64.getEncoder().encode(payload.getBytes(StandardCharsets.UTF_8));
-    }
+
     private ResponseEntity<String> apiCaller(String uri,String reqType) throws IOException, InterruptedException {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(uri))
@@ -101,13 +100,13 @@ public class ExcGemini implements ExcParent {
         public PlaceOrderResDTO createOrder(String apiKey, String secretKey, String passphrase, PlaceOrderReqDTO body) {
         CreateOrderRequest request = GeminiUtil.getCreateOrderReqDTO(body);
         request.setClientOrderId("12344545");
-        request.setNonce(getNonce());
+        request.setNonce(GeminiUtil.getNonce());
         request.setAccountType("primary");
         request.setRequest("/v1/order/new");
 
         try {
             String json = new ObjectMapper().writeValueAsString(request);
-            byte[] b64 = getB64(json);
+            byte[] b64 = GeminiUtil.getB64(json);
             String signature = GeminiUtil.getSignature(b64,secretKey);
             ResponseEntity<String> res = apiCaller(baseUrl+"/v1/order/new","POST",b64,signature,apiKey);
 
@@ -126,7 +125,7 @@ public class ExcGemini implements ExcParent {
         final String url = "/v1/order/cancel";
         Map<String,String> payload = new HashMap<>();
         payload.put("order_id",orderId);
-        payload.put("nonce",String.valueOf(getNonce()));
+        payload.put("nonce",String.valueOf(GeminiUtil.getNonce()));
         payload.put("account","primary");
         payload.put("request",url);
         try {

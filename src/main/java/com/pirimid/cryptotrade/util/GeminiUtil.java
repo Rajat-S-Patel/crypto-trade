@@ -22,7 +22,12 @@ import java.util.*;
 
 @Component
 public class GeminiUtil {
-
+    public static long getNonce(){
+        return new Date().getTime();
+    }
+    public static byte[] getB64(String payload){
+        return Base64.getEncoder().encode(payload.getBytes(StandardCharsets.UTF_8));
+    }
     public static String getSignature(byte[] payload,String secretKeyString) throws NoSuchAlgorithmException, InvalidKeyException, JsonProcessingException {
         byte [] encodedKey = secretKeyString.getBytes(StandardCharsets.UTF_8);
         SecretKey secretKey = new SecretKeySpec(encodedKey,"HmacSHA384");
