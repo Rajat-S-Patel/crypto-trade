@@ -29,8 +29,8 @@ public class Order {
     private String orderIdExchange;
 
     @NotNull
-    private Date startTime;
-    private Date endTime;
+    private Date startTime;         // time when order is placed
+    private Date endTime;           // time when order is completely executed
 
     @ManyToOne(targetEntity = Account.class)
     @JoinColumn(name = "account_id",referencedColumnName = "accountId",nullable = false)
@@ -40,20 +40,21 @@ public class Order {
     private Status orderStatus;
 
     @Enumerated(EnumType.STRING)
-    private OrderType orderType;
+    private OrderType orderType;        // limit or market order
 
     @Enumerated(EnumType.STRING)
-    private Side side;
+    private Side side;              // buy or sell
 
-    private Double filledQuantity;
+    private Double filledQuantity;  // amount of order already filled
 
     @NotNull
     private String symbol;
-    @NotNull
-    private Double price;
 
-    @NotNull
-    private Double orderQty;
+    private Double price;       // price per currency
+
+    private Double fund;
+
+    private Double orderQty;    // amount of currency to be sold
 
     private Double commission;
 
