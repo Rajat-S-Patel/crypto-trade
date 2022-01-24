@@ -1,9 +1,11 @@
 package com.pirimid.cryptotrade.service.Impl;
 
 import com.pirimid.cryptotrade.model.Account;
+import com.pirimid.cryptotrade.model.Exchange;
 import com.pirimid.cryptotrade.model.Order;
 import com.pirimid.cryptotrade.model.User;
 import com.pirimid.cryptotrade.repository.AccountRepository;
+import com.pirimid.cryptotrade.repository.ExchangeRepository;
 import com.pirimid.cryptotrade.repository.UserRepository;
 import com.pirimid.cryptotrade.service.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,11 +22,20 @@ public class AccountServiceImpl implements AccountService {
     @Autowired
     private AccountRepository accountRepository;
     @Autowired
+    private ExchangeRepository exchangeRepository;
+    @Autowired
     User user;
 
     @Override
     public Set<Account> getAllAccounts() {
         return user.getAccountSet();
+    }
+
+    @Override
+    public Set<Account> getAllAccountsByExchangeName(String name) {
+        Optional<Exchange> exchange = exchangeRepository.findByName(name);
+        if(!exchange.isPresent()) return null;
+        return accountRepository.findAllByExchange(exchange.get());
     }
 
     @Override

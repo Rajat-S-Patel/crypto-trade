@@ -26,7 +26,7 @@ public class User {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID userId;
 
-    @Column(nullable = false)
+    @Column(nullable = false,unique = true)
     private String email;
 
     @NotNull
@@ -38,6 +38,6 @@ public class User {
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
     @JsonIgnore
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user",fetch = FetchType.EAGER)
     Set<Account> accountSet  = new HashSet<Account>();
 }

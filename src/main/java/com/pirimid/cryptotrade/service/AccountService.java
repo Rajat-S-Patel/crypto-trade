@@ -8,6 +8,7 @@ import java.util.UUID;
 
 public interface AccountService {
     Set<Account> getAllAccounts();
+    Set<Account> getAllAccountsByExchangeName(String name);
     Account getAccountById(UUID id);
     Set<Order> getOrderByAccount(UUID id);
 }

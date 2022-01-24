@@ -1,4 +1,6 @@
-package com.pirimid.cryptotrade.websocket.gemini;
+package com.pirimid.cryptotrade.websocket;
+
+//import org.springframework.web.socket.WebSocketSession;
 
 import org.springframework.web.socket.WebSocketSession;
 
