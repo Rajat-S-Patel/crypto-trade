@@ -1,16 +1,18 @@
 package com.pirimid.cryptotrade.websocket.coinbase.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
+import com.pirimid.cryptotrade.DTO.OrderResDTO;
+import com.pirimid.cryptotrade.DTO.TradeDto;
 import com.pirimid.cryptotrade.model.Account;
-import com.pirimid.cryptotrade.model.User;
-import com.pirimid.cryptotrade.repository.AccountRepository;
-import com.pirimid.cryptotrade.repository.UserRepository;
 import com.pirimid.cryptotrade.service.AccountService;
 import com.pirimid.cryptotrade.util.CoinbaseUtil;
 import com.pirimid.cryptotrade.websocket.coinbase.req.ChannelReq;
 import com.pirimid.cryptotrade.websocket.coinbase.req.ReqChannel;
 import com.pirimid.cryptotrade.websocket.coinbase.req.ReqType;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.pirimid.cryptotrade.websocket.coinbase.res.Typedto;
+import com.pirimid.cryptotrade.websocket.coinbase.res.WSCoinbaseOrderDto;
+import com.pirimid.cryptotrade.websocket.coinbase.res.WsCoinbaseTradeDto;
 import org.springframework.web.socket.*;
 
 import java.io.IOException;
@@ -26,6 +28,7 @@ public class CoinbaseSessionHandler implements WebSocketHandler {
 
     private AccountService accountService;
     private WebSocketSession session;
+    Gson gson = new Gson();
     public CoinbaseSessionHandler(AccountService accountService){
         this.accountService = accountService;
     }
@@ -94,9 +97,44 @@ public class CoinbaseSessionHandler implements WebSocketHandler {
 
     @Override
     public void handleMessage(WebSocketSession session, WebSocketMessage<?> message) throws Exception {
-        if(message.getPayload().toString().contains("heartbeat")) return;
-        System.out.println("coinbase -");
-        System.out.println(message.getPayload());
+        if(message.getPayload().toString().contains("heartbeat"))
+            return;
+        Typedto typedto = gson.fromJson(message.getPayload().toString(),Typedto.class);
+        System.out.println();
+        System.out.println(message.getPayload().toString());
+
+        switch (typedto.getType()){
+
+            case "received":{
+                WSCoinbaseOrderDto wsCoinbaseOrderDto = gson.fromJson(message.getPayload().toString(),WSCoinbaseOrderDto.class);
+                OrderResDTO orderResDTO = CoinbaseUtil.getWsPlaceOrderResDTO(wsCoinbaseOrderDto);
+                System.out.println(orderResDTO.toString());
+                //call method for order received
+                break;
+            }
+            case "done":{
+
+                WSCoinbaseOrderDto wsCoinbaseOrderDto = gson.fromJson(message.getPayload().toString(),WSCoinbaseOrderDto.class);
+                if(wsCoinbaseOrderDto.getReason().equals("filled")){
+                    OrderResDTO orderResDTO = CoinbaseUtil.getWsPlaceOrderResDTO(wsCoinbaseOrderDto);
+                    System.out.println(orderResDTO.toString());
+                    ////call method for order closed(filled)
+                }
+                else if(wsCoinbaseOrderDto.getReason().equals("canceled")){
+                    OrderResDTO orderResDTO = CoinbaseUtil.getWsPlaceOrderResDTO(wsCoinbaseOrderDto);
+                    System.out.println(orderResDTO.toString());
+                    //call method for order cancelled
+                }
+                break;
+            }
+            case "match":{
+                WsCoinbaseTradeDto wsCoinbaseTradeDto = gson.fromJson(message.getPayload().toString(),WsCoinbaseTradeDto.class);
+                TradeDto tradeDto = CoinbaseUtil.getWsTradeResDTO(wsCoinbaseTradeDto);
+                System.out.println(tradeDto.toString());
+                //call method for trade
+                break;
+            }
+        }
     }
 
     @Override

@@ -4,12 +4,15 @@ import com.google.gson.Gson;
 import com.pirimid.cryptotrade.DTO.PlaceOrderReqDTO;
 import com.pirimid.cryptotrade.DTO.OrderResDTO;
 import com.pirimid.cryptotrade.DTO.SymbolResDTO;
+import com.pirimid.cryptotrade.DTO.TradeDto;
 import com.pirimid.cryptotrade.helper.exchange.coinbase.dto.request.PlaceOrderReqCoinbaseDTO;
 import com.pirimid.cryptotrade.helper.exchange.coinbase.dto.response.PlaceOrderResCoinbaseDTO;
 import com.pirimid.cryptotrade.helper.exchange.coinbase.dto.response.SymbolResCoinbaseDTO;
 import com.pirimid.cryptotrade.model.OrderType;
 import com.pirimid.cryptotrade.model.Side;
 import com.pirimid.cryptotrade.model.Status;
+import com.pirimid.cryptotrade.websocket.coinbase.res.WSCoinbaseOrderDto;
+import com.pirimid.cryptotrade.websocket.coinbase.res.WsCoinbaseTradeDto;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.Mac;
@@ -49,6 +52,46 @@ public class CoinbaseUtil {
         orderResDTO.setSymbol(placeOrderResCoinbaseDTO.getProduct_id());
         orderResDTO.setFunds(placeOrderResCoinbaseDTO.getFunds());
         return orderResDTO;
+    }
+
+    public static OrderResDTO getWsPlaceOrderResDTO(WSCoinbaseOrderDto wsCoinbaseOrderDto){
+        OrderResDTO orderResDTO=new OrderResDTO();
+        String type = wsCoinbaseOrderDto.getType();
+        orderResDTO.setExchangeOrderId(wsCoinbaseOrderDto.getOrder_id());
+        orderResDTO.setPrice(wsCoinbaseOrderDto.getPrice());
+        orderResDTO.setSize(wsCoinbaseOrderDto.getSize());
+        orderResDTO.setFunds(wsCoinbaseOrderDto.getFunds());
+        orderResDTO.setSymbol(wsCoinbaseOrderDto.getProduct_id());
+        orderResDTO.setSide(Side.valueOf(wsCoinbaseOrderDto.getSide().toUpperCase()));
+        if(wsCoinbaseOrderDto.getOrder_type() != null ){
+            orderResDTO.setType(OrderType.valueOf(wsCoinbaseOrderDto.getOrder_type().toUpperCase()));
+        }
+
+            if(type.equals("received")){
+            orderResDTO.setCreatedAt(wsCoinbaseOrderDto.getTime());
+            orderResDTO.setStatus(Status.valueOf("OPEN"));
+        }
+        else if(type.equals("done")){
+            orderResDTO.setEndAt(wsCoinbaseOrderDto.getTime());
+            orderResDTO.setStatus(Status.valueOf("FILLED"));
+        }
+        orderResDTO.setAccountId(wsCoinbaseOrderDto.getProfile_id());
+        return orderResDTO;
+    }
+
+    public static TradeDto getWsTradeResDTO(WsCoinbaseTradeDto wsCoinbaseTradeDto){
+
+       TradeDto tradeDto = new TradeDto();
+       tradeDto.setTradeId(wsCoinbaseTradeDto.getTrade_id());
+       tradeDto.setExchangeOrderId(wsCoinbaseTradeDto.getTaker_order_id());
+       tradeDto.setPrice(wsCoinbaseTradeDto.getPrice());
+       tradeDto.setSize(wsCoinbaseTradeDto.getSize());
+       tradeDto.setFunds(wsCoinbaseTradeDto.getFunds());
+       tradeDto.setSymbol(wsCoinbaseTradeDto.getProduct_id());
+       tradeDto.setSide(Side.valueOf(wsCoinbaseTradeDto.getSide().toUpperCase()));
+       tradeDto.setFee(wsCoinbaseTradeDto.getTaker_fee_rate());
+       tradeDto.setTime(wsCoinbaseTradeDto.getTime());
+       return tradeDto;
     }
     public static PlaceOrderReqCoinbaseDTO getPlaceOrderReqDTO(PlaceOrderReqDTO placeOrderReqDTO){
         PlaceOrderReqCoinbaseDTO placeOrderReqCoinbaseDTO;
