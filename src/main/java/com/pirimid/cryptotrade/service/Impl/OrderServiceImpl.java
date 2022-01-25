@@ -1,7 +1,7 @@
 package com.pirimid.cryptotrade.service.Impl;
 
 import com.pirimid.cryptotrade.DTO.PlaceOrderReqDTO;
-import com.pirimid.cryptotrade.DTO.PlaceOrderResDTO;
+import com.pirimid.cryptotrade.DTO.OrderResDTO;
 import com.pirimid.cryptotrade.helper.exchange.EXCHANGE;
 import com.pirimid.cryptotrade.model.*;
 import com.pirimid.cryptotrade.repository.AccountRepository;
@@ -71,30 +71,34 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public PlaceOrderResDTO createOrder(PlaceOrderReqDTO req) {
+    public OrderResDTO createOrder(PlaceOrderReqDTO req) {
         Optional<Account> optAccount = accountRepository.findById(req.getAccountId());
         if(optAccount.isPresent()) {
             Account account = optAccount.get();
             Order order = new Order();
             //api call
-            PlaceOrderResDTO placeOrderResDTO = exchangeUtil
+            OrderResDTO orderResDTO = exchangeUtil
                     .getObject(EXCHANGE.valueOf(account.getExchange().getName().toUpperCase()))
                     .createOrder(account.getApiKey(),account.getSecretKey(), account.getPassPhrase(), req);
-            if(placeOrderResDTO == null){
+            if(orderResDTO == null){
                 return null;
             }
-            order.setOrderIdExchange(placeOrderResDTO.getId());
-            order.setSide(placeOrderResDTO.getSide());
-            order.setOrderStatus(placeOrderResDTO.getStatus());
-            order.setOrderQty(placeOrderResDTO.getSize());
-            order.setOrderType(placeOrderResDTO.getType());
-            order.setStartTime(placeOrderResDTO.getCreatedAt());
-            order.setSymbol(placeOrderResDTO.getSymbol());
-            order.setPrice(placeOrderResDTO.getPrice());
-            order.setFilledQuantity(placeOrderResDTO.getExecutedAmount());
+            order.setOrderIdExchange(orderResDTO.getExchangeOrderId());
+            order.setSide(orderResDTO.getSide());
+            order.setOrderStatus(orderResDTO.getStatus());
+            order.setOrderQty(orderResDTO.getSize());
+            order.setOrderType(orderResDTO.getType());
+            order.setStartTime(orderResDTO.getCreatedAt());
+            order.setSymbol(orderResDTO.getSymbol());
+            order.setPrice(orderResDTO.getPrice());
+            order.setFilledQuantity(orderResDTO.getExecutedAmount());
             order.setAccount(account);
-            orderRepository.save(order);
-            return  placeOrderResDTO;
+            order.setFund(orderResDTO.getFunds());
+            order = orderRepository.save(order);
+            orderResDTO.setOrderId(order.getOrderId());
+            orderResDTO.setAccountId(order.getAccount().getAccountId());
+
+            return orderResDTO;
         }
         return null;
     }

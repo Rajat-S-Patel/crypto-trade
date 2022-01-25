@@ -1,7 +1,7 @@
 package com.pirimid.cryptotrade.controller;
 
 import com.pirimid.cryptotrade.DTO.PlaceOrderReqDTO;
-import com.pirimid.cryptotrade.DTO.PlaceOrderResDTO;
+import com.pirimid.cryptotrade.DTO.OrderResDTO;
 import com.pirimid.cryptotrade.model.Order;
 import com.pirimid.cryptotrade.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,12 +36,12 @@ public class OrderController {
     }
 
     @PostMapping("/orders")
-    public ResponseEntity<PlaceOrderResDTO> createNewOrder(@RequestBody PlaceOrderReqDTO placeOrder) {
-        PlaceOrderResDTO placeOrderResDTO = orderService.createOrder(placeOrder);
-        if (placeOrderResDTO == null) {
+    public ResponseEntity<OrderResDTO> createNewOrder(@RequestBody PlaceOrderReqDTO placeOrder) {
+        OrderResDTO orderResDTO = orderService.createOrder(placeOrder);
+        if (orderResDTO == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         }
-        return ResponseEntity.status(HttpStatus.ACCEPTED).body(placeOrderResDTO);
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body(orderResDTO);
     }
 
     @DeleteMapping("/orders/{orderId}") // ?exchange

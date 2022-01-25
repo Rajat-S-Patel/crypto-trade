@@ -3,7 +3,7 @@ package com.pirimid.cryptotrade.helper.exchange.coinbase;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.pirimid.cryptotrade.DTO.PlaceOrderReqDTO;
-import com.pirimid.cryptotrade.DTO.PlaceOrderResDTO;
+import com.pirimid.cryptotrade.DTO.OrderResDTO;
 
 import com.pirimid.cryptotrade.DTO.SymbolResDTO;
 import com.pirimid.cryptotrade.helper.exchange.coinbase.dto.request.PlaceOrderReqCoinbaseDTO;
@@ -95,7 +95,7 @@ public class ExcCoinbase implements ExcParent {
     }
 
     @Override
-    public PlaceOrderResDTO createOrder(String apiKey, String secretKey, String passphrase, PlaceOrderReqDTO placeOrderReqDTO) {
+    public OrderResDTO createOrder(String apiKey, String secretKey, String passphrase, PlaceOrderReqDTO placeOrderReqDTO) {
         String timestamp = String.valueOf(Instant.now().getEpochSecond());
         String signature;
         Gson gson = new Gson();
@@ -107,8 +107,8 @@ public class ExcCoinbase implements ExcParent {
             ResponseEntity<String> response = apiCallerRestricted(baseUrl + "/orders", "POST", apiKey, passphrase, signature, timestamp, gson.toJson(placeOrderReqCoinbaseDTO));
             String se = response.getBody();
             placeOrderResCoinbaseDTO = gson.fromJson(se, PlaceOrderResCoinbaseDTO.class);
-            PlaceOrderResDTO placeOrderResDTO = CoinbaseUtil.getPlaceOrderResDTO(placeOrderResCoinbaseDTO);
-            return placeOrderResDTO;
+            OrderResDTO orderResDTO = CoinbaseUtil.getPlaceOrderResDTO(placeOrderResCoinbaseDTO);
+            return orderResDTO;
         } catch (Exception e) {
             e.printStackTrace();
         }

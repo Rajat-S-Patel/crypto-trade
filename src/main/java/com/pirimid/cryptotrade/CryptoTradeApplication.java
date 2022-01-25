@@ -9,23 +9,26 @@ import org.springframework.context.annotation.Bean;
 
 import java.sql.Date;
 import java.time.Instant;
+import java.util.Optional;
 
 @SpringBootApplication
 public class CryptoTradeApplication {
     @Autowired
     private UserRepository userRepository;
-    private User user=null;
     @Bean
     public User getUser(){
-        if(user==null){
-            user = new User();
+        Optional<User> defaultUser = userRepository.findByEmail("default@mail.com");
+        if(!defaultUser.isPresent()){
+            User user = new User();
             user.setCreateDate(Date.from(Instant.now()));
             user.setEmail("default@mail.com");
             user.setPassword("##@@");
             user=userRepository.save(user);
+            return user;
         }
-        return user;
+        return defaultUser.get();
     }
+
     public static void main(String[] args) {
         SpringApplication.run(CryptoTradeApplication.class, args);
     }

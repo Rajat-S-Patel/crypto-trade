@@ -28,5 +28,6 @@ public class PlaceOrderResCoinbaseDTO {
     private String status;
     private String filled_size;
     private Double executed_value;
+    private Double funds;
 
 }

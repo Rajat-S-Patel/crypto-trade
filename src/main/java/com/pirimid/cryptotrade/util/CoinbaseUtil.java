@@ -2,7 +2,7 @@ package com.pirimid.cryptotrade.util;
 
 import com.google.gson.Gson;
 import com.pirimid.cryptotrade.DTO.PlaceOrderReqDTO;
-import com.pirimid.cryptotrade.DTO.PlaceOrderResDTO;
+import com.pirimid.cryptotrade.DTO.OrderResDTO;
 import com.pirimid.cryptotrade.DTO.SymbolResDTO;
 import com.pirimid.cryptotrade.helper.exchange.coinbase.dto.request.PlaceOrderReqCoinbaseDTO;
 import com.pirimid.cryptotrade.helper.exchange.coinbase.dto.response.PlaceOrderResCoinbaseDTO;
@@ -20,7 +20,6 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
-import java.util.Locale;
 
 @Component
 public class CoinbaseUtil {
@@ -37,18 +36,19 @@ public class CoinbaseUtil {
        return sin;
     }
 
-    public static PlaceOrderResDTO getPlaceOrderResDTO(PlaceOrderResCoinbaseDTO placeOrderResCoinbaseDTO){
-        PlaceOrderResDTO placeOrderResDTO;
+    public static OrderResDTO getPlaceOrderResDTO(PlaceOrderResCoinbaseDTO placeOrderResCoinbaseDTO){
+        OrderResDTO orderResDTO;
         Gson gson = new Gson();
         String orderCoinbaseres = gson.toJson(placeOrderResCoinbaseDTO);
-        placeOrderResDTO = gson.fromJson(orderCoinbaseres,PlaceOrderResDTO.class);
-        placeOrderResDTO.setExecutedAmount(placeOrderResCoinbaseDTO.getExecuted_value());
-        placeOrderResDTO.setType(OrderType.valueOf(placeOrderResCoinbaseDTO.getType().toUpperCase()));
-        placeOrderResDTO.setSide(Side.valueOf(placeOrderResCoinbaseDTO.getSide().toUpperCase()));
-        placeOrderResDTO.setStatus(Status.valueOf(placeOrderResCoinbaseDTO.getStatus().toUpperCase()));
-        placeOrderResDTO.setCreatedAt(placeOrderResCoinbaseDTO.getCreated_at());
-        placeOrderResDTO.setSymbol(placeOrderResCoinbaseDTO.getProduct_id());
-        return placeOrderResDTO;
+        orderResDTO = gson.fromJson(orderCoinbaseres, OrderResDTO.class);
+        orderResDTO.setExecutedAmount(placeOrderResCoinbaseDTO.getExecuted_value());
+        orderResDTO.setType(OrderType.valueOf(placeOrderResCoinbaseDTO.getType().toUpperCase()));
+        orderResDTO.setSide(Side.valueOf(placeOrderResCoinbaseDTO.getSide().toUpperCase()));
+        orderResDTO.setStatus(Status.valueOf(placeOrderResCoinbaseDTO.getStatus().toUpperCase()));
+        orderResDTO.setCreatedAt(placeOrderResCoinbaseDTO.getCreated_at());
+        orderResDTO.setSymbol(placeOrderResCoinbaseDTO.getProduct_id());
+        orderResDTO.setFunds(placeOrderResCoinbaseDTO.getFunds());
+        return orderResDTO;
     }
     public static PlaceOrderReqCoinbaseDTO getPlaceOrderReqDTO(PlaceOrderReqDTO placeOrderReqDTO){
         PlaceOrderReqCoinbaseDTO placeOrderReqCoinbaseDTO;

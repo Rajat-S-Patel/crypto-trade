@@ -2,7 +2,7 @@ package com.pirimid.cryptotrade.util;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.pirimid.cryptotrade.DTO.PlaceOrderReqDTO;
-import com.pirimid.cryptotrade.DTO.PlaceOrderResDTO;
+import com.pirimid.cryptotrade.DTO.OrderResDTO;
 import com.pirimid.cryptotrade.DTO.SymbolResDTO;
 import com.pirimid.cryptotrade.helper.exchange.gemini.dto.request.CreateOrderRequest;
 import com.pirimid.cryptotrade.helper.exchange.gemini.dto.response.CreateOrderResponse;
@@ -37,21 +37,21 @@ public class GeminiUtil {
         return HexUtils.toHexString(hmacSHA384.doFinal(payload));
     }
 
-    public static PlaceOrderResDTO getPlaceOrderResDTO(CreateOrderResponse response){
-        PlaceOrderResDTO placeOrderResDTO = new PlaceOrderResDTO();
-        placeOrderResDTO.setId(response.getOrderId().toString());
-        placeOrderResDTO.setPrice(response.getPrice());
-        placeOrderResDTO.setSize(response.getOriginalAmount());
-        placeOrderResDTO.setSymbol(response.getSymbol());
-        placeOrderResDTO.setSide(Side.valueOf(response.getSide().toUpperCase()));
+    public static OrderResDTO getPlaceOrderResDTO(CreateOrderResponse response){
+        OrderResDTO orderResDTO = new OrderResDTO();
+        orderResDTO.setExchangeOrderId(response.getOrderId().toString());
+        orderResDTO.setPrice(response.getPrice());
+        orderResDTO.setSize(response.getOriginalAmount());
+        orderResDTO.setSymbol(response.getSymbol());
+        orderResDTO.setSide(Side.valueOf(response.getSide().toUpperCase()));
         String type = response.getType();
-        placeOrderResDTO.setType(OrderType.valueOf(type.substring(type.indexOf(" ")+1).toUpperCase()));
-        placeOrderResDTO.setCreatedAt(new Date(response.getTimestamp()));
-        placeOrderResDTO.setExecutedAmount(response.getExecutedAmount());
+        orderResDTO.setType(OrderType.valueOf(type.substring(type.indexOf(" ")+1).toUpperCase()));
+        orderResDTO.setCreatedAt(new Date(response.getTimestamp()));
+        orderResDTO.setExecutedAmount(response.getExecutedAmount());
         if(response.isLive())
-            placeOrderResDTO.setStatus(Status.valueOf("PENDING"));
-        else placeOrderResDTO.setStatus(Status.valueOf("FILLED"));
-        return placeOrderResDTO;
+            orderResDTO.setStatus(Status.valueOf("PENDING"));
+        else orderResDTO.setStatus(Status.valueOf("FILLED"));
+        return orderResDTO;
     }
 
     public static CreateOrderRequest getCreateOrderReqDTO(PlaceOrderReqDTO req){

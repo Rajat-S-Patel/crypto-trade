@@ -1,7 +1,7 @@
 package com.pirimid.cryptotrade.service;
 
 import com.pirimid.cryptotrade.DTO.PlaceOrderReqDTO;
-import com.pirimid.cryptotrade.DTO.PlaceOrderResDTO;
+import com.pirimid.cryptotrade.DTO.OrderResDTO;
 import com.pirimid.cryptotrade.model.Order;
 
 import java.util.Set;
@@ -12,6 +12,6 @@ public interface OrderService {
     Set<Order> getOrderByAccount(UUID accountId);
     Set<Order> getAllOrders();
     Set<Order> getAllOrders(String exchange);
-    PlaceOrderResDTO createOrder(PlaceOrderReqDTO order);
+    OrderResDTO createOrder(PlaceOrderReqDTO order);
     String cancelOrderById(UUID id,String exchangeName);
 }
