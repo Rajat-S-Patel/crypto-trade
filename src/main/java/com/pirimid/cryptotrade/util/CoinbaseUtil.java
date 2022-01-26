@@ -51,6 +51,7 @@ public class CoinbaseUtil {
         orderResDTO.setCreatedAt(placeOrderResCoinbaseDTO.getCreated_at());
         orderResDTO.setSymbol(placeOrderResCoinbaseDTO.getProduct_id());
         orderResDTO.setFunds(placeOrderResCoinbaseDTO.getFunds());
+        orderResDTO.setExchangeOrderId(placeOrderResCoinbaseDTO.getId().toString());
         return orderResDTO;
     }
 
@@ -75,7 +76,7 @@ public class CoinbaseUtil {
             orderResDTO.setEndAt(wsCoinbaseOrderDto.getTime());
             orderResDTO.setStatus(Status.valueOf("FILLED"));
         }
-        orderResDTO.setAccountId(wsCoinbaseOrderDto.getProfile_id());
+        orderResDTO.setExchangeUserId(wsCoinbaseOrderDto.getProfile_id().toString());
         return orderResDTO;
     }
 

@@ -19,6 +19,7 @@ import java.util.UUID;
 @ToString
 public class OrderResDTO {
     String exchangeOrderId;
+    String exchangeUserId;
     UUID orderId;
     Double price;
     Double size;

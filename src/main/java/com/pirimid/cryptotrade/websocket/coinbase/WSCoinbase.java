@@ -1,6 +1,7 @@
 package com.pirimid.cryptotrade.websocket.coinbase;
 
 import com.pirimid.cryptotrade.service.AccountService;
+import com.pirimid.cryptotrade.service.OrderService;
 import com.pirimid.cryptotrade.websocket.WSExchange;
 import com.pirimid.cryptotrade.websocket.coinbase.handler.CoinbaseSessionHandler;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,11 +23,13 @@ public class WSCoinbase implements WSExchange {
     String baseUrl;
     @Autowired
     AccountService accountService;
+    @Autowired
+    OrderService orderService;
     @Override
     public WebSocketSession connect() {
         WebSocketClient client = new StandardWebSocketClient();
         try {
-            client.doHandshake(new CoinbaseSessionHandler(accountService),new WebSocketHttpHeaders(), URI.create(baseUrl)).get(10000, TimeUnit.SECONDS);
+            client.doHandshake(new CoinbaseSessionHandler(accountService,orderService),new WebSocketHttpHeaders(), URI.create(baseUrl)).get(10000, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
             e.printStackTrace();
         } catch (ExecutionException e) {
