@@ -4,12 +4,16 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.pirimid.cryptotrade.DTO.PlaceOrderReqDTO;
 import com.pirimid.cryptotrade.DTO.OrderResDTO;
 import com.pirimid.cryptotrade.DTO.SymbolResDTO;
+import com.pirimid.cryptotrade.DTO.TradeDto;
 import com.pirimid.cryptotrade.helper.exchange.gemini.dto.request.CreateOrderRequest;
 import com.pirimid.cryptotrade.helper.exchange.gemini.dto.response.CreateOrderResponse;
 import com.pirimid.cryptotrade.helper.exchange.gemini.dto.response.SymbolResponse;
+import com.pirimid.cryptotrade.model.Order;
 import com.pirimid.cryptotrade.model.OrderType;
 import com.pirimid.cryptotrade.model.Side;
 import com.pirimid.cryptotrade.model.Status;
+import com.pirimid.cryptotrade.model.Trade;
+import com.pirimid.cryptotrade.websocket.gemini.response.OrderResponse;
 import org.apache.tomcat.util.buf.HexUtils;
 import org.springframework.stereotype.Component;
 import javax.crypto.Mac;
@@ -71,5 +75,48 @@ public class GeminiUtil {
         dto.setQuote(response.getQuoteCurrency());
         dto.setMinOrderSize(response.getMinOrderSize());
         return dto;
+    }
+
+    public static OrderResDTO getPlaceOrderResDTO(OrderResponse response){
+        OrderResDTO order = new OrderResDTO();
+        order.setExchangeOrderId(response.getOrderId());
+        order.setPrice(response.getPrice());
+        order.setSize(response.getOriginalAmount());
+        order.setSymbol(response.getSymbol());
+        order.setSide(Side.valueOf(response.getSide().toUpperCase()));
+        String type=response.getOrderType();
+        order.setType(OrderType.valueOf(type.substring(type.indexOf(" ")+1).toUpperCase()));
+        order.setCreatedAt(response.getTimestampms());
+        order.setExecutedAmount(response.getExecutedAmount());
+
+        if(response.getType().equals("accepted")){
+            order.setStatus(Status.NEW);
+        }
+        else if(response.getType().equals("fill") && response.getExecutedAmount() > 0){
+            order.setStatus(Status.PARTIALLY_FILLED);
+        }
+        else if(response.isCancelled()){
+            order.setStatus(Status.CANCELLED);
+        }
+        else if(response.getType().equals("closed")){
+            order.setStatus(Status.FILLED);
+        }
+        else if(response.getType().equals("rejected")){
+            order.setStatus(Status.REJECTED);
+        }
+        return order;
+    }
+
+    public static TradeDto getTradeDTO(OrderResponse response){
+        TradeDto trade = new TradeDto();
+        trade.setTradeId(response.getFill().getTradeId());
+        trade.setExchangeOrderId(response.getOrderId());
+        trade.setFee(response.getFill().getFee());
+        trade.setSide(Side.valueOf(response.getSide().toUpperCase()));
+        trade.setSize(response.getOriginalAmount());
+        trade.setPrice(response.getPrice());
+        trade.setTime(response.getTimestampms());
+        trade.setSymbol(response.getSymbol());
+        return trade;
     }
 }
