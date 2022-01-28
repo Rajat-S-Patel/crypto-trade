@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.pirimid.cryptotrade.helper.exchange.EXCHANGE;
 import com.pirimid.cryptotrade.helper.exchange.coinbase.dto.response.ProfileResDTO;
 import com.pirimid.cryptotrade.helper.exchange.gemini.ExcGemini;
 import com.pirimid.cryptotrade.model.Account;
@@ -60,7 +61,7 @@ public class WSGemini implements WSExchange {
     }
     @Override
     public WebSocketSession connect() {
-        Set<Account> accounts = accountService.getAllAccountsByExchangeName("gemini");
+        Set<Account> accounts = accountService.getAllAccountsByExchangeName(EXCHANGE.GEMINI);
         if(accounts==null || accounts.size()==0) return null;
         accounts
                 .stream()

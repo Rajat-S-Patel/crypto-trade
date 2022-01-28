@@ -3,6 +3,7 @@ package com.pirimid.cryptotrade.service;
 import com.pirimid.cryptotrade.DTO.PlaceOrderReqDTO;
 import com.pirimid.cryptotrade.DTO.OrderResDTO;
 import com.pirimid.cryptotrade.DTO.TradeDto;
+import com.pirimid.cryptotrade.helper.exchange.EXCHANGE;
 import com.pirimid.cryptotrade.model.Order;
 
 import java.util.Date;
@@ -14,10 +15,10 @@ public interface OrderService {
     Set<Order> getAllOrders();
     Set<Order> getAllOrders(String exchange);
     OrderResDTO createOrder(PlaceOrderReqDTO order);
-    OrderResDTO createOrder(OrderResDTO order,String exchange);
-    OrderResDTO addTrade(TradeDto trade);
-    OrderResDTO completeOrder(OrderResDTO orderResDTO,String exchange);
-    String rejectOrderByExchangeOrderId(String excOrderId, String exchangeName, Date timestamp);
-    String cancelOrderByExchangeOrderId(String excOrderId, String exchangeName, Date timestamp);
+    OrderResDTO createOrder(OrderResDTO order, EXCHANGE exchange);
+    OrderResDTO addTrade(TradeDto trade,EXCHANGE exchange);
+    OrderResDTO completeOrder(OrderResDTO orderResDTO,EXCHANGE exchange);
+    String rejectOrderByExchangeOrderId(String excOrderId, EXCHANGE exchangeName, Date timestamp);
+    String cancelOrderByExchangeOrderId(String excOrderId, EXCHANGE exchangeName, Date timestamp);
     String cancelOrderById(UUID id,String exchangeName);
 }

@@ -31,6 +31,41 @@ public class OrderServiceImpl implements OrderService {
     @Autowired
     User user;
 
+    private Order orderResDtoToOrder(OrderResDTO orderDto,Account account){
+        Order newOrder = new Order();
+        newOrder.setOrderIdExchange(orderDto.getExchangeOrderId());
+        newOrder.setSide(orderDto.getSide());
+        newOrder.setOrderStatus(orderDto.getStatus());
+        newOrder.setOrderQty(orderDto.getSize());
+        newOrder.setOrderType(orderDto.getType());
+        newOrder.setStartTime(orderDto.getCreatedAt());
+        newOrder.setSymbol(orderDto.getSymbol());
+        newOrder.setPrice(orderDto.getPrice());
+        newOrder.setFilledQuantity(orderDto.getExecutedAmount());
+        newOrder.setAccount(account);
+        newOrder.setFund(orderDto.getFunds());
+        newOrder.setOrderStatus(orderDto.getStatus());
+        return newOrder;
+    }
+    private OrderResDTO orderToOrderResDto(Order order){
+        OrderResDTO orderResDTO = new OrderResDTO();
+        orderResDTO.setExchangeOrderId(order.getOrderIdExchange());
+        orderResDTO.setExchangeUserId(order.getAccount().getUserIdExchange());
+        orderResDTO.setOrderId(order.getOrderId());
+        orderResDTO.setPrice(order.getPrice());
+        orderResDTO.setSize(order.getOrderQty());
+        orderResDTO.setFunds(order.getFund());
+        orderResDTO.setSymbol(order.getSymbol());
+        orderResDTO.setSide(order.getSide());
+        orderResDTO.setType(order.getOrderType());
+        orderResDTO.setCreatedAt(order.getStartTime());
+        orderResDTO.setEndAt(order.getEndTime());
+        orderResDTO.setExecutedAmount(order.getFilledQuantity());
+        orderResDTO.setStatus(order.getOrderStatus());
+        orderResDTO.setAccountId(order.getAccount().getAccountId());
+        return  orderResDTO;
+    }
+
     @Override
     public Order getOrderById(UUID id) {
         Optional<Order> order = orderRepository.findById(id);
@@ -80,61 +115,28 @@ public class OrderServiceImpl implements OrderService {
             return null;
         }
         Account account = optAccount.get();
-        //api call
         OrderResDTO orderResDTO = exchangeUtil
                 .getObject(EXCHANGE.valueOf(account.getExchange().getName().toUpperCase()))
                 .createOrder(account.getApiKey(), account.getSecretKey(), account.getPassPhrase(), req);
         if (orderResDTO == null) {
             return null;
         }
-//            Optional<Order> optOrder = orderRepository.findByOrderIdExchangeAndAccount(orderResDTO.getExchangeOrderId(),optAccount.get());
-//            if(optOrder.isPresent()) return orderResDTO;
-//            Order order = new Order();
-//            order.setOrderIdExchange(orderResDTO.getExchangeOrderId());
-//            order.setSide(orderResDTO.getSide());
-//            order.setOrderStatus(orderResDTO.getStatus());
-//            order.setOrderQty(orderResDTO.getSize());
-//            order.setOrderType(orderResDTO.getType());
-//            order.setStartTime(orderResDTO.getCreatedAt());
-//            order.setSymbol(orderResDTO.getSymbol());
-//            order.setPrice(orderResDTO.getPrice());
-//            order.setFilledQuantity(orderResDTO.getExecutedAmount());
-//            order.setAccount(account);
-//            order.setFund(orderResDTO.getFunds());
-//            order = orderRepository.save(order);
-//            orderResDTO.setOrderId(order.getOrderId());
         orderResDTO.setAccountId(optAccount.get().getAccountId());
-
         return orderResDTO;
-
     }
 
     @Override
-    public OrderResDTO createOrder(OrderResDTO orderDto, String exchange) {
-        Optional<Exchange> optExchange = exchangeRepository.findByName(exchange);
+    public OrderResDTO createOrder(OrderResDTO orderDto, EXCHANGE exchange) {
+        Optional<Exchange> optExchange = exchangeRepository.findByName(exchange.getValue().toLowerCase());
         if (!optExchange.isPresent()) return null;
         Optional<Account> optAccount = accountRepository.findByUserIdExchangeAndExchange(orderDto.getExchangeUserId(), optExchange.get());
         if (!optAccount.isPresent()) return null;
         Optional<Order> order = orderRepository.findByOrderIdExchangeAndAccount(orderDto.getExchangeOrderId(), optAccount.get()); // accoount->exchange
         if (order.isPresent()) {
-//            order.get().setOrderStatus(orderDto.getStatus());
             orderDto.setOrderId(order.get().getOrderId());
-//            orderRepository.save(order.get());
             return orderDto;
         }
-        Order newOrder = new Order();
-        newOrder.setOrderIdExchange(orderDto.getExchangeOrderId());
-        newOrder.setSide(orderDto.getSide());
-        newOrder.setOrderStatus(orderDto.getStatus());
-        newOrder.setOrderQty(orderDto.getSize());
-        newOrder.setOrderType(orderDto.getType());
-        newOrder.setStartTime(orderDto.getCreatedAt());
-        newOrder.setSymbol(orderDto.getSymbol());
-        newOrder.setPrice(orderDto.getPrice());
-        newOrder.setFilledQuantity(orderDto.getExecutedAmount());
-        newOrder.setAccount(optAccount.get());
-        newOrder.setFund(orderDto.getFunds());
-        newOrder.setOrderStatus(Status.NEW);
+        Order newOrder = orderResDtoToOrder(orderDto,optAccount.get());
         newOrder = orderRepository.save(newOrder);
         orderDto.setOrderId(newOrder.getOrderId());
         orderDto.setAccountId(newOrder.getAccount().getAccountId());
@@ -142,13 +144,12 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public OrderResDTO addTrade(TradeDto tradeDto) {
-        Optional<Order> optOrder = orderRepository.findByOrderIdExchange(tradeDto.getExchangeOrderId()); // add exchange name
+    public OrderResDTO addTrade(TradeDto tradeDto,EXCHANGE exchange) {
+        Optional<Exchange> optExchange = exchangeRepository.findByName(exchange.getValue().toLowerCase());
+        if(!optExchange.isPresent()) return null;
+        Optional<Order> optOrder = orderRepository.findByOrderIdExchangeAndAccount_Exchange(tradeDto.getExchangeOrderId(),optExchange.get()); // add exchange name
         if (!optOrder.isPresent()) return null;     // no such order exists
-//        Optional<Trade> optTrade = tradeRepository.findByTradeIdExchangeAndOrder_OrderIdExchange(tradeDto.getTradeId(),tradeDto.getExchangeOrderId());
-//        if(optTrade.isPresent()){
-//            return tradeDto;
-//        }
+
         Trade trade = new Trade();
         trade.setAmount(tradeDto.getFunds());
         trade.setMarketPrice(tradeDto.getPrice());
@@ -168,29 +169,15 @@ public class OrderServiceImpl implements OrderService {
         order = orderRepository.save(order);
         tradeDto.setOrderId(order.getOrderId());
         trade.setOrder(order);
-        trade = tradeRepository.save(trade);
+        tradeRepository.save(trade);
 
-        OrderResDTO orderResDTO = new OrderResDTO();
-        orderResDTO.setExchangeOrderId(order.getOrderIdExchange());
-        orderResDTO.setOrderId(order.getOrderId());
-        orderResDTO.setPrice(order.getPrice());
-        orderResDTO.setSize(order.getOrderQty());
-        orderResDTO.setFunds(order.getFund());
-        orderResDTO.setSymbol(order.getSymbol());
-        orderResDTO.setSide(order.getSide());
-        orderResDTO.setType(order.getOrderType());
-        orderResDTO.setCreatedAt(order.getStartTime());
-        orderResDTO.setEndAt(order.getEndTime());
-        orderResDTO.setExecutedAmount(order.getFilledQuantity());
-        orderResDTO.setStatus(order.getOrderStatus());
-        orderResDTO.setAccountId(order.getAccount().getAccountId());
-
+        OrderResDTO orderResDTO = this.orderToOrderResDto(order);
         return orderResDTO;
     }
 
     @Override
-    public OrderResDTO completeOrder(OrderResDTO orderDto, String exchange) {
-        Optional<Exchange> optExchange = exchangeRepository.findByName(exchange);
+    public OrderResDTO completeOrder(OrderResDTO orderDto, EXCHANGE exchange) {
+        Optional<Exchange> optExchange = exchangeRepository.findByName(exchange.getValue().toLowerCase());
         if (!optExchange.isPresent()) return null;
         Optional<Account> optAccount = accountRepository.findByUserIdExchangeAndExchange(orderDto.getExchangeUserId(), optExchange.get());
         Optional<Order> order = orderRepository.findByOrderIdExchangeAndAccount(orderDto.getExchangeOrderId(), optAccount.get());
@@ -204,8 +191,8 @@ public class OrderServiceImpl implements OrderService {
         return null;
     }
     @Override
-    public String rejectOrderByExchangeOrderId(String excOrderId, String exchangeName, Date timestamp) {
-        Optional<Exchange> optExchange = exchangeRepository.findByName(exchangeName);
+    public String rejectOrderByExchangeOrderId(String excOrderId, EXCHANGE exchange, Date timestamp) {
+        Optional<Exchange> optExchange = exchangeRepository.findByName(exchange.getValue().toLowerCase());
         if (!optExchange.isPresent()) return null;
         Optional<Order> optOrder = orderRepository.findByOrderIdExchangeAndAccount_Exchange(excOrderId, optExchange.get());
         if (!optOrder.isPresent()) return null;
@@ -216,8 +203,8 @@ public class OrderServiceImpl implements OrderService {
         return order.getOrderId().toString();
     }
     @Override
-    public String cancelOrderByExchangeOrderId(String excOrderId, String exchangeName, Date timestamp) {
-        Optional<Exchange> optExchange = exchangeRepository.findByName(exchangeName);
+    public String cancelOrderByExchangeOrderId(String excOrderId, EXCHANGE exchange, Date timestamp) {
+        Optional<Exchange> optExchange = exchangeRepository.findByName(exchange.getValue().toLowerCase());
         if (!optExchange.isPresent()) return null;
         Optional<Order> optOrder = orderRepository.findByOrderIdExchangeAndAccount_Exchange(excOrderId, optExchange.get());
         if (!optOrder.isPresent()) return null;

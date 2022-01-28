@@ -1,5 +1,6 @@
 package com.pirimid.cryptotrade.service.Impl;
 
+import com.pirimid.cryptotrade.helper.exchange.EXCHANGE;
 import com.pirimid.cryptotrade.model.Account;
 import com.pirimid.cryptotrade.model.Exchange;
 import com.pirimid.cryptotrade.model.Order;
@@ -32,8 +33,8 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public Set<Account> getAllAccountsByExchangeName(String name) {
-        Optional<Exchange> exchange = exchangeRepository.findByName(name);
+    public Set<Account> getAllAccountsByExchangeName(EXCHANGE name) {
+        Optional<Exchange> exchange = exchangeRepository.findByName(name.getValue().toLowerCase());
         if(!exchange.isPresent()) return null;
         return accountRepository.findAllByExchange(exchange.get());
     }
