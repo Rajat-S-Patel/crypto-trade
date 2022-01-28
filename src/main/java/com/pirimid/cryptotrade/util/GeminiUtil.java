@@ -86,23 +86,26 @@ public class GeminiUtil {
         order.setSide(Side.valueOf(response.getSide().toUpperCase()));
         String type=response.getOrderType();
         order.setType(OrderType.valueOf(type.substring(type.indexOf(" ")+1).toUpperCase()));
-        order.setCreatedAt(response.getTimestampms());
         order.setExecutedAmount(response.getExecutedAmount());
 
         if(response.getType().equals("accepted")){
             order.setStatus(Status.NEW);
+            order.setCreatedAt(response.getTimestampms());
         }
         else if(response.getType().equals("fill") && response.getExecutedAmount() > 0){
             order.setStatus(Status.PARTIALLY_FILLED);
         }
         else if(response.isCancelled()){
             order.setStatus(Status.CANCELLED);
+            order.setEndAt(response.getTimestampms());
         }
         else if(response.getType().equals("closed")){
             order.setStatus(Status.FILLED);
+            order.setEndAt(response.getTimestampms());
         }
         else if(response.getType().equals("rejected")){
             order.setStatus(Status.REJECTED);
+            order.setEndAt(response.getTimestampms());
         }
         return order;
     }

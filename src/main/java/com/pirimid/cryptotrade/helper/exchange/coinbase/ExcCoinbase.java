@@ -86,8 +86,8 @@ public class ExcCoinbase implements ExcParent {
         String timestamp = String.valueOf(Instant.now().getEpochSecond());
         String signature;
         try {
-            signature = CoinbaseUtil.getSignature(timestamp, secretKey, "GET", "/accounts", "");
-            return apiCallerRestricted(baseUrl + "/accounts", "GET", apiKey, passphrase, signature, timestamp, "");
+            signature = CoinbaseUtil.getSignature(timestamp, secretKey, "GET", "/profiles", "");
+            return apiCallerRestricted(baseUrl + "/profiles", "GET", apiKey, passphrase, signature, timestamp, "");
         } catch (Exception e) {
             e.printStackTrace();
         }

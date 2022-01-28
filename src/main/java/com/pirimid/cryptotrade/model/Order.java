@@ -18,7 +18,7 @@ import java.util.UUID;
 @Setter
 @ToString
 @EqualsAndHashCode
-@Table(name = "orders")
+@Table(name = "orders", uniqueConstraints = {@UniqueConstraint(name = "unique_excOrder_account",columnNames = {"orderIdExchange","account_id"})})
 public class Order {
 
     @Id

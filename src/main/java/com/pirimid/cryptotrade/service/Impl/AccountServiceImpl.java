@@ -54,4 +54,13 @@ public class AccountServiceImpl implements AccountService {
         }
         return null;
     }
+
+    @Override
+    public void setProfileIdDetails(UUID id, String profileId, String profileName) {
+        Optional<Account> optAccount = accountRepository.findById(id);
+        if(!optAccount.isPresent()) return;
+        optAccount.get().setUserIdExchange(profileId);
+        optAccount.get().setUserNameExchange(profileName);
+        accountRepository.save(optAccount.get());
+    }
 }

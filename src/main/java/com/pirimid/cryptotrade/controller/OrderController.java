@@ -37,11 +37,11 @@ public class OrderController {
 
     @PostMapping("/orders")
     public ResponseEntity<OrderResDTO> createNewOrder(@RequestBody PlaceOrderReqDTO placeOrder) {
-        OrderResDTO orderResDTO = orderService.createOrder(placeOrder);
-        if (orderResDTO == null) {
+        OrderResDTO order = orderService.createOrder(placeOrder);
+        if (order == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         }
-        return ResponseEntity.status(HttpStatus.ACCEPTED).body(orderResDTO);
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body(order);
     }
 
     @DeleteMapping("/orders/{orderId}") // ?exchange

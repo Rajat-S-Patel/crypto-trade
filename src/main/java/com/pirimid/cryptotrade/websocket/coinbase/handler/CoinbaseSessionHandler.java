@@ -2,8 +2,11 @@ package com.pirimid.cryptotrade.websocket.coinbase.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.pirimid.cryptotrade.DTO.OrderResDTO;
 import com.pirimid.cryptotrade.DTO.TradeDto;
+import com.pirimid.cryptotrade.helper.exchange.coinbase.ExcCoinbase;
+import com.pirimid.cryptotrade.helper.exchange.coinbase.dto.response.ProfileResDTO;
 import com.pirimid.cryptotrade.model.Account;
 import com.pirimid.cryptotrade.service.AccountService;
 import com.pirimid.cryptotrade.service.OrderService;
@@ -14,9 +17,11 @@ import com.pirimid.cryptotrade.websocket.coinbase.req.ReqType;
 import com.pirimid.cryptotrade.websocket.coinbase.res.Typedto;
 import com.pirimid.cryptotrade.websocket.coinbase.res.WSCoinbaseOrderDto;
 import com.pirimid.cryptotrade.websocket.coinbase.res.WsCoinbaseTradeDto;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.socket.*;
 
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
@@ -29,11 +34,13 @@ public class CoinbaseSessionHandler implements WebSocketHandler {
 
     private AccountService accountService;
     private OrderService orderService;
+    private ExcCoinbase coinbase;
     private WebSocketSession session;
     Gson gson = new Gson();
-    public CoinbaseSessionHandler(AccountService accountService, OrderService orderService){
+    public CoinbaseSessionHandler(AccountService accountService, OrderService orderService,ExcCoinbase coinbase){
         this.accountService = accountService;
         this.orderService = orderService;
+        this.coinbase = coinbase;
     }
     private void sendData(String data) throws IOException {
         WebSocketMessage webSocketMessage =new TextMessage(data);
@@ -84,6 +91,18 @@ public class CoinbaseSessionHandler implements WebSocketHandler {
         accounts
                 .stream()
                 .forEach(account -> {
+                    if(account.getUserIdExchange()==null || account.getUserIdExchange().isEmpty() || account.getUserIdExchange().isBlank()){
+                        ResponseEntity<String> res = coinbase.accountInfo(account.getApiKey(),account.getSecretKey(),account.getPassPhrase());
+                        String json = res.getBody();
+                        System.out.println(json);
+                        Type profileListType = new TypeToken<List<ProfileResDTO>>(){}.getType();
+                        List<ProfileResDTO> profiles = new Gson().fromJson(json,profileListType);
+                        if(profiles!=null && profiles.size()>0) {
+                            ProfileResDTO profile = profiles.get(0);
+                            accountService.setProfileIdDetails(account.getAccountId(), profile.getId().toString(), profile.getName());
+                            System.out.println("Adding profile - " +profile.getId()+" "+profile.getName()+" of account -"+account.getAccountId());
+                        }
+                    }
                     System.out.println("connecting to coinbase account"+account.getApiKey());
                     try {
                         fullChannelWithAuth(account.getApiKey(),account.getSecretKey(),account.getPassPhrase());

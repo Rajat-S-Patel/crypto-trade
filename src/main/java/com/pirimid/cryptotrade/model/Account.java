@@ -27,8 +27,8 @@ public class Account {
     @JoinColumn(name = "user_id",referencedColumnName = "userId")
     private User user;
 
-    private String userIdExchange;
-
+    private String userIdExchange;      // profile id
+    private String userNameExchange;    // profile name
     @NotNull
     private String apiKey;
     @NotNull

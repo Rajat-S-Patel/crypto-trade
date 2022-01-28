@@ -11,4 +11,5 @@ public interface AccountService {
     Set<Account> getAllAccountsByExchangeName(String name);
     Account getAccountById(UUID id);
     Set<Order> getOrderByAccount(UUID id);
+    void setProfileIdDetails(UUID id,String profileId,String profileName);
 }
