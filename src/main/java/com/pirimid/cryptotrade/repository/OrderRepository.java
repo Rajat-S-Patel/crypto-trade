@@ -12,6 +12,5 @@ import java.util.UUID;
 @Repository
 public interface OrderRepository extends JpaRepository<Order, UUID> {
     Optional<Order> findByOrderIdExchangeAndAccount(String exchangeOrderId, Account account);
-    Optional<Order> findByOrderIdExchange(String exchangeOrderId);
     Optional<Order> findByOrderIdExchangeAndAccount_Exchange(String excOrderId, Exchange exchange);
 }

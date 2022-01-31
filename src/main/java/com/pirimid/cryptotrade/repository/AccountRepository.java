@@ -12,5 +12,4 @@ import java.util.UUID;
 @Repository
 public interface AccountRepository extends JpaRepository<Account, UUID> {
     Set<Account> findAllByExchange(Exchange exchange);
-    Optional<Account> findByUserIdExchangeAndExchange(String excUserId,Exchange exchange);
 }
