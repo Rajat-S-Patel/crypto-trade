@@ -9,5 +9,4 @@ import java.util.UUID;
 
 @Repository
 public interface TradeRepository extends JpaRepository<Trade, UUID> {
-    Optional<Trade> findByTradeIdExchangeAndOrder_OrderIdExchange(String excTradeId,String excOrderId);
 }

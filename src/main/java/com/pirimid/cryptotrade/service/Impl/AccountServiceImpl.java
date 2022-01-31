@@ -7,7 +7,6 @@ import com.pirimid.cryptotrade.model.Order;
 import com.pirimid.cryptotrade.model.User;
 import com.pirimid.cryptotrade.repository.AccountRepository;
 import com.pirimid.cryptotrade.repository.ExchangeRepository;
-import com.pirimid.cryptotrade.repository.UserRepository;
 import com.pirimid.cryptotrade.service.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,8 +17,6 @@ import java.util.UUID;
 
 @Service
 public class AccountServiceImpl implements AccountService {
-    @Autowired
-    private UserRepository userRepository;
     @Autowired
     private AccountRepository accountRepository;
     @Autowired
