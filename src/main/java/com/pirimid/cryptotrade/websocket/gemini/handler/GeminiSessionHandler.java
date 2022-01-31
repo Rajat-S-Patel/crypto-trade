@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pirimid.cryptotrade.DTO.OrderResDTO;
 import com.pirimid.cryptotrade.DTO.TradeDto;
 import com.pirimid.cryptotrade.helper.exchange.EXCHANGE;
+import com.pirimid.cryptotrade.model.Account;
 import com.pirimid.cryptotrade.model.Order;
 import com.pirimid.cryptotrade.service.OrderService;
 import com.pirimid.cryptotrade.util.GeminiUtil;
@@ -15,12 +16,17 @@ import org.springframework.web.socket.WebSocketMessage;
 import org.springframework.web.socket.WebSocketSession;
 
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class GeminiSessionHandler implements WebSocketHandler {
     private boolean isConnected=false;
     private OrderService orderService;
-    public GeminiSessionHandler(OrderService orderService){
+    private Account account;
+
+    public GeminiSessionHandler(Account account,OrderService orderService){
         this.orderService = orderService;
+        this.account=account;
     }
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
@@ -40,11 +46,10 @@ public class GeminiSessionHandler implements WebSocketHandler {
             for(OrderResponse order:orders){
 
                 System.out.println("Order = "+order);
-//                System.out.println("Standard DTO:- "+ orderResDTO);
-                // TODO call service method to set the order based on the type of order
                 if(order.getType().equals("accepted")){
                     // order created method
                     OrderResDTO orderResDTO = GeminiUtil.getPlaceOrderResDTO(order);
+                    orderResDTO.setAccountId(account.getAccountId());
                     orderService.createOrder(orderResDTO);
                 }
                 else if(order.getType().equals("fill")){
@@ -55,16 +60,19 @@ public class GeminiSessionHandler implements WebSocketHandler {
                 else if(order.getType().equals("rejected")){
                     // call method for rejected
                     OrderResDTO orderResDTO = GeminiUtil.getPlaceOrderResDTO(order);
+                    orderResDTO.setAccountId(account.getAccountId());
                     orderService.rejectOrderByExchangeOrderId(orderResDTO.getExchangeOrderId(),EXCHANGE.GEMINI,orderResDTO.getEndAt());
                 }
                 else if(order.getType().equals("closed") && order.isCancelled()){
                     // call method for cancelled
                     OrderResDTO orderResDTO = GeminiUtil.getPlaceOrderResDTO(order);
+                    orderResDTO.setAccountId(account.getAccountId());
                     orderService.cancelOrderByExchangeOrderId(orderResDTO.getExchangeOrderId(),EXCHANGE.GEMINI,orderResDTO.getEndAt());
                 }
                 else if(order.getType().equals("closed")){
                     // order completed successfully
                     OrderResDTO orderResDTO = GeminiUtil.getPlaceOrderResDTO(order);
+                    orderResDTO.setAccountId(account.getAccountId());
                     orderService.completeOrder(orderResDTO);
                 }
 

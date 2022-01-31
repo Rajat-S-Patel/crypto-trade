@@ -94,7 +94,6 @@ public class CoinbaseSessionHandler implements WebSocketHandler {
             return;
         Typedto typedto = gson.fromJson(message.getPayload().toString(), Typedto.class);
         switch (typedto.getType()) {
-
             case "received": {
                 WSCoinbaseOrderDto wsCoinbaseOrderDto = gson.fromJson(message.getPayload().toString(), WSCoinbaseOrderDto.class);
                 OrderResDTO orderResDTO = CoinbaseUtil.getWsPlaceOrderResDTO(wsCoinbaseOrderDto);

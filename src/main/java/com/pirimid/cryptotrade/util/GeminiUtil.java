@@ -43,7 +43,10 @@ public class GeminiUtil {
 
     public static OrderResDTO getPlaceOrderResDTO(CreateOrderResponse response){
         OrderResDTO orderResDTO = new OrderResDTO();
-        orderResDTO.setExchangeOrderId(response.getOrderId().toString());
+        if(response.getOrderId() == null) {
+           return null;
+        }
+        orderResDTO.setExchangeOrderId(response.getOrderId() == null?"":response.getOrderId().toString());
         orderResDTO.setPrice(response.getPrice());
         orderResDTO.setSize(response.getOriginalAmount());
         orderResDTO.setSymbol(response.getSymbol());

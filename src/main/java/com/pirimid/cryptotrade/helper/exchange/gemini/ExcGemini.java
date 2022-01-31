@@ -93,6 +93,19 @@ public class ExcGemini implements ExcParent {
 
     @Override
     public ResponseEntity<String> accountInfo(String apiKey, String secretKey, String passphrase) {
+           Map<String,String> payload = new HashMap<>();
+           payload.put("request","/v1/account");
+//           payload.put("account","primary");
+           payload.put("nonce",String.valueOf(GeminiUtil.getNonce()));
+        try {
+            String json = new ObjectMapper().writeValueAsString(payload);
+            byte[] b64 = GeminiUtil.getB64(json);
+            String signature = GeminiUtil.getSignature(b64,secretKey);
+            ResponseEntity<String> res = apiCaller(baseUrl+"/v1/account","POST",b64,signature,apiKey);
+            return res;
+        } catch (NoSuchAlgorithmException | InvalidKeyException | IOException | InterruptedException e) {
+            e.printStackTrace();
+        }
         return null;
     }
 
