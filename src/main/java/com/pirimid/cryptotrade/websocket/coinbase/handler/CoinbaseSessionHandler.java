@@ -14,7 +14,11 @@ import com.pirimid.cryptotrade.websocket.coinbase.req.ReqType;
 import com.pirimid.cryptotrade.websocket.coinbase.res.Typedto;
 import com.pirimid.cryptotrade.websocket.coinbase.res.WSCoinbaseOrderDto;
 import com.pirimid.cryptotrade.websocket.coinbase.res.WSCoinbaseTradeDto;
-import org.springframework.web.socket.*;
+import org.springframework.web.socket.CloseStatus;
+import org.springframework.web.socket.TextMessage;
+import org.springframework.web.socket.WebSocketHandler;
+import org.springframework.web.socket.WebSocketMessage;
+import org.springframework.web.socket.WebSocketSession;
 
 import java.io.IOException;
 import java.security.InvalidKeyException;

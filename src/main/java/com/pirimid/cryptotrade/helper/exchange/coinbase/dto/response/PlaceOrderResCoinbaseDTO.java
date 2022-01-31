@@ -1,6 +1,5 @@
 package com.pirimid.cryptotrade.helper.exchange.coinbase.dto.response;
 
-import com.pirimid.cryptotrade.model.OrderType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

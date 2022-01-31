@@ -1,28 +1,28 @@
 package com.pirimid.cryptotrade.util;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.pirimid.cryptotrade.DTO.PlaceOrderReqDTO;
 import com.pirimid.cryptotrade.DTO.OrderResDTO;
+import com.pirimid.cryptotrade.DTO.PlaceOrderReqDTO;
 import com.pirimid.cryptotrade.DTO.SymbolResDTO;
 import com.pirimid.cryptotrade.DTO.TradeDto;
 import com.pirimid.cryptotrade.helper.exchange.gemini.dto.request.CreateOrderRequest;
 import com.pirimid.cryptotrade.helper.exchange.gemini.dto.response.CreateOrderResponse;
 import com.pirimid.cryptotrade.helper.exchange.gemini.dto.response.SymbolResponse;
-import com.pirimid.cryptotrade.model.Order;
 import com.pirimid.cryptotrade.model.OrderType;
 import com.pirimid.cryptotrade.model.Side;
 import com.pirimid.cryptotrade.model.Status;
-import com.pirimid.cryptotrade.model.Trade;
 import com.pirimid.cryptotrade.websocket.gemini.response.OrderResponse;
 import org.apache.tomcat.util.buf.HexUtils;
 import org.springframework.stereotype.Component;
+
 import javax.crypto.Mac;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.util.*;
+import java.util.Base64;
+import java.util.Date;
 
 @Component
 public class GeminiUtil {

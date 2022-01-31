@@ -6,7 +6,6 @@ import com.pirimid.cryptotrade.DTO.OrderResDTO;
 import com.pirimid.cryptotrade.DTO.TradeDto;
 import com.pirimid.cryptotrade.helper.exchange.EXCHANGE;
 import com.pirimid.cryptotrade.model.Account;
-import com.pirimid.cryptotrade.model.Order;
 import com.pirimid.cryptotrade.service.OrderService;
 import com.pirimid.cryptotrade.util.GeminiUtil;
 import com.pirimid.cryptotrade.websocket.gemini.response.OrderResponse;
@@ -16,8 +15,6 @@ import org.springframework.web.socket.WebSocketMessage;
 import org.springframework.web.socket.WebSocketSession;
 
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class GeminiSessionHandler implements WebSocketHandler {
     private boolean isConnected=false;
