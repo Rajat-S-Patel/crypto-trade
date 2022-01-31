@@ -126,11 +126,11 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public OrderResDTO createOrder(OrderResDTO orderDto, EXCHANGE exchange) {
-        Optional<Exchange> optExchange = exchangeRepository.findByName(exchange.getValue().toLowerCase());
-        if (!optExchange.isPresent()) return null;
-        Optional<Account> optAccount = accountRepository.findByUserIdExchangeAndExchange(orderDto.getExchangeUserId(), optExchange.get());
-        if (!optAccount.isPresent()) return null;
+    public OrderResDTO createOrder(OrderResDTO orderDto) {
+        Optional<Account> optAccount = accountRepository.findById(orderDto.getAccountId());
+        if (!optAccount.isPresent()) {
+            return null;
+        }
         Optional<Order> order = orderRepository.findByOrderIdExchangeAndAccount(orderDto.getExchangeOrderId(), optAccount.get()); // accoount->exchange
         if (order.isPresent()) {
             orderDto.setOrderId(order.get().getOrderId());
@@ -176,10 +176,9 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public OrderResDTO completeOrder(OrderResDTO orderDto, EXCHANGE exchange) {
-        Optional<Exchange> optExchange = exchangeRepository.findByName(exchange.getValue().toLowerCase());
-        if (!optExchange.isPresent()) return null;
-        Optional<Account> optAccount = accountRepository.findByUserIdExchangeAndExchange(orderDto.getExchangeUserId(), optExchange.get());
+    public OrderResDTO completeOrder(OrderResDTO orderDto) {
+        Optional<Account> optAccount = accountRepository.findById(orderDto.getAccountId());
+        if(!optAccount.isPresent()) return null;
         Optional<Order> order = orderRepository.findByOrderIdExchangeAndAccount(orderDto.getExchangeOrderId(), optAccount.get());
         if (order.isPresent()) {
             order.get().setOrderStatus(orderDto.getStatus());
