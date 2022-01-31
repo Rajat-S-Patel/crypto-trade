@@ -60,9 +60,9 @@ public class WSGemini implements WSExchange {
         client.doHandshake(new GeminiSessionHandler(orderService),headers, URI.create(baseurl)).get(10000, TimeUnit.SECONDS);
     }
     @Override
-    public WebSocketSession connect() {
+    public void connect() {
         Set<Account> accounts = accountService.getAllAccountsByExchangeName(EXCHANGE.GEMINI);
-        if(accounts==null || accounts.size()==0) return null;
+        if(accounts==null || accounts.size()==0) return;
         accounts
                 .stream()
                 .forEach(account -> {
@@ -96,6 +96,6 @@ public class WSGemini implements WSExchange {
                         e.printStackTrace();
                     }
                 });
-        return null;
+        return;
     }
 }
