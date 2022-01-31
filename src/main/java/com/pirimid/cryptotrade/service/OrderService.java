@@ -17,7 +17,7 @@ public interface OrderService {
     OrderResDTO createOrder(PlaceOrderReqDTO order);
     OrderResDTO createOrder(OrderResDTO order, EXCHANGE exchange);
     OrderResDTO addTrade(TradeDto trade,EXCHANGE exchange);
-    OrderResDTO completeOrder(OrderResDTO orderResDTO,EXCHANGE exchange);
+    OrderResDTO completeOrder(OrderResDTO orderResDTO);
     String rejectOrderByExchangeOrderId(String excOrderId, EXCHANGE exchangeName, Date timestamp);
     String cancelOrderByExchangeOrderId(String excOrderId, EXCHANGE exchangeName, Date timestamp);
     String cancelOrderById(UUID id,String exchangeName);

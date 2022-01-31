@@ -108,7 +108,7 @@ public class CoinbaseSessionHandler implements WebSocketHandler {
                 if (wsCoinbaseOrderDto.getReason().equals("filled")) {
                     OrderResDTO orderResDTO = CoinbaseUtil.getWsPlaceOrderResDTO(wsCoinbaseOrderDto);
                     ////call method for order closed(filled)
-                    orderService.completeOrder(orderResDTO, EXCHANGE.COINBASE);
+                    orderService.completeOrder(orderResDTO);
                 } else if (wsCoinbaseOrderDto.getReason().equals("canceled")) {
                     OrderResDTO orderResDTO = CoinbaseUtil.getWsPlaceOrderResDTO(wsCoinbaseOrderDto);
                     //call method for order cancelled

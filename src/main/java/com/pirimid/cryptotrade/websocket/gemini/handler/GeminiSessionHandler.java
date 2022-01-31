@@ -65,7 +65,7 @@ public class GeminiSessionHandler implements WebSocketHandler {
                 else if(order.getType().equals("closed")){
                     // order completed successfully
                     OrderResDTO orderResDTO = GeminiUtil.getPlaceOrderResDTO(order);
-                    orderService.completeOrder(orderResDTO,EXCHANGE.GEMINI);
+                    orderService.completeOrder(orderResDTO);
                 }
 
             }
