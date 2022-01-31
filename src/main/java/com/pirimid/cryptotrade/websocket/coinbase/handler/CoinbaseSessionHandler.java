@@ -11,6 +11,8 @@ import com.pirimid.cryptotrade.util.CoinbaseUtil;
 import com.pirimid.cryptotrade.websocket.coinbase.req.ChannelReq;
 import com.pirimid.cryptotrade.websocket.coinbase.req.ReqChannel;
 import com.pirimid.cryptotrade.websocket.coinbase.req.ReqType;
+import com.pirimid.cryptotrade.websocket.coinbase.res.Reason;
+import com.pirimid.cryptotrade.websocket.coinbase.res.Restype;
 import com.pirimid.cryptotrade.websocket.coinbase.res.Typedto;
 import com.pirimid.cryptotrade.websocket.coinbase.res.WSCoinbaseOrderDto;
 import com.pirimid.cryptotrade.websocket.coinbase.res.WSCoinbaseTradeDto;
@@ -90,8 +92,8 @@ public class CoinbaseSessionHandler implements WebSocketHandler {
         if (message.getPayload().toString().contains("heartbeat"))
             return;
         Typedto typedto = gson.fromJson(message.getPayload().toString(), Typedto.class);
-        switch (typedto.getType()) {
-            case "received": {
+        switch (Restype.valueOf(typedto.getType().toUpperCase())) {
+            case RECEIVED: {
                 WSCoinbaseOrderDto wsCoinbaseOrderDto = gson.fromJson(message.getPayload().toString(), WSCoinbaseOrderDto.class);
                 OrderResDTO orderResDTO = CoinbaseUtil.getWsPlaceOrderResDTO(wsCoinbaseOrderDto);
                 orderResDTO.setAccountId(account.getAccountId());
@@ -99,15 +101,15 @@ public class CoinbaseSessionHandler implements WebSocketHandler {
                 orderService.createOrder(orderResDTO);
                 break;
             }
-            case "done": {
+            case DONE: {
 
                 WSCoinbaseOrderDto wsCoinbaseOrderDto = gson.fromJson(message.getPayload().toString(), WSCoinbaseOrderDto.class);
-                if (wsCoinbaseOrderDto.getReason().equals("filled")) {
+                if (Reason.valueOf(wsCoinbaseOrderDto.getReason().toUpperCase()) == Reason.FILLED) {
                     OrderResDTO orderResDTO = CoinbaseUtil.getWsPlaceOrderResDTO(wsCoinbaseOrderDto);
                     orderResDTO.setAccountId(account.getAccountId());
                     ////call method for order closed(filled)
                     orderService.completeOrder(orderResDTO);
-                } else if (wsCoinbaseOrderDto.getReason().equals("canceled")) {
+                } else if (Reason.valueOf(wsCoinbaseOrderDto.getReason().toUpperCase()) == Reason.CANCELED) {
                     OrderResDTO orderResDTO = CoinbaseUtil.getWsPlaceOrderResDTO(wsCoinbaseOrderDto);
                     orderResDTO.setAccountId(account.getAccountId());
                     //call method for order cancelled
@@ -115,7 +117,7 @@ public class CoinbaseSessionHandler implements WebSocketHandler {
                 }
                 break;
             }
-            case "match": {
+            case MATCH: {
                 WSCoinbaseTradeDto wsCoinbaseTradeDto = gson.fromJson(message.getPayload().toString(), WSCoinbaseTradeDto.class);
                 TradeDto tradeDto = CoinbaseUtil.getWsTradeResDTO(wsCoinbaseTradeDto);
                 //call method for trade

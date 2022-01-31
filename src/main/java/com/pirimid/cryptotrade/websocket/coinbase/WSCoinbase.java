@@ -47,6 +47,8 @@ public class WSCoinbase implements WSExchange {
                         e.printStackTrace();
                     } catch (TimeoutException e) {
                         e.printStackTrace();
+                    }catch (Exception e){
+                        e.printStackTrace();
                     }
                 });
     }

@@ -11,6 +11,7 @@ import com.pirimid.cryptotrade.helper.exchange.coinbase.dto.response.SymbolResCo
 import com.pirimid.cryptotrade.model.OrderType;
 import com.pirimid.cryptotrade.model.Side;
 import com.pirimid.cryptotrade.model.Status;
+import com.pirimid.cryptotrade.websocket.coinbase.res.Restype;
 import com.pirimid.cryptotrade.websocket.coinbase.res.WSCoinbaseOrderDto;
 import com.pirimid.cryptotrade.websocket.coinbase.res.WSCoinbaseTradeDto;
 import org.springframework.stereotype.Component;
@@ -68,10 +69,10 @@ public class CoinbaseUtil {
             orderResDTO.setType(OrderType.valueOf(wsCoinbaseOrderDto.getOrder_type().toUpperCase()));
         }
 
-        if (type.equals("received")) {
+        if (Restype.RECEIVED == Restype.valueOf(type.toUpperCase())) {
             orderResDTO.setCreatedAt(wsCoinbaseOrderDto.getTime());
             orderResDTO.setStatus(Status.valueOf("OPEN"));
-        } else if (type.equals("done")) {
+        } else if (Restype.DONE == Restype.valueOf(type.toUpperCase())) {
             orderResDTO.setEndAt(wsCoinbaseOrderDto.getTime());
             orderResDTO.setStatus(Status.valueOf("FILLED"));
         }

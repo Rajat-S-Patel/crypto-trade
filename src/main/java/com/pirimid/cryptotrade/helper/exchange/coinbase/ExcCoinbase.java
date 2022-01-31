@@ -109,8 +109,8 @@ public class ExcCoinbase implements ExcParent {
             if(response.getStatusCode() == HttpStatus.BAD_REQUEST ){
                 return null;
             }
-            String se = response.getBody();
-            placeOrderResCoinbaseDTO = gson.fromJson(se, PlaceOrderResCoinbaseDTO.class);
+            String responseBody = response.getBody();
+            placeOrderResCoinbaseDTO = gson.fromJson(responseBody, PlaceOrderResCoinbaseDTO.class);
             OrderResDTO orderResDTO = CoinbaseUtil.getPlaceOrderResDTO(placeOrderResCoinbaseDTO);
             return orderResDTO;
         } catch (Exception e) {
