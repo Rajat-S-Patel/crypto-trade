@@ -40,9 +40,9 @@ public class WSCoinbase implements WSExchange {
     ExcCoinbase coinbase;
 
     @Override
-    public WebSocketSession connect() {
+    public void connect() {
         Set<Account> accounts = accountService.getAllAccountsByExchangeName(EXCHANGE.COINBASE);
-        if (accounts == null || accounts.size() == 0) return null;
+        if (accounts == null || accounts.size() == 0) return;
         accounts
                 .stream()
                 .forEach(account -> {
@@ -68,7 +68,7 @@ public class WSCoinbase implements WSExchange {
                         e.printStackTrace();
                     }
                 });
-        return null;
+        return;
     }
 }
 

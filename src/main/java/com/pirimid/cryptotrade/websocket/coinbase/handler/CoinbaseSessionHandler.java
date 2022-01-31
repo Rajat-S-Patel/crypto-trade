@@ -98,6 +98,7 @@ public class CoinbaseSessionHandler implements WebSocketHandler {
             case "received": {
                 WSCoinbaseOrderDto wsCoinbaseOrderDto = gson.fromJson(message.getPayload().toString(), WSCoinbaseOrderDto.class);
                 OrderResDTO orderResDTO = CoinbaseUtil.getWsPlaceOrderResDTO(wsCoinbaseOrderDto);
+                orderResDTO.setAccountId(account.getAccountId());
                 //call method for order received
                 orderService.createOrder(orderResDTO, EXCHANGE.COINBASE);
                 break;
@@ -107,10 +108,12 @@ public class CoinbaseSessionHandler implements WebSocketHandler {
                 WSCoinbaseOrderDto wsCoinbaseOrderDto = gson.fromJson(message.getPayload().toString(), WSCoinbaseOrderDto.class);
                 if (wsCoinbaseOrderDto.getReason().equals("filled")) {
                     OrderResDTO orderResDTO = CoinbaseUtil.getWsPlaceOrderResDTO(wsCoinbaseOrderDto);
+                    orderResDTO.setAccountId(account.getAccountId());
                     ////call method for order closed(filled)
                     orderService.completeOrder(orderResDTO, EXCHANGE.COINBASE);
                 } else if (wsCoinbaseOrderDto.getReason().equals("canceled")) {
                     OrderResDTO orderResDTO = CoinbaseUtil.getWsPlaceOrderResDTO(wsCoinbaseOrderDto);
+                    orderResDTO.setAccountId(account.getAccountId());
                     //call method for order cancelled
                     orderService.cancelOrderByExchangeOrderId(orderResDTO.getExchangeOrderId(), EXCHANGE.COINBASE, orderResDTO.getEndAt());
                 }

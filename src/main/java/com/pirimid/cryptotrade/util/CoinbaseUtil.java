@@ -28,18 +28,18 @@ import java.util.List;
 public class CoinbaseUtil {
 
 
-   public static String getSignature(String timestamp,String secretKeyString,String method,String path,String body) throws NoSuchAlgorithmException, InvalidKeyException {
-        String prehash = timestamp+method+path+body;
+    public static String getSignature(String timestamp, String secretKeyString, String method, String path, String body) throws NoSuchAlgorithmException, InvalidKeyException {
+        String prehash = timestamp + method + path + body;
         byte[] secretKeyDecoded = Base64.getDecoder().decode(secretKeyString);
         SecretKey secretKey = new SecretKeySpec(secretKeyDecoded, "HmacSHA256");
         Mac hmacSha256 = Mac.getInstance("HmacSHA256");
         hmacSha256.init(secretKey);
-        String sin =  Base64.getEncoder().encodeToString(hmacSha256.doFinal(prehash.getBytes()));
+        String sin = Base64.getEncoder().encodeToString(hmacSha256.doFinal(prehash.getBytes()));
 
-       return sin;
+        return sin;
     }
 
-    public static OrderResDTO getPlaceOrderResDTO(PlaceOrderResCoinbaseDTO placeOrderResCoinbaseDTO){
+    public static OrderResDTO getPlaceOrderResDTO(PlaceOrderResCoinbaseDTO placeOrderResCoinbaseDTO) {
         OrderResDTO orderResDTO;
         Gson gson = new Gson();
         String orderCoinbaseres = gson.toJson(placeOrderResCoinbaseDTO);
@@ -55,24 +55,23 @@ public class CoinbaseUtil {
         return orderResDTO;
     }
 
-    public static OrderResDTO getWsPlaceOrderResDTO(WSCoinbaseOrderDto wsCoinbaseOrderDto){
-        OrderResDTO orderResDTO=new OrderResDTO();
+    public static OrderResDTO getWsPlaceOrderResDTO(WSCoinbaseOrderDto wsCoinbaseOrderDto) {
+        OrderResDTO orderResDTO = new OrderResDTO();
         String type = wsCoinbaseOrderDto.getType();
         orderResDTO.setExchangeOrderId(wsCoinbaseOrderDto.getOrder_id());
         orderResDTO.setPrice(wsCoinbaseOrderDto.getPrice());
-        orderResDTO.setSize(wsCoinbaseOrderDto.getSize());
         orderResDTO.setFunds(wsCoinbaseOrderDto.getFunds());
+        orderResDTO.setSize(wsCoinbaseOrderDto.getSize());
         orderResDTO.setSymbol(wsCoinbaseOrderDto.getProduct_id());
         orderResDTO.setSide(Side.valueOf(wsCoinbaseOrderDto.getSide().toUpperCase()));
-        if(wsCoinbaseOrderDto.getOrder_type() != null ){
+        if (wsCoinbaseOrderDto.getOrder_type() != null) {
             orderResDTO.setType(OrderType.valueOf(wsCoinbaseOrderDto.getOrder_type().toUpperCase()));
         }
 
-            if(type.equals("received")){
+        if (type.equals("received")) {
             orderResDTO.setCreatedAt(wsCoinbaseOrderDto.getTime());
             orderResDTO.setStatus(Status.valueOf("OPEN"));
-        }
-        else if(type.equals("done")){
+        } else if (type.equals("done")) {
             orderResDTO.setEndAt(wsCoinbaseOrderDto.getTime());
             orderResDTO.setStatus(Status.valueOf("FILLED"));
         }
@@ -80,36 +79,41 @@ public class CoinbaseUtil {
         return orderResDTO;
     }
 
-    public static TradeDto getWsTradeResDTO(WsCoinbaseTradeDto wsCoinbaseTradeDto){
+    public static TradeDto getWsTradeResDTO(WsCoinbaseTradeDto wsCoinbaseTradeDto) {
 
-       TradeDto tradeDto = new TradeDto();
-       tradeDto.setTradeId(wsCoinbaseTradeDto.getTrade_id());
-       tradeDto.setExchangeOrderId(wsCoinbaseTradeDto.getTaker_order_id());
-       tradeDto.setPrice(wsCoinbaseTradeDto.getPrice());
-       tradeDto.setSize(wsCoinbaseTradeDto.getSize());
-       tradeDto.setFunds(wsCoinbaseTradeDto.getFunds());
-       tradeDto.setSymbol(wsCoinbaseTradeDto.getProduct_id());
-       tradeDto.setSide(Side.valueOf(wsCoinbaseTradeDto.getSide().toUpperCase()));
-       tradeDto.setFee(wsCoinbaseTradeDto.getTaker_fee_rate());
-       tradeDto.setTime(wsCoinbaseTradeDto.getTime());
-       return tradeDto;
+        TradeDto tradeDto = new TradeDto();
+        tradeDto.setTradeId(wsCoinbaseTradeDto.getTrade_id());
+        tradeDto.setExchangeOrderId(wsCoinbaseTradeDto.getTaker_order_id());
+        tradeDto.setPrice(wsCoinbaseTradeDto.getPrice());
+        tradeDto.setSize(wsCoinbaseTradeDto.getSize());
+        tradeDto.setFunds(wsCoinbaseTradeDto.getFunds());
+        if (wsCoinbaseTradeDto.getFunds() == null) {
+            tradeDto.setFunds(wsCoinbaseTradeDto.getSize() * wsCoinbaseTradeDto.getPrice());
+        }
+
+        tradeDto.setSymbol(wsCoinbaseTradeDto.getProduct_id());
+        tradeDto.setSide(Side.valueOf(wsCoinbaseTradeDto.getSide().toUpperCase()));
+        tradeDto.setFee(wsCoinbaseTradeDto.getTaker_fee_rate());
+        tradeDto.setTime(wsCoinbaseTradeDto.getTime());
+        return tradeDto;
     }
-    public static PlaceOrderReqCoinbaseDTO getPlaceOrderReqDTO(PlaceOrderReqDTO placeOrderReqDTO){
+
+    public static PlaceOrderReqCoinbaseDTO getPlaceOrderReqDTO(PlaceOrderReqDTO placeOrderReqDTO) {
         PlaceOrderReqCoinbaseDTO placeOrderReqCoinbaseDTO;
         Gson gson = new Gson();
         String orderCoinbasereq = gson.toJson(placeOrderReqDTO);
-        placeOrderReqCoinbaseDTO = gson.fromJson(orderCoinbasereq,PlaceOrderReqCoinbaseDTO.class);
+        placeOrderReqCoinbaseDTO = gson.fromJson(orderCoinbasereq, PlaceOrderReqCoinbaseDTO.class);
         placeOrderReqCoinbaseDTO.setType(placeOrderReqDTO.getType().getValue());
         placeOrderReqCoinbaseDTO.setSide(placeOrderReqDTO.getSide().getValue());
         placeOrderReqCoinbaseDTO.setProduct_id(placeOrderReqDTO.getSymbol());
         return placeOrderReqCoinbaseDTO;
-   }
+    }
 
-    public static List<SymbolResDTO> getPairsResDTO(List<SymbolResCoinbaseDTO> symbolResCoinbaseDTOS){
+    public static List<SymbolResDTO> getPairsResDTO(List<SymbolResCoinbaseDTO> symbolResCoinbaseDTOS) {
         List<SymbolResDTO> symbolResDTOS = new ArrayList<>();
-        for(SymbolResCoinbaseDTO symbol:symbolResCoinbaseDTOS) {
-            if(symbol != null) {
-                SymbolResDTO symbolResDTO = new SymbolResDTO(symbol.getId(),symbol.getBase_currency(),symbol.getQuote_currency(),symbol.getBase_min_size(),symbol.getMin_market_funds());
+        for (SymbolResCoinbaseDTO symbol : symbolResCoinbaseDTOS) {
+            if (symbol != null) {
+                SymbolResDTO symbolResDTO = new SymbolResDTO(symbol.getId(), symbol.getBase_currency(), symbol.getQuote_currency(), symbol.getBase_min_size(), symbol.getMin_market_funds());
                 symbolResDTOS.add(symbolResDTO);
             }
         }
