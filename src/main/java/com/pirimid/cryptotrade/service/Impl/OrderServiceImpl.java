@@ -131,7 +131,7 @@ public class OrderServiceImpl implements OrderService {
         if (!optAccount.isPresent()) {
             return null;
         }
-        Optional<Order> order = orderRepository.findByOrderIdExchangeAndAccount(orderDto.getExchangeOrderId(), optAccount.get()); // accoount->exchange
+        Optional<Order> order = orderRepository.findByOrderIdExchangeAndAccount_Exchange(orderDto.getExchangeOrderId(), optAccount.get().getExchange()); // accoount->exchange
         if (order.isPresent()) {
             orderDto.setOrderId(order.get().getOrderId());
             return orderDto;

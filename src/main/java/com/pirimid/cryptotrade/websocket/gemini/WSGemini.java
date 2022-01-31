@@ -60,20 +60,6 @@ public class WSGemini implements WSExchange {
         accounts
                 .stream()
                 .forEach(account -> {
-                    if(account.getUserIdExchange()==null || account.getUserIdExchange().isEmpty() || account.getUserIdExchange().isBlank()){
-                        ResponseEntity<String> res = gemini.accountInfo(account.getApiKey(),account.getSecretKey(),account.getPassPhrase());
-
-//                        String json = res.getBody();
-//                        System.out.println(json);
-//                        Type profileListType = new TypeToken<List<ProfileResDTO>>(){}.getType();
-//                        List<ProfileResDTO> profiles = new Gson().fromJson(json,profileListType);
-//                        if(profiles!=null && profiles.size()>0) {
-//                            ProfileResDTO profile = profiles.get(0);
-//                            accountService.setProfileIdDetails(account.getAccountId(), profile.getId().toString(), profile.getName());
-//                            System.out.println("Adding profile - " +profile.getId()+" "+profile.getName()+" of account -"+account.getAccountId());
-//                        }
-                    }
-                    System.out.println("connecting to gemini account"+account.getApiKey());
                     try {
                         establishConnection(account);
                     } catch (JsonProcessingException e) {

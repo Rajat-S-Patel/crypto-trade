@@ -30,7 +30,6 @@ public class GeminiSessionHandler implements WebSocketHandler {
     }
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
-        System.out.println("Gemini connection established");
     }
 
     @Override
@@ -45,7 +44,6 @@ public class GeminiSessionHandler implements WebSocketHandler {
             List<OrderResponse> orders =  new ObjectMapper().readValue(payload, new TypeReference<List<OrderResponse>>() {});
             for(OrderResponse order:orders){
 
-                System.out.println("Order = "+order);
                 if(order.getType().equals("accepted")){
                     // order created method
                     OrderResDTO orderResDTO = GeminiUtil.getPlaceOrderResDTO(order);
@@ -88,7 +86,6 @@ public class GeminiSessionHandler implements WebSocketHandler {
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus closeStatus) throws Exception {
         isConnected=false;
-        System.out.println("Gemini connection closed");
     }
 
     @Override
