@@ -44,17 +44,6 @@ public class WSCoinbase implements WSExchange {
         accounts
                 .stream()
                 .forEach(account -> {
-                    if (account.getUserIdExchange() == null || account.getUserIdExchange().isEmpty() || account.getUserIdExchange().isBlank()) {
-                        ResponseEntity<String> res = coinbase.accountInfo(account.getApiKey(), account.getSecretKey(), account.getPassPhrase());
-                        String json = res.getBody();
-                        Type profileListType = new TypeToken<List<ProfileResDTO>>() {
-                        }.getType();
-                        List<ProfileResDTO> profiles = new Gson().fromJson(json, profileListType);
-                        if (profiles != null && profiles.size() > 0) {
-                            ProfileResDTO profile = profiles.get(0);
-                            accountService.setProfileIdDetails(account.getAccountId(), profile.getId().toString(), profile.getName());
-                        }
-                    }
                     try {
                         WebSocketClient client = new StandardWebSocketClient();
                         client.doHandshake(new CoinbaseSessionHandler(account, orderService), new WebSocketHttpHeaders(), URI.create(baseUrl)).get(10000, TimeUnit.SECONDS);
