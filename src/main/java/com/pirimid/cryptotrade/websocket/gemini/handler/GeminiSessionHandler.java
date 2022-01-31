@@ -45,7 +45,7 @@ public class GeminiSessionHandler implements WebSocketHandler {
                 if(order.getType().equals("accepted")){
                     // order created method
                     OrderResDTO orderResDTO = GeminiUtil.getPlaceOrderResDTO(order);
-                    orderService.createOrder(orderResDTO,EXCHANGE.GEMINI);
+                    orderService.createOrder(orderResDTO);
                 }
                 else if(order.getType().equals("fill")){
                     // call trade method

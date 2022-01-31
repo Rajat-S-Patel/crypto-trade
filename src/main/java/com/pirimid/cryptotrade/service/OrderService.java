@@ -15,7 +15,7 @@ public interface OrderService {
     Set<Order> getAllOrders();
     Set<Order> getAllOrders(String exchange);
     OrderResDTO createOrder(PlaceOrderReqDTO order);
-    OrderResDTO createOrder(OrderResDTO order, EXCHANGE exchange);
+    OrderResDTO createOrder(OrderResDTO order);
     OrderResDTO addTrade(TradeDto trade,EXCHANGE exchange);
     OrderResDTO completeOrder(OrderResDTO orderResDTO);
     String rejectOrderByExchangeOrderId(String excOrderId, EXCHANGE exchangeName, Date timestamp);

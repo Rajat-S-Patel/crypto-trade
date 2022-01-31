@@ -126,7 +126,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public OrderResDTO createOrder(OrderResDTO orderDto, EXCHANGE exchange) {
+    public OrderResDTO createOrder(OrderResDTO orderDto) {
         Optional<Account> optAccount = accountRepository.findById(orderDto.getAccountId());
         if (!optAccount.isPresent()) {
             return null;
