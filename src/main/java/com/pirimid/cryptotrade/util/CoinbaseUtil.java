@@ -12,7 +12,7 @@ import com.pirimid.cryptotrade.model.OrderType;
 import com.pirimid.cryptotrade.model.Side;
 import com.pirimid.cryptotrade.model.Status;
 import com.pirimid.cryptotrade.websocket.coinbase.res.WSCoinbaseOrderDto;
-import com.pirimid.cryptotrade.websocket.coinbase.res.WsCoinbaseTradeDto;
+import com.pirimid.cryptotrade.websocket.coinbase.res.WSCoinbaseTradeDto;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.Mac;
@@ -79,7 +79,7 @@ public class CoinbaseUtil {
         return orderResDTO;
     }
 
-    public static TradeDto getWsTradeResDTO(WsCoinbaseTradeDto wsCoinbaseTradeDto) {
+    public static TradeDto getWsTradeResDTO(WSCoinbaseTradeDto wsCoinbaseTradeDto) {
 
         TradeDto tradeDto = new TradeDto();
         tradeDto.setTradeId(wsCoinbaseTradeDto.getTrade_id());

@@ -13,6 +13,7 @@ import com.pirimid.cryptotrade.helper.exchange.ExcParent;
 import com.pirimid.cryptotrade.util.CoinbaseUtil;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
@@ -105,6 +106,9 @@ public class ExcCoinbase implements ExcParent {
             String b = gson.toJson(placeOrderReqCoinbaseDTO);
             signature = CoinbaseUtil.getSignature(timestamp, secretKey, "POST", "/orders", b);
             ResponseEntity<String> response = apiCallerRestricted(baseUrl + "/orders", "POST", apiKey, passphrase, signature, timestamp, gson.toJson(placeOrderReqCoinbaseDTO));
+            if(response.getStatusCode() == HttpStatus.BAD_REQUEST ){
+                return null;
+            }
             String se = response.getBody();
             placeOrderResCoinbaseDTO = gson.fromJson(se, PlaceOrderResCoinbaseDTO.class);
             OrderResDTO orderResDTO = CoinbaseUtil.getPlaceOrderResDTO(placeOrderResCoinbaseDTO);

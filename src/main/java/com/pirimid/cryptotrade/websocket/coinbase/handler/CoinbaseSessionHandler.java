@@ -2,14 +2,10 @@ package com.pirimid.cryptotrade.websocket.coinbase.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import com.pirimid.cryptotrade.DTO.OrderResDTO;
 import com.pirimid.cryptotrade.DTO.TradeDto;
 import com.pirimid.cryptotrade.helper.exchange.EXCHANGE;
-import com.pirimid.cryptotrade.helper.exchange.coinbase.ExcCoinbase;
-import com.pirimid.cryptotrade.helper.exchange.coinbase.dto.response.ProfileResDTO;
 import com.pirimid.cryptotrade.model.Account;
-import com.pirimid.cryptotrade.service.AccountService;
 import com.pirimid.cryptotrade.service.OrderService;
 import com.pirimid.cryptotrade.util.CoinbaseUtil;
 import com.pirimid.cryptotrade.websocket.coinbase.req.ChannelReq;
@@ -17,19 +13,16 @@ import com.pirimid.cryptotrade.websocket.coinbase.req.ReqChannel;
 import com.pirimid.cryptotrade.websocket.coinbase.req.ReqType;
 import com.pirimid.cryptotrade.websocket.coinbase.res.Typedto;
 import com.pirimid.cryptotrade.websocket.coinbase.res.WSCoinbaseOrderDto;
-import com.pirimid.cryptotrade.websocket.coinbase.res.WsCoinbaseTradeDto;
-import org.springframework.http.ResponseEntity;
+import com.pirimid.cryptotrade.websocket.coinbase.res.WSCoinbaseTradeDto;
 import org.springframework.web.socket.*;
 
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
 
 public class CoinbaseSessionHandler implements WebSocketHandler {
 
@@ -119,7 +112,7 @@ public class CoinbaseSessionHandler implements WebSocketHandler {
                 break;
             }
             case "match": {
-                WsCoinbaseTradeDto wsCoinbaseTradeDto = gson.fromJson(message.getPayload().toString(), WsCoinbaseTradeDto.class);
+                WSCoinbaseTradeDto wsCoinbaseTradeDto = gson.fromJson(message.getPayload().toString(), WSCoinbaseTradeDto.class);
                 TradeDto tradeDto = CoinbaseUtil.getWsTradeResDTO(wsCoinbaseTradeDto);
                 //call method for trade
                 orderService.addTrade(tradeDto, EXCHANGE.COINBASE);

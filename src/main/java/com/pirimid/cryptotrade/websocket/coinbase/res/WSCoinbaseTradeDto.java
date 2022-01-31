@@ -7,7 +7,7 @@ import java.util.Date;
 
 @Data
 @ToString
-public class WsCoinbaseTradeDto {
+public class WSCoinbaseTradeDto {
     private String type;
     private String trade_id;
     private String taker_order_id;
