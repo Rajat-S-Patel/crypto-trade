@@ -1,17 +1,17 @@
 package com.pirimid.cryptotrade.service.Impl;
 
-import com.pirimid.cryptotrade.DTO.PlaceOrderReqDTO;
 import com.pirimid.cryptotrade.DTO.OrderResDTO;
+import com.pirimid.cryptotrade.DTO.PlaceOrderReqDTO;
 import com.pirimid.cryptotrade.DTO.TradeDto;
 import com.pirimid.cryptotrade.helper.exchange.EXCHANGE;
 import com.pirimid.cryptotrade.model.*;
 import com.pirimid.cryptotrade.repository.*;
 import com.pirimid.cryptotrade.service.OrderService;
+import com.pirimid.cryptotrade.service.UserService;
 import com.pirimid.cryptotrade.util.ExchangeUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.transaction.Transactional;
 import java.util.*;
 
 @Service
@@ -29,8 +29,11 @@ public class OrderServiceImpl implements OrderService {
     @Autowired
     ExchangeUtil exchangeUtil;
     @Autowired
-    User user;
-
+    UserService userService;
+    User user=null;
+    OrderServiceImpl(){
+        user = userService.getDefaultUser();
+    }
     private Order orderResDtoToOrder(OrderResDTO orderDto,Account account){
         Order newOrder = new Order();
         newOrder.setOrderIdExchange(orderDto.getExchangeOrderId());
