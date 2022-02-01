@@ -30,6 +30,11 @@ public class WSCoinbase implements WSExchange {
     OrderService orderService;
     @Autowired
     ExcCoinbase coinbase;
+    public void establishConnection(Account account) throws ExecutionException, InterruptedException, TimeoutException {
+        WebSocketClient client = new StandardWebSocketClient();
+        client.doHandshake(new CoinbaseSessionHandler(account, orderService), new WebSocketHttpHeaders(), URI.create(baseUrl)).get(10000, TimeUnit.SECONDS);
+
+    }
 
     @Override
     public void connect() {
@@ -39,8 +44,7 @@ public class WSCoinbase implements WSExchange {
                 .stream()
                 .forEach(account -> {
                     try {
-                        WebSocketClient client = new StandardWebSocketClient();
-                        client.doHandshake(new CoinbaseSessionHandler(account, orderService), new WebSocketHttpHeaders(), URI.create(baseUrl)).get(10000, TimeUnit.SECONDS);
+                        establishConnection(account);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     } catch (ExecutionException e) {

@@ -34,8 +34,10 @@ public class CoinbaseSessionHandler implements WebSocketHandler {
 
     private Account account;
     private OrderService orderService;
+    private Boolean isConnected = false;
     private WebSocketSession session;
     Gson gson = new Gson();
+
 
     public CoinbaseSessionHandler(Account account, OrderService orderService) {
         this.account = account;
@@ -89,40 +91,48 @@ public class CoinbaseSessionHandler implements WebSocketHandler {
 
     @Override
     public void handleMessage(WebSocketSession session, WebSocketMessage<?> message) throws Exception {
-        if (message.getPayload().toString().contains("heartbeat"))
+        if (message.getPayload().toString().contains("{\"type\":\"heartbeat\""))
             return;
         Typedto typedto = gson.fromJson(message.getPayload().toString(), Typedto.class);
-        switch (Restype.valueOf(typedto.getType().toUpperCase())) {
-            case RECEIVED: {
-                WSCoinbaseOrderDto wsCoinbaseOrderDto = gson.fromJson(message.getPayload().toString(), WSCoinbaseOrderDto.class);
-                OrderResDTO orderResDTO = CoinbaseUtil.getWsPlaceOrderResDTO(wsCoinbaseOrderDto);
-                orderResDTO.setAccountId(account.getAccountId());
-                //call method for order received
-                orderService.createOrder(orderResDTO);
-                break;
-            }
-            case DONE: {
+        if (Restype.valueOf(typedto.getType().toUpperCase()) == Restype.SUBSCRIPTIONS) {
+            isConnected = true;
+            return;
+        }
+        if (isConnected) {
 
-                WSCoinbaseOrderDto wsCoinbaseOrderDto = gson.fromJson(message.getPayload().toString(), WSCoinbaseOrderDto.class);
-                if (Reason.valueOf(wsCoinbaseOrderDto.getReason().toUpperCase()) == Reason.FILLED) {
+
+            switch (Restype.valueOf(typedto.getType().toUpperCase())) {
+                case RECEIVED: {
+                    WSCoinbaseOrderDto wsCoinbaseOrderDto = gson.fromJson(message.getPayload().toString(), WSCoinbaseOrderDto.class);
                     OrderResDTO orderResDTO = CoinbaseUtil.getWsPlaceOrderResDTO(wsCoinbaseOrderDto);
                     orderResDTO.setAccountId(account.getAccountId());
-                    ////call method for order closed(filled)
-                    orderService.completeOrder(orderResDTO);
-                } else if (Reason.valueOf(wsCoinbaseOrderDto.getReason().toUpperCase()) == Reason.CANCELED) {
-                    OrderResDTO orderResDTO = CoinbaseUtil.getWsPlaceOrderResDTO(wsCoinbaseOrderDto);
-                    orderResDTO.setAccountId(account.getAccountId());
-                    //call method for order cancelled
-                    orderService.cancelOrderByExchangeOrderId(orderResDTO.getExchangeOrderId(), EXCHANGE.COINBASE, orderResDTO.getEndAt());
+                    //call method for order received
+                    orderService.createOrder(orderResDTO);
+                    break;
                 }
-                break;
-            }
-            case MATCH: {
-                WSCoinbaseTradeDto wsCoinbaseTradeDto = gson.fromJson(message.getPayload().toString(), WSCoinbaseTradeDto.class);
-                TradeDto tradeDto = CoinbaseUtil.getWsTradeResDTO(wsCoinbaseTradeDto);
-                //call method for trade
-                orderService.addTrade(tradeDto, EXCHANGE.COINBASE);
-                break;
+                case DONE: {
+
+                    WSCoinbaseOrderDto wsCoinbaseOrderDto = gson.fromJson(message.getPayload().toString(), WSCoinbaseOrderDto.class);
+                    if (Reason.valueOf(wsCoinbaseOrderDto.getReason().toUpperCase()) == Reason.FILLED) {
+                        OrderResDTO orderResDTO = CoinbaseUtil.getWsPlaceOrderResDTO(wsCoinbaseOrderDto);
+                        orderResDTO.setAccountId(account.getAccountId());
+                        ////call method for order closed(filled)
+                        orderService.completeOrder(orderResDTO);
+                    } else if (Reason.valueOf(wsCoinbaseOrderDto.getReason().toUpperCase()) == Reason.CANCELED) {
+                        OrderResDTO orderResDTO = CoinbaseUtil.getWsPlaceOrderResDTO(wsCoinbaseOrderDto);
+                        orderResDTO.setAccountId(account.getAccountId());
+                        //call method for order cancelled
+                        orderService.cancelOrderByExchangeOrderId(orderResDTO.getExchangeOrderId(), EXCHANGE.COINBASE, orderResDTO.getEndAt());
+                    }
+                    break;
+                }
+                case MATCH: {
+                    WSCoinbaseTradeDto wsCoinbaseTradeDto = gson.fromJson(message.getPayload().toString(), WSCoinbaseTradeDto.class);
+                    TradeDto tradeDto = CoinbaseUtil.getWsTradeResDTO(wsCoinbaseTradeDto);
+                    //call method for trade
+                    orderService.addTrade(tradeDto, EXCHANGE.COINBASE);
+                    break;
+                }
             }
         }
     }
@@ -134,7 +144,7 @@ public class CoinbaseSessionHandler implements WebSocketHandler {
 
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus closeStatus) throws Exception {
-
+        isConnected = false;
     }
 
     @Override

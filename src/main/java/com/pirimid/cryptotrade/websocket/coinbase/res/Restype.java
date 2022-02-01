@@ -5,7 +5,8 @@ import com.fasterxml.jackson.annotation.JsonValue;
 public enum Restype {
     RECEIVED("received"),
     DONE("done"),
-    MATCH("match");
+    MATCH("match"),
+    SUBSCRIPTIONS("subscriptions");
     String value;
 
     Restype(String v) {
