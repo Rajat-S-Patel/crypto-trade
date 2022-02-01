@@ -8,6 +8,7 @@ import com.pirimid.cryptotrade.model.User;
 import com.pirimid.cryptotrade.repository.AccountRepository;
 import com.pirimid.cryptotrade.repository.ExchangeRepository;
 import com.pirimid.cryptotrade.service.AccountService;
+import com.pirimid.cryptotrade.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,8 +23,11 @@ public class AccountServiceImpl implements AccountService {
     @Autowired
     private ExchangeRepository exchangeRepository;
     @Autowired
+    UserService userService;
     User user;
-
+    AccountServiceImpl(){
+        user=userService.getDefaultUser();
+    }
     @Override
     public Set<Account> getAllAccounts() {
         return user.getAccountSet();
