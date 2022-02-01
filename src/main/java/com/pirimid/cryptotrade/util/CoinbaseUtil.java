@@ -1,8 +1,8 @@
 package com.pirimid.cryptotrade.util;
 
 import com.google.gson.Gson;
-import com.pirimid.cryptotrade.DTO.PlaceOrderReqDTO;
 import com.pirimid.cryptotrade.DTO.OrderResDTO;
+import com.pirimid.cryptotrade.DTO.PlaceOrderReqDTO;
 import com.pirimid.cryptotrade.DTO.SymbolResDTO;
 import com.pirimid.cryptotrade.DTO.TradeDto;
 import com.pirimid.cryptotrade.helper.exchange.coinbase.dto.request.PlaceOrderReqCoinbaseDTO;
@@ -11,8 +11,9 @@ import com.pirimid.cryptotrade.helper.exchange.coinbase.dto.response.SymbolResCo
 import com.pirimid.cryptotrade.model.OrderType;
 import com.pirimid.cryptotrade.model.Side;
 import com.pirimid.cryptotrade.model.Status;
+import com.pirimid.cryptotrade.websocket.coinbase.res.Restype;
 import com.pirimid.cryptotrade.websocket.coinbase.res.WSCoinbaseOrderDto;
-import com.pirimid.cryptotrade.websocket.coinbase.res.WsCoinbaseTradeDto;
+import com.pirimid.cryptotrade.websocket.coinbase.res.WSCoinbaseTradeDto;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.Mac;
@@ -68,10 +69,10 @@ public class CoinbaseUtil {
             orderResDTO.setType(OrderType.valueOf(wsCoinbaseOrderDto.getOrder_type().toUpperCase()));
         }
 
-        if (type.equals("received")) {
+        if (Restype.RECEIVED == Restype.valueOf(type.toUpperCase())) {
             orderResDTO.setCreatedAt(wsCoinbaseOrderDto.getTime());
             orderResDTO.setStatus(Status.valueOf("OPEN"));
-        } else if (type.equals("done")) {
+        } else if (Restype.DONE == Restype.valueOf(type.toUpperCase())) {
             orderResDTO.setEndAt(wsCoinbaseOrderDto.getTime());
             orderResDTO.setStatus(Status.valueOf("FILLED"));
         }
@@ -79,7 +80,7 @@ public class CoinbaseUtil {
         return orderResDTO;
     }
 
-    public static TradeDto getWsTradeResDTO(WsCoinbaseTradeDto wsCoinbaseTradeDto) {
+    public static TradeDto getWsTradeResDTO(WSCoinbaseTradeDto wsCoinbaseTradeDto) {
 
         TradeDto tradeDto = new TradeDto();
         tradeDto.setTradeId(wsCoinbaseTradeDto.getTrade_id());

@@ -1,28 +1,30 @@
 package com.pirimid.cryptotrade.util;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.pirimid.cryptotrade.DTO.PlaceOrderReqDTO;
 import com.pirimid.cryptotrade.DTO.OrderResDTO;
+import com.pirimid.cryptotrade.DTO.PlaceOrderReqDTO;
 import com.pirimid.cryptotrade.DTO.SymbolResDTO;
 import com.pirimid.cryptotrade.DTO.TradeDto;
 import com.pirimid.cryptotrade.helper.exchange.gemini.dto.request.CreateOrderRequest;
 import com.pirimid.cryptotrade.helper.exchange.gemini.dto.response.CreateOrderResponse;
 import com.pirimid.cryptotrade.helper.exchange.gemini.dto.response.SymbolResponse;
-import com.pirimid.cryptotrade.model.Order;
 import com.pirimid.cryptotrade.model.OrderType;
 import com.pirimid.cryptotrade.model.Side;
 import com.pirimid.cryptotrade.model.Status;
-import com.pirimid.cryptotrade.model.Trade;
+import com.pirimid.cryptotrade.websocket.coinbase.res.Restype;
 import com.pirimid.cryptotrade.websocket.gemini.response.OrderResponse;
+import com.pirimid.cryptotrade.websocket.gemini.response.RestypeGemini;
 import org.apache.tomcat.util.buf.HexUtils;
 import org.springframework.stereotype.Component;
+
 import javax.crypto.Mac;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.util.*;
+import java.util.Base64;
+import java.util.Date;
 
 @Component
 public class GeminiUtil {
@@ -91,22 +93,22 @@ public class GeminiUtil {
         order.setType(OrderType.valueOf(type.substring(type.indexOf(" ")+1).toUpperCase()));
         order.setExecutedAmount(response.getExecutedAmount());
 
-        if(response.getType().equals("accepted")){
+        if(RestypeGemini.valueOf(response.getType().toUpperCase()) == RestypeGemini.ACCEPTED){
             order.setStatus(Status.NEW);
             order.setCreatedAt(response.getTimestampms());
         }
-        else if(response.getType().equals("fill") && response.getExecutedAmount() > 0){
+        else if(RestypeGemini.valueOf(response.getType().toUpperCase()) == RestypeGemini.FILL && response.getExecutedAmount() > 0){
             order.setStatus(Status.PARTIALLY_FILLED);
         }
         else if(response.isCancelled()){
             order.setStatus(Status.CANCELLED);
             order.setEndAt(response.getTimestampms());
         }
-        else if(response.getType().equals("closed")){
+        else if(RestypeGemini.valueOf(response.getType().toUpperCase()) == RestypeGemini.CLOSED){
             order.setStatus(Status.FILLED);
             order.setEndAt(response.getTimestampms());
         }
-        else if(response.getType().equals("rejected")){
+        else if(RestypeGemini.valueOf(response.getType().toUpperCase()) == RestypeGemini.REJECTED){
             order.setStatus(Status.REJECTED);
             order.setEndAt(response.getTimestampms());
         }

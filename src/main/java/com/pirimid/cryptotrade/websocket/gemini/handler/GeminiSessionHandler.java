@@ -6,18 +6,16 @@ import com.pirimid.cryptotrade.DTO.OrderResDTO;
 import com.pirimid.cryptotrade.DTO.TradeDto;
 import com.pirimid.cryptotrade.helper.exchange.EXCHANGE;
 import com.pirimid.cryptotrade.model.Account;
-import com.pirimid.cryptotrade.model.Order;
 import com.pirimid.cryptotrade.service.OrderService;
 import com.pirimid.cryptotrade.util.GeminiUtil;
 import com.pirimid.cryptotrade.websocket.gemini.response.OrderResponse;
+import com.pirimid.cryptotrade.websocket.gemini.response.RestypeGemini;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.WebSocketMessage;
 import org.springframework.web.socket.WebSocketSession;
 
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class GeminiSessionHandler implements WebSocketHandler {
     private boolean isConnected=false;
@@ -44,30 +42,30 @@ public class GeminiSessionHandler implements WebSocketHandler {
             List<OrderResponse> orders =  new ObjectMapper().readValue(payload, new TypeReference<List<OrderResponse>>() {});
             for(OrderResponse order:orders){
 
-                if(order.getType().equals("accepted")){
+                if(RestypeGemini.valueOf(order.getType().toUpperCase()) == RestypeGemini.ACCEPTED){
                     // order created method
                     OrderResDTO orderResDTO = GeminiUtil.getPlaceOrderResDTO(order);
                     orderResDTO.setAccountId(account.getAccountId());
                     orderService.createOrder(orderResDTO);
                 }
-                else if(order.getType().equals("fill")){
+                else if(RestypeGemini.valueOf(order.getType().toUpperCase()) == RestypeGemini.FILL){
                     // call trade method
                     TradeDto tradeDto = GeminiUtil.getTradeDTO(order);
                     orderService.addTrade(tradeDto, EXCHANGE.GEMINI);
                 }
-                else if(order.getType().equals("rejected")){
+                else if(RestypeGemini.valueOf(order.getType().toUpperCase()) == RestypeGemini.REJECTED){
                     // call method for rejected
                     OrderResDTO orderResDTO = GeminiUtil.getPlaceOrderResDTO(order);
                     orderResDTO.setAccountId(account.getAccountId());
                     orderService.rejectOrderByExchangeOrderId(orderResDTO.getExchangeOrderId(),EXCHANGE.GEMINI,orderResDTO.getEndAt());
                 }
-                else if(order.getType().equals("closed") && order.isCancelled()){
+                else if(RestypeGemini.valueOf(order.getType().toUpperCase()) == RestypeGemini.CLOSED && order.isCancelled()){
                     // call method for cancelled
                     OrderResDTO orderResDTO = GeminiUtil.getPlaceOrderResDTO(order);
                     orderResDTO.setAccountId(account.getAccountId());
                     orderService.cancelOrderByExchangeOrderId(orderResDTO.getExchangeOrderId(),EXCHANGE.GEMINI,orderResDTO.getEndAt());
                 }
-                else if(order.getType().equals("closed")){
+                else if(RestypeGemini.valueOf(order.getType().toUpperCase()) == RestypeGemini.CLOSED){
                     // order completed successfully
                     OrderResDTO orderResDTO = GeminiUtil.getPlaceOrderResDTO(order);
                     orderResDTO.setAccountId(account.getAccountId());

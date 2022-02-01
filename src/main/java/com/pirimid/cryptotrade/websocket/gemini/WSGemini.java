@@ -12,7 +12,6 @@ import com.pirimid.cryptotrade.websocket.WSExchange;
 import com.pirimid.cryptotrade.websocket.gemini.handler.GeminiSessionHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.WebSocketHttpHeaders;
 import org.springframework.web.socket.client.WebSocketClient;
