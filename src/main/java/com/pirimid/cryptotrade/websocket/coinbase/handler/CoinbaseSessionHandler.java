@@ -8,6 +8,7 @@ import com.pirimid.cryptotrade.helper.exchange.EXCHANGE;
 import com.pirimid.cryptotrade.model.Account;
 import com.pirimid.cryptotrade.service.OrderService;
 import com.pirimid.cryptotrade.util.CoinbaseUtil;
+import com.pirimid.cryptotrade.websocket.coinbase.WSCoinbase;
 import com.pirimid.cryptotrade.websocket.coinbase.req.ChannelReq;
 import com.pirimid.cryptotrade.websocket.coinbase.req.ReqChannel;
 import com.pirimid.cryptotrade.websocket.coinbase.req.ReqType;
@@ -36,12 +37,14 @@ public class CoinbaseSessionHandler implements WebSocketHandler {
     private OrderService orderService;
     private Boolean isConnected = false;
     private WebSocketSession session;
+    private WSCoinbase coinbase;
     Gson gson = new Gson();
 
 
-    public CoinbaseSessionHandler(Account account, OrderService orderService) {
+    public CoinbaseSessionHandler(Account account, OrderService orderService, WSCoinbase coinbase) {
         this.account = account;
         this.orderService = orderService;
+        this.coinbase=coinbase;
     }
 
     private void sendData(String data) throws IOException {
@@ -67,6 +70,8 @@ public class CoinbaseSessionHandler implements WebSocketHandler {
                 .signature(signature)
                 .timestamp(date)
                 .build();
+        ChannelReq req1 = new ChannelReq();
+
         ObjectMapper objectMapper = new ObjectMapper();
         String data = objectMapper.writeValueAsString(req);
         sendData(data);
@@ -145,6 +150,7 @@ public class CoinbaseSessionHandler implements WebSocketHandler {
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus closeStatus) throws Exception {
         isConnected = false;
+        coinbase.establishConnection(account);
     }
 
     @Override

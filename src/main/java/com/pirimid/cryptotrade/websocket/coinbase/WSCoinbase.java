@@ -32,8 +32,7 @@ public class WSCoinbase implements WSExchange {
     ExcCoinbase coinbase;
     public void establishConnection(Account account) throws ExecutionException, InterruptedException, TimeoutException {
         WebSocketClient client = new StandardWebSocketClient();
-        client.doHandshake(new CoinbaseSessionHandler(account, orderService), new WebSocketHttpHeaders(), URI.create(baseUrl)).get(10000, TimeUnit.SECONDS);
-
+        client.doHandshake(new CoinbaseSessionHandler(account, orderService,this), new WebSocketHttpHeaders(), URI.create(baseUrl)).get(10000, TimeUnit.SECONDS);
     }
 
     @Override

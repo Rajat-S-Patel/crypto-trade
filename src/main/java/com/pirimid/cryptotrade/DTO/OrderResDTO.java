@@ -1,4 +1,5 @@
 package com.pirimid.cryptotrade.DTO;
+import com.pirimid.cryptotrade.model.Order;
 import com.pirimid.cryptotrade.model.OrderType;
 import com.pirimid.cryptotrade.model.Side;
 import com.pirimid.cryptotrade.model.Status;
@@ -32,4 +33,21 @@ public class OrderResDTO {
     Double executedAmount;
     Status status;
     UUID accountId;
+
+    public OrderResDTO(Order order){
+        this.setExchangeOrderId(order.getOrderIdExchange());
+        this.setExchangeUserId(order.getAccount().getUserIdExchange());
+        this.setOrderId(order.getOrderId());
+        this.setPrice(order.getPrice());
+        this.setSize(order.getOrderQty());
+        this.setFunds(order.getFund());
+        this.setSymbol(order.getSymbol());
+        this.setSide(order.getSide());
+        this.setType(order.getOrderType());
+        this.setCreatedAt(order.getStartTime());
+        this.setEndAt(order.getEndTime());
+        this.setExecutedAmount(order.getFilledQuantity());
+        this.setStatus(order.getOrderStatus());
+        this.setAccountId(order.getAccount().getAccountId());
+    }
 }

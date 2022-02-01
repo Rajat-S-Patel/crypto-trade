@@ -50,38 +50,12 @@ public class OrderServiceImpl implements OrderService {
     private void postConstructor(){
         user = userService.getDefaultUser();
     }
-    private Order orderResDtoToOrder(OrderResDTO orderDto, Account account){
-        Order newOrder = new Order();
-        newOrder.setOrderIdExchange(orderDto.getExchangeOrderId());
-        newOrder.setSide(orderDto.getSide());
-        newOrder.setOrderStatus(orderDto.getStatus());
-        newOrder.setOrderQty(orderDto.getSize());
-        newOrder.setOrderType(orderDto.getType());
-        newOrder.setStartTime(orderDto.getCreatedAt());
-        newOrder.setSymbol(orderDto.getSymbol());
-        newOrder.setPrice(orderDto.getPrice());
-        newOrder.setFilledQuantity(orderDto.getExecutedAmount());
-        newOrder.setAccount(account);
-        newOrder.setFund(orderDto.getFunds());
-        newOrder.setOrderStatus(orderDto.getStatus());
+    private Order orderResDtoToOrder(OrderResDTO orderDto,Account account){
+        Order newOrder = new Order(orderDto,account);
         return newOrder;
     }
     private OrderResDTO orderToOrderResDto(Order order){
-        OrderResDTO orderResDTO = new OrderResDTO();
-        orderResDTO.setExchangeOrderId(order.getOrderIdExchange());
-        orderResDTO.setExchangeUserId(order.getAccount().getUserIdExchange());
-        orderResDTO.setOrderId(order.getOrderId());
-        orderResDTO.setPrice(order.getPrice());
-        orderResDTO.setSize(order.getOrderQty());
-        orderResDTO.setFunds(order.getFund());
-        orderResDTO.setSymbol(order.getSymbol());
-        orderResDTO.setSide(order.getSide());
-        orderResDTO.setType(order.getOrderType());
-        orderResDTO.setCreatedAt(order.getStartTime());
-        orderResDTO.setEndAt(order.getEndTime());
-        orderResDTO.setExecutedAmount(order.getFilledQuantity());
-        orderResDTO.setStatus(order.getOrderStatus());
-        orderResDTO.setAccountId(order.getAccount().getAccountId());
+        OrderResDTO orderResDTO = new OrderResDTO(order);
         return  orderResDTO;
     }
 
@@ -182,7 +156,7 @@ public class OrderServiceImpl implements OrderService {
 
         if (order.getOrderType().equals(OrderType.MARKET))
             order.setFilledQuantity((order.getFilledQuantity() == null ? 0 : order.getFilledQuantity()) + (order.getOrderQty() == null ? tradeDto.getFunds() : tradeDto.getSize()));
-         else //limit
+         else if(order.getOrderType().equals(OrderType.LIMIT))
             order.setFilledQuantity((order.getFilledQuantity() == null ? 0 : order.getFilledQuantity()) + tradeDto.getSize());
 
         order = orderRepository.save(order);

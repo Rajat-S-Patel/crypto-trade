@@ -1,6 +1,7 @@
 package com.pirimid.cryptotrade.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.pirimid.cryptotrade.DTO.OrderResDTO;
 import com.sun.istack.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
@@ -78,4 +79,18 @@ public class Order {
     @JsonIgnore
     private Set<Trade> trades = new HashSet<Trade>();
 
+    public Order(OrderResDTO orderDto,Account account){
+        this.setOrderIdExchange(orderDto.getExchangeOrderId());
+        this.setSide(orderDto.getSide());
+        this.setOrderStatus(orderDto.getStatus());
+        this.setOrderQty(orderDto.getSize());
+        this.setOrderType(orderDto.getType());
+        this.setStartTime(orderDto.getCreatedAt());
+        this.setSymbol(orderDto.getSymbol());
+        this.setPrice(orderDto.getPrice());
+        this.setFilledQuantity(orderDto.getExecutedAmount());
+        this.setAccount(account);
+        this.setFund(orderDto.getFunds());
+        this.setOrderStatus(orderDto.getStatus());
+    }
 }

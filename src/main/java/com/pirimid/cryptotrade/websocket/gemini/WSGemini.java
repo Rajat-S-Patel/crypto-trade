@@ -13,10 +13,13 @@ import com.pirimid.cryptotrade.websocket.gemini.handler.GeminiSessionHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.WebSocketHttpHeaders;
+import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.client.WebSocketClient;
 import org.springframework.web.socket.client.standard.StandardWebSocketClient;
 
+import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
@@ -37,7 +40,7 @@ public class WSGemini implements WSExchange {
     private OrderService orderService;
     @Value("${ws.exchange.gemini.baseurl}")
     String baseurl;
-    private void establishConnection(Account account) throws JsonProcessingException, NoSuchAlgorithmException, InvalidKeyException, ExecutionException, InterruptedException, TimeoutException {
+    public void establishConnection(Account account) throws JsonProcessingException, NoSuchAlgorithmException, InvalidKeyException, ExecutionException, InterruptedException, TimeoutException {
         Map<String,String> payload = new HashMap<>();
         payload.put("request","/v1/order/events");
         payload.put("nonce",String.valueOf(GeminiUtil.getNonce()));
@@ -50,7 +53,7 @@ public class WSGemini implements WSExchange {
         headers.add("X-GEMINI-APIKEY",account.getApiKey());
         headers.add("X-GEMINI-PAYLOAD",new String(b64, StandardCharsets.UTF_8));
         headers.add("X-GEMINI-SIGNATURE",signature);
-        client.doHandshake(new GeminiSessionHandler(account,orderService),headers, URI.create(baseurl)).get(10000, TimeUnit.SECONDS);
+        WebSocketSession session = client.doHandshake(new GeminiSessionHandler(account,orderService,this),headers, URI.create(baseurl)).get(10000, TimeUnit.SECONDS);
     }
     @Override
     public void connect() {

@@ -3,11 +3,12 @@ package com.pirimid.cryptotrade.websocket.gemini.response;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum RestypeGemini {
+    INITIAL("initial"),
     ACCEPTED("accepted"),
     FILL("fill"),
     CLOSED("closed"),
-    REJECTED("rejected"),
-    INITIAL("initial");
+    REJECTED("rejected");
+
     String value;
 
     RestypeGemini(String v) {
@@ -19,5 +20,3 @@ public enum RestypeGemini {
         return value;
     }
 }
-
-
