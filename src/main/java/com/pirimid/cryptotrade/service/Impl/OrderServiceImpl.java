@@ -11,13 +11,18 @@ import com.pirimid.cryptotrade.model.OrderType;
 import com.pirimid.cryptotrade.model.Status;
 import com.pirimid.cryptotrade.model.Trade;
 import com.pirimid.cryptotrade.model.User;
-import com.pirimid.cryptotrade.repository.*;
+import com.pirimid.cryptotrade.repository.ExchangeRepository;
+import com.pirimid.cryptotrade.repository.AccountRepository;
+import com.pirimid.cryptotrade.repository.UserRepository;
+import com.pirimid.cryptotrade.repository.TradeRepository;
+import com.pirimid.cryptotrade.repository.OrderRepository;
 import com.pirimid.cryptotrade.service.OrderService;
 import com.pirimid.cryptotrade.service.UserService;
 import com.pirimid.cryptotrade.util.ExchangeUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Optional;
@@ -41,7 +46,8 @@ public class OrderServiceImpl implements OrderService {
     @Autowired
     UserService userService;
     User user=null;
-    OrderServiceImpl(){
+    @PostConstruct
+    private void postConstructor(){
         user = userService.getDefaultUser();
     }
     private Order orderResDtoToOrder(OrderResDTO orderDto, Account account){

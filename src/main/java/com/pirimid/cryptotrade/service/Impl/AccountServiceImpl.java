@@ -12,6 +12,7 @@ import com.pirimid.cryptotrade.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -25,8 +26,9 @@ public class AccountServiceImpl implements AccountService {
     @Autowired
     UserService userService;
     User user;
-    AccountServiceImpl(){
-        user=userService.getDefaultUser();
+    @PostConstruct
+    private void postConstructor(){
+        user = userService.getDefaultUser();
     }
     @Override
     public Set<Account> getAllAccounts() {
