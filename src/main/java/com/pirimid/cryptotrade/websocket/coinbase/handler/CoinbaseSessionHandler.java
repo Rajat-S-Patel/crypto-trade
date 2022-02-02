@@ -89,6 +89,8 @@ public class CoinbaseSessionHandler implements WebSocketHandler {
             e.printStackTrace();
         } catch (InvalidKeyException e) {
             e.printStackTrace();
+        }catch (Exception e){
+            e.printStackTrace();
         }
 
 

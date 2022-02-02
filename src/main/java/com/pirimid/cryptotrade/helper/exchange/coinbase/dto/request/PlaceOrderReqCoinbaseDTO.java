@@ -1,6 +1,7 @@
 package com.pirimid.cryptotrade.helper.exchange.coinbase.dto.request;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Component;
 @NoArgsConstructor
 @Component
 @ToString
+@Builder
 public class PlaceOrderReqCoinbaseDTO {
     private  String type;    //limit or market
     private String product_id;  // BTC/USD
