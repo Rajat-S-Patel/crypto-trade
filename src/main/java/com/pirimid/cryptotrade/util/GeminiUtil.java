@@ -44,19 +44,21 @@ public class GeminiUtil {
     }
 
     public static OrderResDTO getPlaceOrderResDTO(CreateOrderResponse response){
-        OrderResDTO orderResDTO = new OrderResDTO();
         if(response.getOrderId() == null) {
            return null;
         }
-        orderResDTO.setExchangeOrderId(response.getOrderId() == null?"":response.getOrderId().toString());
-        orderResDTO.setPrice(response.getPrice());
-        orderResDTO.setSize(response.getOriginalAmount());
-        orderResDTO.setSymbol(response.getSymbol());
-        orderResDTO.setSide(Side.valueOf(response.getSide().toUpperCase()));
         String type = response.getType();
-        orderResDTO.setType(OrderType.valueOf(type.substring(type.indexOf(" ")+1).toUpperCase()));
-        orderResDTO.setCreatedAt(new Date(response.getTimestamp()));
-        orderResDTO.setExecutedAmount(response.getExecutedAmount());
+        OrderResDTO orderResDTO = OrderResDTO.builder()
+                .exchangeOrderId(response.getOrderId() == null?"":response.getOrderId().toString())
+                .price(response.getPrice())
+                .size(response.getOriginalAmount())
+                .symbol(response.getSymbol())
+                .side(Side.valueOf(response.getSide().toUpperCase()))
+                .type(OrderType.valueOf(type.substring(type.indexOf(" ")+1).toUpperCase()))
+                .createdAt(new Date(response.getTimestamp()))
+                .executedAmount(response.getExecutedAmount())
+                .build();
+
         if(response.isLive())
             orderResDTO.setStatus(Status.valueOf("PENDING"));
         else orderResDTO.setStatus(Status.valueOf("FILLED"));
@@ -64,34 +66,37 @@ public class GeminiUtil {
     }
 
     public static CreateOrderRequest getCreateOrderReqDTO(PlaceOrderReqDTO req){
-        CreateOrderRequest createOrderRequest = new CreateOrderRequest();
-        createOrderRequest.setSymbol(req.getSymbol());          // logic to parse it to standard symbol DTO is not yet implemented
-        createOrderRequest.setAmount(req.getSize());
-        createOrderRequest.setPrice(req.getPrice());
-        createOrderRequest.setSide(req.getSide().getValue());
-        createOrderRequest.setType("exchange "+req.getType().getValue());
+        CreateOrderRequest createOrderRequest = CreateOrderRequest.builder()
+                .symbol(req.getSymbol())    // logic to parse it to standard symbol DTO is not yet implemented
+                .amount(req.getSize())
+                .price(req.getPrice())
+                .side(req.getSide().getValue())
+                .type("exchange "+req.getType().getValue())
+                .build();
         return createOrderRequest;
     }
 
     public static SymbolResDTO getSymbolResDTO(SymbolResponse response) {
-        SymbolResDTO dto = new SymbolResDTO();
-        dto.setSymbol(response.getBaseCurrency()+"/"+response.getQuoteCurrency());
-        dto.setBase(response.getBaseCurrency());
-        dto.setQuote(response.getQuoteCurrency());
-        dto.setMinOrderSize(response.getMinOrderSize());
+        SymbolResDTO dto = SymbolResDTO.builder()
+                .symbol(response.getBaseCurrency()+"/"+response.getQuoteCurrency())
+                .base(response.getBaseCurrency())
+                .quote(response.getQuoteCurrency())
+                .minOrderSize(response.getMinOrderSize())
+                .build();
         return dto;
     }
 
     public static OrderResDTO getPlaceOrderResDTO(OrderResponse response){
-        OrderResDTO order = new OrderResDTO();
-        order.setExchangeOrderId(response.getOrderId());
-        order.setPrice(response.getPrice());
-        order.setSize(response.getOriginalAmount());
-        order.setSymbol(response.getSymbol());
-        order.setSide(Side.valueOf(response.getSide().toUpperCase()));
         String type=response.getOrderType();
-        order.setType(OrderType.valueOf(type.substring(type.indexOf(" ")+1).toUpperCase()));
-        order.setExecutedAmount(response.getExecutedAmount());
+        OrderResDTO order = OrderResDTO.builder()
+                .exchangeOrderId(response.getOrderId())
+                .price(response.getPrice())
+                .size(response.getOriginalAmount())
+                .symbol(response.getSymbol())
+                .side(Side.valueOf(response.getSide().toUpperCase()))
+                .type(OrderType.valueOf(type.substring(type.indexOf(" ")+1).toUpperCase()))
+                .executedAmount(response.getExecutedAmount())
+                .build();
 
         if(RestypeGemini.valueOf(response.getType().toUpperCase()) == RestypeGemini.ACCEPTED){
             order.setStatus(Status.NEW);
@@ -116,15 +121,16 @@ public class GeminiUtil {
     }
 
     public static TradeDto getTradeDTO(OrderResponse response){
-        TradeDto trade = new TradeDto();
-        trade.setTradeId(response.getFill().getTradeId());
-        trade.setExchangeOrderId(response.getOrderId());
-        trade.setFee(response.getFill().getFee());
-        trade.setSide(Side.valueOf(response.getSide().toUpperCase()));
-        trade.setSize(response.getOriginalAmount());
-        trade.setPrice(response.getPrice());
-        trade.setTime(response.getTimestampms());
-        trade.setSymbol(response.getSymbol());
+        TradeDto trade = TradeDto.builder()
+                .tradeId(response.getFill().getTradeId())
+                .exchangeOrderId(response.getOrderId())
+                .fee(response.getFill().getFee())
+                .side(Side.valueOf(response.getSide().toUpperCase()))
+                .size(response.getOriginalAmount())
+                .price(response.getPrice())
+                .time(response.getTimestampms())
+                .symbol(response.getSymbol())
+                .build();
         return trade;
     }
 }
