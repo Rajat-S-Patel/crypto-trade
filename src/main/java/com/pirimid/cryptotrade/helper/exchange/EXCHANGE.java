@@ -8,4 +8,8 @@ public enum EXCHANGE {
     EXCHANGE(String value) {
         this.value = value;
     }
+
+    public String getValue() {
+        return value;
+    }
 }

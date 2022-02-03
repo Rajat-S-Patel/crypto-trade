@@ -1,11 +1,26 @@
 package com.pirimid.cryptotrade.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.pirimid.cryptotrade.DTO.OrderResDTO;
 import com.sun.istack.NotNull;
-import lombok.*;
-import org.hibernate.annotations.GenericGenerator;
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -18,7 +33,7 @@ import java.util.UUID;
 @Setter
 @ToString
 @EqualsAndHashCode
-@Table(name = "orders")
+@Table(name = "orders", uniqueConstraints = {@UniqueConstraint(name = "unique_excOrder_account",columnNames = {"orderIdExchange","account_id"})})
 public class Order {
 
     @Id
@@ -64,4 +79,18 @@ public class Order {
     @JsonIgnore
     private Set<Trade> trades = new HashSet<Trade>();
 
+    public Order(OrderResDTO orderDto,Account account){
+        this.setOrderIdExchange(orderDto.getExchangeOrderId());
+        this.setSide(orderDto.getSide());
+        this.setOrderStatus(orderDto.getStatus());
+        this.setOrderQty(orderDto.getSize());
+        this.setOrderType(orderDto.getType());
+        this.setStartTime(orderDto.getCreatedAt());
+        this.setSymbol(orderDto.getSymbol());
+        this.setPrice(orderDto.getPrice());
+        this.setFilledQuantity(orderDto.getExecutedAmount());
+        this.setAccount(account);
+        this.setFund(orderDto.getFunds());
+        this.setOrderStatus(orderDto.getStatus());
+    }
 }

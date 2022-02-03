@@ -1,6 +1,7 @@
 package com.pirimid.cryptotrade.helper.exchange.coinbase.dto.response;
 
-import com.pirimid.cryptotrade.model.OrderType;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -15,18 +16,25 @@ import java.util.UUID;
 @NoArgsConstructor
 @Component
 @ToString
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class PlaceOrderResCoinbaseDTO {
 
     private UUID id;
     private Double price;
     private Double size;
-    private String product_id;
+    @JsonProperty("product_id")
+    private String productId;
     private String side;
     private String type;
-    private Date created_at;
-    private Date end_at;
+    @JsonProperty("created_at")
+    private Date createdAt;
+    @JsonProperty("end_at")
+    private Date endAt;
     private String status;
-    private String filled_size;
-    private Double executed_value;
+    @JsonProperty("filled_size")
+    private String filledSize;
+    @JsonProperty("executed_value")
+    private Double executedValue;
+    private Double funds;
 
 }

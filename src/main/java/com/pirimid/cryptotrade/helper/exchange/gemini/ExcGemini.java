@@ -3,8 +3,8 @@ package com.pirimid.cryptotrade.helper.exchange.gemini;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.pirimid.cryptotrade.DTO.OrderResDTO;
 import com.pirimid.cryptotrade.DTO.PlaceOrderReqDTO;
-import com.pirimid.cryptotrade.DTO.PlaceOrderResDTO;
 import com.pirimid.cryptotrade.DTO.SymbolResDTO;
 import com.pirimid.cryptotrade.helper.exchange.ExcParent;
 import com.pirimid.cryptotrade.helper.exchange.gemini.dto.request.CreateOrderRequest;
@@ -93,11 +93,24 @@ public class ExcGemini implements ExcParent {
 
     @Override
     public ResponseEntity<String> accountInfo(String apiKey, String secretKey, String passphrase) {
+           Map<String,String> payload = new HashMap<>();
+           payload.put("request","/v1/account");
+           payload.put("account","primary");
+           payload.put("nonce",String.valueOf(GeminiUtil.getNonce()));
+        try {
+            String json = new ObjectMapper().writeValueAsString(payload);
+            byte[] b64 = GeminiUtil.getB64(json);
+            String signature = GeminiUtil.getSignature(b64,secretKey);
+            ResponseEntity<String> res = apiCaller(baseUrl+"/v1/account","POST",b64,signature,apiKey);
+            return res;
+        } catch (NoSuchAlgorithmException | InvalidKeyException | IOException | InterruptedException e) {
+            e.printStackTrace();
+        }
         return null;
     }
 
     @Override
-        public PlaceOrderResDTO createOrder(String apiKey, String secretKey, String passphrase, PlaceOrderReqDTO body) {
+        public OrderResDTO createOrder(String apiKey, String secretKey, String passphrase, PlaceOrderReqDTO body) {
         CreateOrderRequest request = GeminiUtil.getCreateOrderReqDTO(body);
         request.setClientOrderId("12344545");
         request.setNonce(GeminiUtil.getNonce());
