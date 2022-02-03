@@ -1,15 +1,14 @@
 package com.pirimid.cryptotrade.helper.exchange.coinbase;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-import com.pirimid.cryptotrade.DTO.PlaceOrderReqDTO;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pirimid.cryptotrade.DTO.OrderResDTO;
-
+import com.pirimid.cryptotrade.DTO.PlaceOrderReqDTO;
 import com.pirimid.cryptotrade.DTO.SymbolResDTO;
+import com.pirimid.cryptotrade.helper.exchange.ExcParent;
 import com.pirimid.cryptotrade.helper.exchange.coinbase.dto.request.PlaceOrderReqCoinbaseDTO;
 import com.pirimid.cryptotrade.helper.exchange.coinbase.dto.response.PlaceOrderResCoinbaseDTO;
 import com.pirimid.cryptotrade.helper.exchange.coinbase.dto.response.SymbolResCoinbaseDTO;
-import com.pirimid.cryptotrade.helper.exchange.ExcParent;
 import com.pirimid.cryptotrade.util.CoinbaseUtil;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
@@ -19,7 +18,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -63,19 +61,18 @@ public class ExcCoinbase implements ExcParent {
     @Override
     public List<SymbolResDTO> getPairs() {
         SymbolResCoinbaseDTO symbolResCoinbaseDTO;
-        Gson gson = new Gson();
         List<SymbolResCoinbaseDTO> symbolResCoinbaseDTOS;
         List<SymbolResDTO> symbolResDTOS;
         try {
             ResponseEntity<String> response = apiCallerOpen(baseUrl + "/products");
-            Type SymbolListType = new TypeToken<List<SymbolResCoinbaseDTO>>() {
-            }.getType();
-            symbolResCoinbaseDTOS = gson.fromJson(response.getBody(), SymbolListType);
+            symbolResCoinbaseDTOS = new ObjectMapper().readValue(response.getBody(), new TypeReference<List<SymbolResCoinbaseDTO>>() {});
             symbolResDTOS = CoinbaseUtil.getPairsResDTO(symbolResCoinbaseDTOS);
             return symbolResDTOS;
         } catch (IOException e) {
             e.printStackTrace();
         } catch (InterruptedException e) {
+            e.printStackTrace();
+        }catch (Exception e){
             e.printStackTrace();
         }
         return null;
@@ -99,18 +96,17 @@ public class ExcCoinbase implements ExcParent {
     public OrderResDTO createOrder(String apiKey, String secretKey, String passphrase, PlaceOrderReqDTO placeOrderReqDTO) {
         String timestamp = String.valueOf(Instant.now().getEpochSecond());
         String signature;
-        Gson gson = new Gson();
         PlaceOrderReqCoinbaseDTO placeOrderReqCoinbaseDTO = CoinbaseUtil.getPlaceOrderReqDTO(placeOrderReqDTO);
         PlaceOrderResCoinbaseDTO placeOrderResCoinbaseDTO;
         try {
-            String b = gson.toJson(placeOrderReqCoinbaseDTO);
+            String b =  new ObjectMapper().writeValueAsString(placeOrderReqCoinbaseDTO);
             signature = CoinbaseUtil.getSignature(timestamp, secretKey, "POST", "/orders", b);
-            ResponseEntity<String> response = apiCallerRestricted(baseUrl + "/orders", "POST", apiKey, passphrase, signature, timestamp, gson.toJson(placeOrderReqCoinbaseDTO));
+            ResponseEntity<String> response = apiCallerRestricted(baseUrl + "/orders", "POST", apiKey, passphrase, signature, timestamp, b);
+            String responseBody = response.getBody().toString();
             if(response.getStatusCode() == HttpStatus.BAD_REQUEST ){
                 return null;
             }
-            String responseBody = response.getBody();
-            placeOrderResCoinbaseDTO = gson.fromJson(responseBody, PlaceOrderResCoinbaseDTO.class);
+            placeOrderResCoinbaseDTO = new ObjectMapper().readValue(responseBody, PlaceOrderResCoinbaseDTO.class);
             OrderResDTO orderResDTO = CoinbaseUtil.getPlaceOrderResDTO(placeOrderResCoinbaseDTO);
             return orderResDTO;
         } catch (Exception e) {
@@ -126,7 +122,7 @@ public class ExcCoinbase implements ExcParent {
         String timestamp = Instant.now().getEpochSecond() + "";
         String signature;
         int pos = -1;
-        ////// Coinbase will return orderid if order is canceled successfully else will return {"message":"message "}
+        ////// Coinbase will return orderId if order is canceled successfully else will return {"message":"message "}
         try {
             signature = CoinbaseUtil.getSignature(timestamp, secretKey, "DELETE", "/orders/" + orderId, "");
             ResponseEntity<String> response = apiCallerRestricted(baseUrl + "/orders/" + orderId, "DELETE", apiKey, passphrase, signature, timestamp, "");

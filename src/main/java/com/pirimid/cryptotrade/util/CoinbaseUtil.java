@@ -22,7 +22,6 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Base64;
-import java.util.Date;
 import java.util.List;
 
 @Component
@@ -45,11 +44,11 @@ public class CoinbaseUtil {
                 .exchangeOrderId(placeOrderResCoinbaseDTO.getId().toString())
                 .price(placeOrderResCoinbaseDTO.getPrice())
                 .size(placeOrderResCoinbaseDTO.getSize())
-                .symbol(placeOrderResCoinbaseDTO.getProduct_id())
+                .symbol(placeOrderResCoinbaseDTO.getProductId())
                 .side(Side.valueOf(placeOrderResCoinbaseDTO.getSide().toUpperCase()))
                 .type(OrderType.valueOf(placeOrderResCoinbaseDTO.getType().toUpperCase()))
-                .createdAt(placeOrderResCoinbaseDTO.getCreated_at())
-                .executedAmount(placeOrderResCoinbaseDTO.getExecuted_value())
+                .createdAt(placeOrderResCoinbaseDTO.getCreatedAt())
+                .executedAmount(placeOrderResCoinbaseDTO.getExecutedValue())
                 .status(Status.valueOf(placeOrderResCoinbaseDTO.getStatus().toUpperCase()))
                 .funds(placeOrderResCoinbaseDTO.getFunds())
                 .build();
@@ -58,17 +57,17 @@ public class CoinbaseUtil {
 
     public static OrderResDTO getWsPlaceOrderResDTO(WSCoinbaseOrderDto wsCoinbaseOrderDto) {
         OrderResDTO orderResDTO = OrderResDTO.builder()
-                .exchangeOrderId(wsCoinbaseOrderDto.getOrder_id())
+                .exchangeOrderId(wsCoinbaseOrderDto.getOrderId())
                 .price(wsCoinbaseOrderDto.getPrice())
                 .funds(wsCoinbaseOrderDto.getFunds())
                 .size(wsCoinbaseOrderDto.getSize())
-                .symbol(wsCoinbaseOrderDto.getProduct_id())
+                .symbol(wsCoinbaseOrderDto.getProductId())
                 .side(Side.valueOf(wsCoinbaseOrderDto.getSide().toUpperCase()))
-                .exchangeUserId(wsCoinbaseOrderDto.getProfile_id().toString())
+                .exchangeUserId(wsCoinbaseOrderDto.getProfileId().toString())
                 .build();
         String type = wsCoinbaseOrderDto.getType();
-        if (wsCoinbaseOrderDto.getOrder_type() != null) {
-            orderResDTO.setType(OrderType.valueOf(wsCoinbaseOrderDto.getOrder_type().toUpperCase()));
+        if (wsCoinbaseOrderDto.getOrderType() != null) {
+            orderResDTO.setType(OrderType.valueOf(wsCoinbaseOrderDto.getOrderType().toUpperCase()));
         }
 
         if (Restype.RECEIVED == Restype.valueOf(type.toUpperCase())) {
@@ -84,14 +83,14 @@ public class CoinbaseUtil {
     public static TradeDto getWsTradeResDTO(WSCoinbaseTradeDto wsCoinbaseTradeDto) {
 
         TradeDto tradeDto = TradeDto.builder()
-                .tradeId(wsCoinbaseTradeDto.getTrade_id())
-                .exchangeOrderId(wsCoinbaseTradeDto.getTaker_order_id())
+                .tradeId(wsCoinbaseTradeDto.getTradeId())
+                .exchangeOrderId(wsCoinbaseTradeDto.getTakerOrderId())
                 .price(wsCoinbaseTradeDto.getPrice())
                 .size(wsCoinbaseTradeDto.getSize())
                 .funds(wsCoinbaseTradeDto.getFunds())
-                .symbol(wsCoinbaseTradeDto.getProduct_id())
+                .symbol(wsCoinbaseTradeDto.getProductId())
                 .side(Side.valueOf(wsCoinbaseTradeDto.getSide().toUpperCase()))
-                .fee(wsCoinbaseTradeDto.getTaker_fee_rate())
+                .fee(wsCoinbaseTradeDto.getTakerFeeRate())
                 .time(wsCoinbaseTradeDto.getTime())
                 .build();
         if (wsCoinbaseTradeDto.getFunds() == null) {
@@ -103,7 +102,7 @@ public class CoinbaseUtil {
     public static PlaceOrderReqCoinbaseDTO getPlaceOrderReqDTO(PlaceOrderReqDTO placeOrderReqDTO) {
         PlaceOrderReqCoinbaseDTO placeOrderReqCoinbaseDTO = PlaceOrderReqCoinbaseDTO.builder()
                 .type(placeOrderReqDTO.getType().getValue())
-                .product_id(placeOrderReqDTO.getSymbol())
+                .productId(placeOrderReqDTO.getSymbol())
                 .side(placeOrderReqDTO.getSide().getValue())
                 .funds(placeOrderReqDTO.getFunds())
                 .size(placeOrderReqDTO.getSize())
@@ -116,7 +115,7 @@ public class CoinbaseUtil {
         List<SymbolResDTO> symbolResDTOS = new ArrayList<>();
         for (SymbolResCoinbaseDTO symbol : symbolResCoinbaseDTOS) {
             if (symbol != null) {
-                SymbolResDTO symbolResDTO = new SymbolResDTO(symbol.getId(), symbol.getBase_currency(), symbol.getQuote_currency(), symbol.getBase_min_size(), symbol.getMin_market_funds());
+                SymbolResDTO symbolResDTO = new SymbolResDTO(symbol.getId(), symbol.getBaseCurrency(), symbol.getQuoteCurrency(), symbol.getBaseMinSize(), symbol.getMinMarketFunds());
                 symbolResDTOS.add(symbolResDTO);
             }
         }

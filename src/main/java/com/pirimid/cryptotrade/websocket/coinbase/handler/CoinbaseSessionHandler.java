@@ -1,7 +1,6 @@
 package com.pirimid.cryptotrade.websocket.coinbase.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.Gson;
 import com.pirimid.cryptotrade.DTO.OrderResDTO;
 import com.pirimid.cryptotrade.DTO.TradeDto;
 import com.pirimid.cryptotrade.helper.exchange.EXCHANGE;
@@ -38,7 +37,6 @@ public class CoinbaseSessionHandler implements WebSocketHandler {
     private Boolean isConnected = false;
     private WebSocketSession session;
     private WSCoinbase coinbase;
-    Gson gson = new Gson();
 
 
     public CoinbaseSessionHandler(Account account, OrderService orderService, WSCoinbase coinbase) {
@@ -100,7 +98,7 @@ public class CoinbaseSessionHandler implements WebSocketHandler {
     public void handleMessage(WebSocketSession session, WebSocketMessage<?> message) throws Exception {
         if (message.getPayload().toString().contains("{\"type\":\"heartbeat\""))
             return;
-        Typedto typedto = gson.fromJson(message.getPayload().toString(), Typedto.class);
+        Typedto typedto = new ObjectMapper().readValue(message.getPayload().toString(), Typedto.class);
         if (Restype.valueOf(typedto.getType().toUpperCase()) == Restype.SUBSCRIPTIONS) {
             isConnected = true;
             return;
@@ -110,7 +108,7 @@ public class CoinbaseSessionHandler implements WebSocketHandler {
 
             switch (Restype.valueOf(typedto.getType().toUpperCase())) {
                 case RECEIVED: {
-                    WSCoinbaseOrderDto wsCoinbaseOrderDto = gson.fromJson(message.getPayload().toString(), WSCoinbaseOrderDto.class);
+                    WSCoinbaseOrderDto wsCoinbaseOrderDto = new ObjectMapper().readValue(message.getPayload().toString(), WSCoinbaseOrderDto.class);
                     OrderResDTO orderResDTO = CoinbaseUtil.getWsPlaceOrderResDTO(wsCoinbaseOrderDto);
                     orderResDTO.setAccountId(account.getAccountId());
                     //call method for order received
@@ -119,7 +117,7 @@ public class CoinbaseSessionHandler implements WebSocketHandler {
                 }
                 case DONE: {
 
-                    WSCoinbaseOrderDto wsCoinbaseOrderDto = gson.fromJson(message.getPayload().toString(), WSCoinbaseOrderDto.class);
+                    WSCoinbaseOrderDto wsCoinbaseOrderDto = new ObjectMapper().readValue(message.getPayload().toString(), WSCoinbaseOrderDto.class);
                     if (Reason.valueOf(wsCoinbaseOrderDto.getReason().toUpperCase()) == Reason.FILLED) {
                         OrderResDTO orderResDTO = CoinbaseUtil.getWsPlaceOrderResDTO(wsCoinbaseOrderDto);
                         orderResDTO.setAccountId(account.getAccountId());
@@ -134,7 +132,7 @@ public class CoinbaseSessionHandler implements WebSocketHandler {
                     break;
                 }
                 case MATCH: {
-                    WSCoinbaseTradeDto wsCoinbaseTradeDto = gson.fromJson(message.getPayload().toString(), WSCoinbaseTradeDto.class);
+                    WSCoinbaseTradeDto wsCoinbaseTradeDto = new ObjectMapper().readValue(message.getPayload().toString(),WSCoinbaseTradeDto.class);
                     TradeDto tradeDto = CoinbaseUtil.getWsTradeResDTO(wsCoinbaseTradeDto);
                     //call method for trade
                     orderService.addTrade(tradeDto, EXCHANGE.COINBASE);

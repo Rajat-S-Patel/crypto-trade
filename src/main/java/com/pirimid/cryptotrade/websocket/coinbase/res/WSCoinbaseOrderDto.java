@@ -1,5 +1,7 @@
 package com.pirimid.cryptotrade.websocket.coinbase.res;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.ToString;
 
@@ -8,19 +10,27 @@ import java.util.UUID;
 
 @Data
 @ToString
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class WSCoinbaseOrderDto {
     private String type;
-    private String client_oid;
-    private String user_id;
-    private UUID profile_id;
-    private String order_id;
-    private String order_type;
+    @JsonProperty("client_oid")
+    private String clientOid;
+    @JsonProperty("user_id")
+    private String userId;
+    @JsonProperty("profile_id")
+    private UUID profileId;
+    @JsonProperty("order_id")
+    private String orderId;
+    @JsonProperty("order_type")
+    private String orderType;
     private Double size;
     private String side;
-    private String product_id;
+    @JsonProperty("product_id")
+    private String productId;
     private Date time;
     private Double price;
     private Double funds;
     private String reason;
-    private Double remaining_size;
+    @JsonProperty("remaining_size")
+    private Double remainingSize;
 }
