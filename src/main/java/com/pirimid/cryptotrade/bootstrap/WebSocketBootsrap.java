@@ -1,5 +1,6 @@
 package com.pirimid.cryptotrade.bootstrap;
 
+import com.pirimid.cryptotrade.helper.exchange.gemini.ExcGemini;
 import com.pirimid.cryptotrade.repository.AccountRepository;
 import com.pirimid.cryptotrade.websocket.coinbase.WSCoinbase;
 import com.pirimid.cryptotrade.websocket.gemini.WSGemini;
@@ -19,6 +20,8 @@ public class WebSocketBootsrap {
     WSCoinbase wsCoinbase;
     @Autowired
     WSGemini wsGemini;
+    @Autowired
+    ExcGemini excGemini;
     private void connecToCoinbase(){
         wsCoinbase.connect();
     }
@@ -29,5 +32,6 @@ public class WebSocketBootsrap {
     public void run() throws Exception {
         connecToCoinbase();
         connecToGemini();
+        excGemini.getPairs();
     }
 }

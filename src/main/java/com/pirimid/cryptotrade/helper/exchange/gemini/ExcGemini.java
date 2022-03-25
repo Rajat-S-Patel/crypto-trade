@@ -38,7 +38,7 @@ public class ExcGemini implements ExcParent {
 
     @Value("${api.exchange.gemini.baseurl}")
     private String baseUrl;
-
+    private List<SymbolResDTO> symbolDetails = new ArrayList<>();
     private ResponseEntity<String> apiCaller(String uri,String reqType) throws IOException, InterruptedException {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(uri))
@@ -73,7 +73,9 @@ public class ExcGemini implements ExcParent {
 
     @Override
     public List<SymbolResDTO> getPairs() {
-        List<SymbolResDTO> symbolDetails = new ArrayList<>();
+        if(symbolDetails!=null && symbolDetails.size()>0){
+            return symbolDetails;
+        }
         try {
             ResponseEntity<String> res = apiCaller(baseUrl+"/v1/symbols","GET");
             List<String> symbols= new ObjectMapper().readValue(res.getBody(), new TypeReference<List<String>>() {});
