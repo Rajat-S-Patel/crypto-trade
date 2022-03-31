@@ -3,6 +3,9 @@ package com.pirimid.cryptotrade.service.Impl;
 import com.pirimid.cryptotrade.DTO.OrderResDTO;
 import com.pirimid.cryptotrade.DTO.PlaceOrderReqDTO;
 import com.pirimid.cryptotrade.DTO.TradeDto;
+import com.pirimid.cryptotrade.exception.AccountNotFoundException;
+import com.pirimid.cryptotrade.exception.OrderFailedException;
+import com.pirimid.cryptotrade.exception.OrderNotFoundException;
 import com.pirimid.cryptotrade.helper.exchange.EXCHANGE;
 import com.pirimid.cryptotrade.model.Account;
 import com.pirimid.cryptotrade.model.Exchange;
@@ -129,19 +132,22 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public OrderResDTO createOrder(PlaceOrderReqDTO req) {
-        Optional<Account> optAccount = accountRepository.findById(req.getAccountId());
-        if (!optAccount.isPresent()) {
-            return null;
+        try {
+            Optional<Account> optAccount = accountRepository.findById(req.getAccountId());
+            if (!optAccount.isPresent()) {
+                throw new AccountNotFoundException("No such account exist in database");
+            }
+            Account account = optAccount.get();
+            OrderResDTO orderResDTO = exchangeUtil
+                    .getObject(EXCHANGE.valueOf(account.getExchange().getName().toUpperCase()))
+                    .createOrder(account.getApiKey(), account.getSecretKey(), account.getPassPhrase(), req);
+            orderResDTO.setAccountId(optAccount.get().getAccountId());
+            return orderResDTO;
+        } catch(AccountNotFoundException e){
+          throw e;
+        } catch (OrderFailedException e){
+            throw e;
         }
-        Account account = optAccount.get();
-        OrderResDTO orderResDTO = exchangeUtil
-                .getObject(EXCHANGE.valueOf(account.getExchange().getName().toUpperCase()))
-                .createOrder(account.getApiKey(), account.getSecretKey(), account.getPassPhrase(), req);
-        if (orderResDTO == null) {
-            return null;
-        }
-        orderResDTO.setAccountId(optAccount.get().getAccountId());
-        return orderResDTO;
     }
 
     @Override
@@ -255,6 +261,6 @@ public class OrderServiceImpl implements OrderService {
                 return null;
             }
         }
-        return null;
+        throw new OrderNotFoundException("No such order exist in database");
     }
 }

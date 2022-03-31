@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pirimid.cryptotrade.DTO.OrderResDTO;
 import com.pirimid.cryptotrade.DTO.PlaceOrderReqDTO;
 import com.pirimid.cryptotrade.DTO.SymbolResDTO;
+import com.pirimid.cryptotrade.exception.OrderFailedException;
 import com.pirimid.cryptotrade.helper.exchange.ExcParent;
 import com.pirimid.cryptotrade.helper.exchange.coinbase.dto.request.PlaceOrderReqCoinbaseDTO;
 import com.pirimid.cryptotrade.helper.exchange.coinbase.dto.response.PlaceOrderResCoinbaseDTO;
@@ -92,7 +93,7 @@ public class ExcCoinbase implements ExcParent {
             ResponseEntity<String> response = apiCallerRestricted(baseUrl + "/orders", "POST", apiKey, passphrase, signature, timestamp, b);
             String responseBody = response.getBody().toString();
             if(response.getStatusCode() == HttpStatus.BAD_REQUEST ){
-                return null;
+                throw new OrderFailedException("Order Failed");
             }
             placeOrderResCoinbaseDTO = new ObjectMapper().readValue(responseBody, PlaceOrderResCoinbaseDTO.class);
             OrderResDTO orderResDTO = CoinbaseUtil.getPlaceOrderResDTO(placeOrderResCoinbaseDTO);
@@ -102,6 +103,8 @@ public class ExcCoinbase implements ExcParent {
                 System.out.println("waiting...");
             }
             return orderResDTO;
+        } catch (OrderFailedException e){
+            throw e;
         } catch (Exception e) {
             e.printStackTrace();
         }
