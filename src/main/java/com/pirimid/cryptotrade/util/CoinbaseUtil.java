@@ -115,7 +115,14 @@ public class CoinbaseUtil {
         List<SymbolResDTO> symbolResDTOS = new ArrayList<>();
         for (SymbolResCoinbaseDTO symbol : symbolResCoinbaseDTOS) {
             if (symbol != null) {
-                SymbolResDTO symbolResDTO = new SymbolResDTO(symbol.getId(), symbol.getBaseCurrency(), symbol.getQuoteCurrency(), symbol.getBaseMinSize(), symbol.getMinMarketFunds());
+
+                SymbolResDTO symbolResDTO = SymbolResDTO.builder()
+                        .symbol(symbol.getId())
+                        .base(symbol.getBaseCurrency())
+                        .quote(symbol.getQuoteCurrency())
+                        .minOrderSize(symbol.getBaseMinSize())
+                        .minMarketFunds(symbol.getMinMarketFunds())
+                        .build();
                 symbolResDTOS.add(symbolResDTO);
             }
         }
