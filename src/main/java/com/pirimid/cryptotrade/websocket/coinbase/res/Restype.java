@@ -7,7 +7,8 @@ public enum Restype {
     DONE("done"),
     MATCH("match"),
     SUBSCRIPTIONS("subscriptions"),
-    OPEN("open");
+    OPEN("open"),
+    TICKER("ticker");
     String value;
 
     Restype(String v) {
