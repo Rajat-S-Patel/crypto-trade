@@ -8,6 +8,7 @@ import com.pirimid.cryptotrade.DTO.SymbolResDTO;
 import com.pirimid.cryptotrade.exception.OrderFailedException;
 import com.pirimid.cryptotrade.helper.exchange.ExcParent;
 import com.pirimid.cryptotrade.helper.exchange.coinbase.dto.request.PlaceOrderReqCoinbaseDTO;
+import com.pirimid.cryptotrade.helper.exchange.coinbase.dto.response.ErrorMessage;
 import com.pirimid.cryptotrade.helper.exchange.coinbase.dto.response.PlaceOrderResCoinbaseDTO;
 import com.pirimid.cryptotrade.helper.exchange.coinbase.dto.response.SymbolResCoinbaseDTO;
 import com.pirimid.cryptotrade.util.CoinbaseUtil;
@@ -105,7 +106,8 @@ public class ExcCoinbase implements ExcParent {
             ResponseEntity<String> response = apiCallerRestricted(baseUrl + "/orders", "POST", apiKey, passphrase, signature, timestamp, b);
             String responseBody = response.getBody().toString();
             if(response.getStatusCode() == HttpStatus.BAD_REQUEST ){
-                throw new OrderFailedException("Order Failed");
+                ErrorMessage errorMessage = new ObjectMapper().readValue(responseBody, ErrorMessage.class);
+                throw new OrderFailedException(errorMessage.getMessage());
             }
             placeOrderResCoinbaseDTO = new ObjectMapper().readValue(responseBody, PlaceOrderResCoinbaseDTO.class);
             OrderResDTO orderResDTO = CoinbaseUtil.getPlaceOrderResDTO(placeOrderResCoinbaseDTO);

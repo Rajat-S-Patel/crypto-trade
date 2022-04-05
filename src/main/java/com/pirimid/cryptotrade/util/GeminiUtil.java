@@ -29,7 +29,7 @@ import java.util.Date;
 @Component
 public class GeminiUtil {
     public static long getNonce(){
-        return new Date().getTime();
+        return new Date().getTime()*1000;
     }
     public static byte[] getB64(String payload){
         return Base64.getEncoder().encode(payload.getBytes(StandardCharsets.UTF_8));
