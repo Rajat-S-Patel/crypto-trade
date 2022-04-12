@@ -25,6 +25,7 @@ import com.pirimid.cryptotrade.service.TradeService;
 import com.pirimid.cryptotrade.service.UserService;
 import com.pirimid.cryptotrade.util.ExchangeUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -36,6 +37,8 @@ import java.util.UUID;
 
 @Service
 public class OrderServiceImpl implements OrderService {
+    @Autowired
+    SimpMessagingTemplate messagingTemplate;
     @Autowired
     OrderRepository orderRepository;
     @Autowired
@@ -162,9 +165,10 @@ public class OrderServiceImpl implements OrderService {
             return orderDto;
         }
         Order newOrder = orderResDtoToOrder(orderDto,optAccount.get());
+        System.out.println("/queue/"+optAccount.get().getUser().getUserId().toString());
+        messagingTemplate.convertAndSend("/queue/"+optAccount.get().getUser().getUserId().toString(),orderDto);
         newOrder = orderRepository.save(newOrder);
         orderDto.setOrderId(newOrder.getOrderId());
-        orderDto.setAccountId(newOrder.getAccount().getAccountId());
         return orderDto;
     }
 
@@ -198,6 +202,7 @@ public class OrderServiceImpl implements OrderService {
         order = orderRepository.save(order);
         tradeDto.setOrderId(order.getOrderId());
         trade.setOrder(order);
+        messagingTemplate.convertAndSend("/queue/"+order.getAccount().getUser().getUserId()+"/trade",trade);
         tradeRepository.save(trade);
 
         OrderResDTO orderResDTO = this.orderToOrderResDto(order);
@@ -213,6 +218,7 @@ public class OrderServiceImpl implements OrderService {
             order.get().setOrderStatus(orderDto.getStatus());
             order.get().setEndTime(orderDto.getEndAt());
             orderDto.setOrderId(order.get().getOrderId());
+            messagingTemplate.convertAndSend("/queue/"+order.get().getAccount().getUser().getUserId()+"/order",orderDto);
             orderRepository.save(order.get());
             return orderDto;
         }
@@ -227,6 +233,7 @@ public class OrderServiceImpl implements OrderService {
         Order order = optOrder.get();
         order.setOrderStatus(Status.REJECTED);
         order.setEndTime(timestamp);
+        messagingTemplate.convertAndSend("/queue/"+order.getAccount().getUser().getUserId()+"/order",order);
         orderRepository.save(order);
         return order.getOrderId().toString();
     }
@@ -239,6 +246,7 @@ public class OrderServiceImpl implements OrderService {
         Order order = optOrder.get();
         order.setOrderStatus(Status.CANCELLED);
         order.setEndTime(timestamp);
+        messagingTemplate.convertAndSend("/queue/"+order.getAccount().getUser().getUserId()+"/order",order);
         orderRepository.save(order);
         return order.getOrderId().toString();
     }

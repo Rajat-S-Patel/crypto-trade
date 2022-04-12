@@ -1,8 +1,9 @@
-package com.pirimid.cryptotrade.publicwebsocket.coinbasewspublic.handler;
+package com.pirimid.cryptotrade.websocket.publicWS.coinbase.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.pirimid.cryptotrade.publicwebsocket.coinbasewspublic.CoinbaseWSpublic;
-import com.pirimid.cryptotrade.publicwebsocket.coinbasewspublic.dto.TickerCoinbaseDto;
+import com.pirimid.cryptotrade.DTO.SymbolResDTO;
+import com.pirimid.cryptotrade.websocket.publicWS.coinbase.CoinbaseWSpublic;
+import com.pirimid.cryptotrade.websocket.publicWS.coinbase.dto.TickerCoinbaseDto;
 import com.pirimid.cryptotrade.websocket.coinbase.req.ChannelReq;
 import com.pirimid.cryptotrade.websocket.coinbase.req.ReqChannel;
 import com.pirimid.cryptotrade.websocket.coinbase.req.ReqType;
@@ -24,8 +25,10 @@ public class sessionhandlerWScoinbasepublic implements WebSocketHandler {
     private Boolean isConnected = false;
     private WebSocketSession session;
     private CoinbaseWSpublic coinbaseWSpublic;
-    public sessionhandlerWScoinbasepublic(CoinbaseWSpublic coinbaseWSpublic) {
+    private List<SymbolResDTO> pairs;
+    public sessionhandlerWScoinbasepublic(CoinbaseWSpublic coinbaseWSpublic, List<SymbolResDTO> pairs) {
         this.coinbaseWSpublic = coinbaseWSpublic;
+        this.pairs = pairs;
     }
 
     private void sendData(String data) throws IOException {
@@ -38,7 +41,8 @@ public class sessionhandlerWScoinbasepublic implements WebSocketHandler {
         channels.add(ReqChannel.HEARTBEAT);
         channels.add(ReqChannel.TICKER);
         List<String> pids = new ArrayList<>();
-        pids.add("BTC-USD");
+        pairs.forEach(pair->pids.add(pair.getSymbol()));
+        System.out.println(pids);
         ChannelReq req = ChannelReq.builder()
                 .type(ReqType.SUBSCRIBE)
                 .productIds(pids)
@@ -47,7 +51,6 @@ public class sessionhandlerWScoinbasepublic implements WebSocketHandler {
         ObjectMapper objectMapper = new ObjectMapper();
         String data = objectMapper.writeValueAsString(req);
         sendData(data);
-        System.out.println("connentefysdysvd");
     }
 
 
@@ -76,10 +79,12 @@ public class sessionhandlerWScoinbasepublic implements WebSocketHandler {
         if (Restype.valueOf(tickerCoinbaseDto.getType().toUpperCase()) == Restype.SUBSCRIPTIONS) {
             isConnected = true;
             return;
+        }else if(Restype.valueOf(tickerCoinbaseDto.getType().toUpperCase()) == Restype.ERROR){
+            System.out.println(message.getPayload().toString());
         }
         if (isConnected) {
             if(Restype.valueOf(tickerCoinbaseDto.getType().toUpperCase()) == Restype.TICKER){
-                new CoinbaseWsPublicHelper().emitData(tickerCoinbaseDto);
+                this.coinbaseWSpublic.sendDataToChannel(tickerCoinbaseDto);
             }
         }
 
@@ -94,7 +99,7 @@ public class sessionhandlerWScoinbasepublic implements WebSocketHandler {
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus closeStatus) throws Exception {
         isConnected = false;
-        this.coinbaseWSpublic.connect();
+        this.coinbaseWSpublic.connect(pairs);
     }
 
     @Override

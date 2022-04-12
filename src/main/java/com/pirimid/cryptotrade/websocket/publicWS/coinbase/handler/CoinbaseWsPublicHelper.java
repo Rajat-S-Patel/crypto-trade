@@ -1,8 +1,7 @@
-package com.pirimid.cryptotrade.publicwebsocket.coinbasewspublic.handler;
+package com.pirimid.cryptotrade.websocket.publicWS.coinbase.handler;
 
-import com.pirimid.cryptotrade.publicwebsocket.WsTickerDto;
-import com.pirimid.cryptotrade.publicwebsocket.coinbasewspublic.dto.TickerCoinbaseDto;
-import lombok.Builder;
+import com.pirimid.cryptotrade.websocket.publicWS.WsTickerDto;
+import com.pirimid.cryptotrade.websocket.publicWS.coinbase.dto.TickerCoinbaseDto;
 
 public class CoinbaseWsPublicHelper {
     private WsTickerDto normaliseData(TickerCoinbaseDto tickerCoinbaseDto){
