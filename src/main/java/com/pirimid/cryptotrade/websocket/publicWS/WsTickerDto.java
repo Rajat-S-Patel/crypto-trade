@@ -1,4 +1,4 @@
-package com.pirimid.cryptotrade.publicwebsocket;
+package com.pirimid.cryptotrade.websocket.publicWS;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;

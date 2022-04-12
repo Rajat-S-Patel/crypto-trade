@@ -25,13 +25,14 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 
 @Component
 public class ExcCoinbase implements ExcParent {
     @Value("${api.exchange.coinbase.baseurl}")
     private String baseUrl;
-
+    private List<SymbolResDTO> symbolsDetails = new ArrayList<>();
     private ResponseEntity<String> apiCallerOpen(String uri) throws IOException, InterruptedException {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(uri))
@@ -62,14 +63,15 @@ public class ExcCoinbase implements ExcParent {
 
     @Override
     public List<SymbolResDTO> getPairs() {
-        SymbolResCoinbaseDTO symbolResCoinbaseDTO;
+        if(symbolsDetails!=null & symbolsDetails.size()>0){
+            return  symbolsDetails;
+        }
         List<SymbolResCoinbaseDTO> symbolResCoinbaseDTOS;
-        List<SymbolResDTO> symbolResDTOS;
         try {
             ResponseEntity<String> response = apiCallerOpen(baseUrl + "/products");
             symbolResCoinbaseDTOS = new ObjectMapper().readValue(response.getBody(), new TypeReference<List<SymbolResCoinbaseDTO>>() {});
-            symbolResDTOS = CoinbaseUtil.getPairsResDTO(symbolResCoinbaseDTOS);
-            return symbolResDTOS;
+            symbolsDetails = CoinbaseUtil.getPairsResDTO(symbolResCoinbaseDTOS);
+            return symbolsDetails;
         } catch (IOException e) {
             e.printStackTrace();
         } catch (InterruptedException e) {

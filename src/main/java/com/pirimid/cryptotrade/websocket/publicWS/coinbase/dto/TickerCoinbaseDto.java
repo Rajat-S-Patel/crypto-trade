@@ -1,4 +1,4 @@
-package com.pirimid.cryptotrade.publicwebsocket.coinbasewspublic.dto;
+package com.pirimid.cryptotrade.websocket.publicWS.coinbase.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
