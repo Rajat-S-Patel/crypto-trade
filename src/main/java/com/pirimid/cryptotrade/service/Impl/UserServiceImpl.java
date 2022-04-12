@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import java.sql.Date;
 import java.time.Instant;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -27,4 +28,10 @@ public class UserServiceImpl implements UserService {
         }
         return defaultUser.get();
     }
+
+    @Override
+    public User getUserById(UUID userId) {
+        return userRepository.findById(userId).orElse(null);
+    }
+
 }

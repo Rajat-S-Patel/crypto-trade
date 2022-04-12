@@ -1,8 +1,6 @@
 package com.pirimid.cryptotrade.DTO;
-import com.pirimid.cryptotrade.model.Order;
-import com.pirimid.cryptotrade.model.OrderType;
-import com.pirimid.cryptotrade.model.Side;
-import com.pirimid.cryptotrade.model.Status;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.pirimid.cryptotrade.model.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -10,6 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import java.util.Date;
+import java.util.Set;
 import java.util.UUID;
 
 @Builder
@@ -18,6 +17,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class OrderResDTO {
     String exchangeOrderId;
     String exchangeUserId;
@@ -33,6 +33,8 @@ public class OrderResDTO {
     Double executedAmount;
     Status status;
     UUID accountId;
+    Exchange exchange;
+    Set<Trade> trades = null;
 
     public OrderResDTO(Order order){
         this.setExchangeOrderId(order.getOrderIdExchange());

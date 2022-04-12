@@ -11,6 +11,7 @@ import java.util.Set;
 import java.util.UUID;
 public interface OrderService {
     Order getOrderById(UUID id);
+    Set<OrderResDTO> getOrdersByUserId(UUID userId);
     Set<Order> getOrderByAccount(UUID accountId);
     Set<Order> getAllOrders();
     Set<Order> getAllOrders(String exchange);

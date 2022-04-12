@@ -1,6 +1,7 @@
 package com.pirimid.cryptotrade.model;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.sun.istack.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
@@ -34,6 +35,7 @@ public class Trade {
 
     @ManyToOne(targetEntity = Order.class)
     @JoinColumn(name = "order_id",referencedColumnName = "orderId")
+    @JsonIgnore
     private Order order;
 
     @NotNull

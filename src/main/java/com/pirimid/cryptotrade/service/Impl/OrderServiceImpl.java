@@ -16,7 +16,9 @@ import com.pirimid.cryptotrade.repository.AccountRepository;
 import com.pirimid.cryptotrade.repository.UserRepository;
 import com.pirimid.cryptotrade.repository.TradeRepository;
 import com.pirimid.cryptotrade.repository.OrderRepository;
+import com.pirimid.cryptotrade.service.AccountService;
 import com.pirimid.cryptotrade.service.OrderService;
+import com.pirimid.cryptotrade.service.TradeService;
 import com.pirimid.cryptotrade.service.UserService;
 import com.pirimid.cryptotrade.util.ExchangeUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,6 +47,10 @@ public class OrderServiceImpl implements OrderService {
     ExchangeUtil exchangeUtil;
     @Autowired
     UserService userService;
+    @Autowired
+    AccountService accountService;
+    @Autowired
+    TradeService tradeService;
     User user=null;
     @PostConstruct
     private void postConstructor(){
@@ -64,6 +70,25 @@ public class OrderServiceImpl implements OrderService {
         Optional<Order> order = orderRepository.findById(id);
         if (order.isEmpty()) return null;
         return order.get();
+    }
+
+    @Override
+    public Set<OrderResDTO> getOrdersByUserId(UUID userId) {
+        User user = userService.getUserById(userId);
+        if(user == null) return null;
+        Optional<Set<Order>> orders = orderRepository.findAllByAccount_User(user);
+        if(orders.isPresent()){
+                Set<OrderResDTO> orderResponses = new HashSet<>();
+               for(Order order:orders.get()){
+                   OrderResDTO orderRes = orderToOrderResDto(order);
+                   Set<Trade>  trades = tradeService.getTradesByOrderId(order);
+                   orderRes.setTrades(trades);
+                   orderRes.setExchange(accountService.getAccountById(orderRes.getAccountId()).getExchange());
+                   orderResponses.add(orderRes);
+               }
+               return orderResponses;
+        }
+        return null;
     }
 
     @Override
