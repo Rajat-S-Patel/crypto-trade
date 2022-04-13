@@ -40,7 +40,8 @@ public class Trade {
 
     @NotNull
     private Double amount;
-
+    @NotNull
+    private Double fee;
     @NotNull
     private Date timestamp;
     @NotNull

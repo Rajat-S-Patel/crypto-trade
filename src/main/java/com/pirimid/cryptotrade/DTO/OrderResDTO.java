@@ -35,6 +35,7 @@ public class OrderResDTO {
     UUID accountId;
     Exchange exchange;
     Set<Trade> trades = null;
+    Double fee;
 
     public OrderResDTO(Order order){
         this.setExchangeOrderId(order.getOrderIdExchange());

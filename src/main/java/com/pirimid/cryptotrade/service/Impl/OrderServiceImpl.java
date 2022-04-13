@@ -83,6 +83,7 @@ public class OrderServiceImpl implements OrderService {
                    OrderResDTO orderRes = orderToOrderResDto(order);
                    Set<Trade>  trades = tradeService.getTradesByOrderId(order);
                    orderRes.setTrades(trades);
+                   orderRes.setFee(order.getCommission());
                    orderRes.setExchange(accountService.getAccountById(orderRes.getAccountId()).getExchange());
                    orderResponses.add(orderRes);
                }
@@ -174,14 +175,18 @@ public class OrderServiceImpl implements OrderService {
         trade.setQuantity(tradeDto.getSize());
         trade.setTimestamp(tradeDto.getTime());
         trade.setTradeIdExchange(tradeDto.getTradeId());
-
+        trade.setFee(tradeDto.getFee());
         Order order = optOrder.get();
+        order.getTrades().add(trade);
         order.setCommission((order.getCommission() == null ? 0 : order.getCommission()) + tradeDto.getFee());
         order.setOrderStatus(Status.PARTIALLY_FILLED);
-
+        if(order.getOrderType().equals(OrderType.MARKET)){
+            Double prevPrice = order.getPrice()==null?0:order.getPrice();
+            order.setPrice((prevPrice*(order.getTrades().size()-1) + trade.getMarketPrice())/(order.getTrades().size()));
+        }
         if (order.getOrderType().equals(OrderType.MARKET))
             order.setFilledQuantity((order.getFilledQuantity() == null ? 0 : order.getFilledQuantity()) + (order.getOrderQty() == null ? tradeDto.getFunds() : tradeDto.getSize()));
-         else if(order.getOrderType().equals(OrderType.LIMIT))
+        else if(order.getOrderType().equals(OrderType.LIMIT))
             order.setFilledQuantity((order.getFilledQuantity() == null ? 0 : order.getFilledQuantity()) + tradeDto.getSize());
 
         order = orderRepository.save(order);

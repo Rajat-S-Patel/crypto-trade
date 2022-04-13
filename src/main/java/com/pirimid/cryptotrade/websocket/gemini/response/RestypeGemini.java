@@ -4,9 +4,11 @@ import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum RestypeGemini {
     INITIAL("initial"),
+    BOOKED("booked"),
     ACCEPTED("accepted"),
     FILL("fill"),
     CLOSED("closed"),
+    CANCELLED("cancelled"),
     REJECTED("rejected");
 
     String value;
