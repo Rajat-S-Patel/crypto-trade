@@ -46,10 +46,10 @@ public class GeminiSessionHandler implements WebSocketHandler {
         if(isConnected) {
             List<OrderResponse> orders =  new ObjectMapper().readValue(payload, new TypeReference<List<OrderResponse>>() {});
             for(OrderResponse order:orders){
-
                 if(RestypeGemini.valueOf(order.getType().toUpperCase()) == RestypeGemini.ACCEPTED){
                     // order created method
                     OrderResDTO orderResDTO = GeminiUtil.getPlaceOrderResDTO(order);
+                    orderResDTO.setSymbol(GeminiUtil.getStandardSymbol(orderResDTO.getSymbol()));
                     orderResDTO.setAccountId(account.getAccountId());
                     orderService.createOrder(orderResDTO);
                 }
@@ -61,6 +61,7 @@ public class GeminiSessionHandler implements WebSocketHandler {
                 else if(RestypeGemini.valueOf(order.getType().toUpperCase()) == RestypeGemini.REJECTED){
                     // call method for rejected
                     OrderResDTO orderResDTO = GeminiUtil.getPlaceOrderResDTO(order);
+                    orderResDTO.setSymbol(GeminiUtil.getStandardSymbol(orderResDTO.getSymbol()));
                     orderResDTO.setAccountId(account.getAccountId());
                     orderService.rejectOrderByExchangeOrderId(orderResDTO.getExchangeOrderId(),EXCHANGE.GEMINI,orderResDTO.getEndAt());
                 }
@@ -68,11 +69,13 @@ public class GeminiSessionHandler implements WebSocketHandler {
                     if(order.isCancelled()) {
                         // call method for cancelled
                         OrderResDTO orderResDTO = GeminiUtil.getPlaceOrderResDTO(order);
+                        orderResDTO.setSymbol(GeminiUtil.getStandardSymbol(orderResDTO.getSymbol()));
                         orderResDTO.setAccountId(account.getAccountId());
                         orderService.cancelOrderByExchangeOrderId(orderResDTO.getExchangeOrderId(), EXCHANGE.GEMINI, orderResDTO.getEndAt());
                     }else{
                         // order completed successfully
                         OrderResDTO orderResDTO = GeminiUtil.getPlaceOrderResDTO(order);
+                        orderResDTO.setSymbol(GeminiUtil.getStandardSymbol(orderResDTO.getSymbol()));
                         orderResDTO.setAccountId(account.getAccountId());
                         orderService.completeOrder(orderResDTO);
                     }

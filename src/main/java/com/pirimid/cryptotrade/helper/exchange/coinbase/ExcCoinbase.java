@@ -23,7 +23,10 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Component
 public class ExcCoinbase implements ExcParent {
@@ -60,22 +63,7 @@ public class ExcCoinbase implements ExcParent {
 
     @Override
     public List<SymbolResDTO> getPairs() {
-        SymbolResCoinbaseDTO symbolResCoinbaseDTO;
-        List<SymbolResCoinbaseDTO> symbolResCoinbaseDTOS;
-        List<SymbolResDTO> symbolResDTOS;
-        try {
-            ResponseEntity<String> response = apiCallerOpen(baseUrl + "/products");
-            symbolResCoinbaseDTOS = new ObjectMapper().readValue(response.getBody(), new TypeReference<List<SymbolResCoinbaseDTO>>() {});
-            symbolResDTOS = CoinbaseUtil.getPairsResDTO(symbolResCoinbaseDTOS);
-            return symbolResDTOS;
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-        return null;
+        return new ArrayList<>(CoinbaseUtil.getPairs().values());
     }
 
     @Override
@@ -108,6 +96,11 @@ public class ExcCoinbase implements ExcParent {
             }
             placeOrderResCoinbaseDTO = new ObjectMapper().readValue(responseBody, PlaceOrderResCoinbaseDTO.class);
             OrderResDTO orderResDTO = CoinbaseUtil.getPlaceOrderResDTO(placeOrderResCoinbaseDTO);
+            try {
+                orderResDTO.setSymbol(CoinbaseUtil.getStandardSymbol(orderResDTO.getSymbol()));
+            }catch (RuntimeException e){
+                System.out.println("waiting...");
+            }
             return orderResDTO;
         } catch (Exception e) {
             e.printStackTrace();
@@ -135,6 +128,28 @@ public class ExcCoinbase implements ExcParent {
             return true;
         return false;
 
+    }
+
+    @Override
+    public void fetchPairs() {
+        List<SymbolResCoinbaseDTO> symbolResCoinbaseDTOS;
+        List<SymbolResDTO> symbolResDTOS;
+        try {
+            ResponseEntity<String> response = apiCallerOpen(baseUrl + "/products");
+            symbolResCoinbaseDTOS = new ObjectMapper().readValue(response.getBody(), new TypeReference<List<SymbolResCoinbaseDTO>>() {});
+            symbolResDTOS = CoinbaseUtil.getPairsResDTO(symbolResCoinbaseDTOS);
+            Map<String,SymbolResDTO> symbolMap = new HashMap<String,SymbolResDTO>();
+            for(int i=0;i<symbolResDTOS.size();i++){
+                symbolMap.put(symbolResCoinbaseDTOS.get(i).getId(),symbolResDTOS.get(i));
+            }
+            CoinbaseUtil.setSymbolMap(symbolMap);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
 }

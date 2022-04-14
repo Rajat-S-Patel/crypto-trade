@@ -23,10 +23,23 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
+import java.util.Map;
 
 @Component
 public class CoinbaseUtil {
+    private static Map<String,SymbolResDTO> symbolMap = null;
 
+    public static void setSymbolMap(Map<String,SymbolResDTO> map){
+        symbolMap = map;
+        System.out.println("Coinbase symbol map initialized");
+    }
+    public static Map<String,SymbolResDTO> getPairs() {
+        return symbolMap;
+    }
+    public static String getStandardSymbol(String symbol) throws RuntimeException{
+        if(symbolMap==null) throw new RuntimeException("Uninitialized Symbol Map");
+        return symbolMap.get(symbol).getSymbol();
+    }
 
     public static String getSignature(String timestamp, String secretKeyString, String method, String path, String body) throws NoSuchAlgorithmException, InvalidKeyException {
         String prehash = timestamp + method + path + body;
@@ -115,7 +128,13 @@ public class CoinbaseUtil {
         List<SymbolResDTO> symbolResDTOS = new ArrayList<>();
         for (SymbolResCoinbaseDTO symbol : symbolResCoinbaseDTOS) {
             if (symbol != null) {
-                SymbolResDTO symbolResDTO = new SymbolResDTO(symbol.getId(), symbol.getBaseCurrency(), symbol.getQuoteCurrency(), symbol.getBaseMinSize(), symbol.getMinMarketFunds());
+                SymbolResDTO symbolResDTO = SymbolResDTO.builder()
+                        .symbol(symbol.getBaseCurrency()+"-"+symbol.getQuoteCurrency())
+                        .base(symbol.getBaseCurrency())
+                        .quote(symbol.getQuoteCurrency())
+                        .minOrderSize(symbol.getBaseMinSize())
+                        .minMarketFunds(symbol.getMinMarketFunds())
+                        .build();
                 symbolResDTOS.add(symbolResDTO);
             }
         }

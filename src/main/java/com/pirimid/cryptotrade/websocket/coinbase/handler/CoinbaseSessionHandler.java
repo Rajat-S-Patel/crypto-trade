@@ -110,6 +110,7 @@ public class CoinbaseSessionHandler implements WebSocketHandler {
                 case RECEIVED: {
                     WSCoinbaseOrderDto wsCoinbaseOrderDto = new ObjectMapper().readValue(message.getPayload().toString(), WSCoinbaseOrderDto.class);
                     OrderResDTO orderResDTO = CoinbaseUtil.getWsPlaceOrderResDTO(wsCoinbaseOrderDto);
+                    orderResDTO.setSymbol(CoinbaseUtil.getStandardSymbol(orderResDTO.getSymbol()));
                     orderResDTO.setAccountId(account.getAccountId());
                     //call method for order received
                     orderService.createOrder(orderResDTO);
@@ -120,11 +121,13 @@ public class CoinbaseSessionHandler implements WebSocketHandler {
                     WSCoinbaseOrderDto wsCoinbaseOrderDto = new ObjectMapper().readValue(message.getPayload().toString(), WSCoinbaseOrderDto.class);
                     if (Reason.valueOf(wsCoinbaseOrderDto.getReason().toUpperCase()) == Reason.FILLED) {
                         OrderResDTO orderResDTO = CoinbaseUtil.getWsPlaceOrderResDTO(wsCoinbaseOrderDto);
+                        orderResDTO.setSymbol(CoinbaseUtil.getStandardSymbol(orderResDTO.getSymbol()));
                         orderResDTO.setAccountId(account.getAccountId());
                         ////call method for order closed(filled)
                         orderService.completeOrder(orderResDTO);
                     } else if (Reason.valueOf(wsCoinbaseOrderDto.getReason().toUpperCase()) == Reason.CANCELED) {
                         OrderResDTO orderResDTO = CoinbaseUtil.getWsPlaceOrderResDTO(wsCoinbaseOrderDto);
+                        orderResDTO.setSymbol(CoinbaseUtil.getStandardSymbol(orderResDTO.getSymbol()));
                         orderResDTO.setAccountId(account.getAccountId());
                         //call method for order cancelled
                         orderService.cancelOrderByExchangeOrderId(orderResDTO.getExchangeOrderId(), EXCHANGE.COINBASE, orderResDTO.getEndAt());

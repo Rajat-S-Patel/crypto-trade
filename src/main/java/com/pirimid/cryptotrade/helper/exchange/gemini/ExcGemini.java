@@ -38,7 +38,6 @@ public class ExcGemini implements ExcParent {
 
     @Value("${api.exchange.gemini.baseurl}")
     private String baseUrl;
-    private List<SymbolResDTO> symbolDetails = new ArrayList<>();
     private ResponseEntity<String> apiCaller(String uri,String reqType) throws IOException, InterruptedException {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(uri))
@@ -70,27 +69,30 @@ public class ExcGemini implements ExcParent {
         headers.setContentType(MediaType.APPLICATION_JSON);
         return new ResponseEntity<String>(response.body(),headers, HttpStatus.ACCEPTED);
     }
-
     @Override
-    public List<SymbolResDTO> getPairs() {
-        if(symbolDetails!=null && symbolDetails.size()>0){
-            return symbolDetails;
-        }
+    public void fetchPairs() {
         try {
+            List<SymbolResDTO> symbolDetails = new ArrayList<>();
             ResponseEntity<String> res = apiCaller(baseUrl+"/v1/symbols","GET");
             List<String> symbols= new ObjectMapper().readValue(res.getBody(), new TypeReference<List<String>>() {});
+            Map<String,SymbolResDTO> symbolMap = new HashMap<String,SymbolResDTO>();
             for(String symbol : symbols){
                 ResponseEntity<String> symRes = apiCaller(baseUrl+"/v1/symbols/details/"+symbol,"GET");
                 SymbolResponse response = new ObjectMapper().readValue(symRes.getBody(),SymbolResponse.class);
-                symbolDetails.add(GeminiUtil.getSymbolResDTO(response));
+                SymbolResDTO symbolResDTO = GeminiUtil.getSymbolResDTO(response);
+                symbolMap.put(response.getSymbol().toLowerCase(),symbolResDTO);
+                symbolDetails.add(symbolResDTO);
             }
-            return symbolDetails;
+            GeminiUtil.setSymbolMap(symbolMap);
         } catch (IOException e) {
             e.printStackTrace();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        return null;
+    }
+    @Override
+    public List<SymbolResDTO> getPairs() {
+        return new ArrayList<>(GeminiUtil.getPairs().values());
     }
 
     @Override
@@ -126,7 +128,13 @@ public class ExcGemini implements ExcParent {
             ResponseEntity<String> res = apiCaller(baseUrl+"/v1/order/new","POST",b64,signature,apiKey);
 
             CreateOrderResponse orderResponse = new ObjectMapper().readValue(res.getBody(), CreateOrderResponse.class);
-            return GeminiUtil.getPlaceOrderResDTO(orderResponse);
+            OrderResDTO orderResDTO = GeminiUtil.getPlaceOrderResDTO(orderResponse);
+            try {
+                orderResDTO.setSymbol(GeminiUtil.getStandardSymbol(orderResDTO.getSymbol()));
+            }catch (RuntimeException e){
+                System.out.println("waiting...");
+            }
+            return orderResDTO;
         }
         catch (NoSuchAlgorithmException | InvalidKeyException | IOException | InterruptedException e) {
             e.printStackTrace();

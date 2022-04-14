@@ -1,7 +1,7 @@
 package com.pirimid.cryptotrade.bootstrap;
 
-import com.pirimid.cryptotrade.helper.exchange.gemini.ExcGemini;
 import com.pirimid.cryptotrade.repository.AccountRepository;
+import com.pirimid.cryptotrade.service.ExchangeService;
 import com.pirimid.cryptotrade.websocket.coinbase.WSCoinbase;
 import com.pirimid.cryptotrade.websocket.gemini.WSGemini;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,8 +20,10 @@ public class WebSocketBootsrap {
     WSCoinbase wsCoinbase;
     @Autowired
     WSGemini wsGemini;
+
     @Autowired
-    ExcGemini excGemini;
+    ExchangeService exchangeService;
+
     private void connecToCoinbase(){
         wsCoinbase.connect();
     }
@@ -32,6 +34,6 @@ public class WebSocketBootsrap {
     public void run() throws Exception {
         connecToCoinbase();
         connecToGemini();
-        excGemini.getPairs();
+        exchangeService.fetchAllPairs();
     }
 }
