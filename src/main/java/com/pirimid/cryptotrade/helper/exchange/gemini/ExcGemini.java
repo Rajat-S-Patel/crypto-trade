@@ -28,10 +28,12 @@ import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Component
 public class ExcGemini implements ExcParent {
@@ -79,7 +81,14 @@ public class ExcGemini implements ExcParent {
         try {
             ResponseEntity<String> res = apiCaller(baseUrl+"/v1/symbols","GET");
             List<String> symbols= new ObjectMapper().readValue(res.getBody(), new TypeReference<List<String>>() {});
-            for(String symbol : symbols){
+            List<String> filters = Arrays.asList("btcusd",
+                    "ethbtc",
+                    "batusd",
+                    "linkusd",
+                    "btceur",
+                    "btcgbp");
+            List<String> filterSymbols = symbols.stream().filter(symbol->filters.contains(symbol)).collect(Collectors.toList());
+            for(String symbol : filterSymbols){
                 ResponseEntity<String> symRes = apiCaller(baseUrl+"/v1/symbols/details/"+symbol,"GET");
                 SymbolResponse response = new ObjectMapper().readValue(symRes.getBody(),SymbolResponse.class);
                 symbolDetails.add(GeminiUtil.getSymbolResDTO(response));

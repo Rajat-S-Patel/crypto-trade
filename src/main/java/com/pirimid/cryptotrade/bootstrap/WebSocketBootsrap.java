@@ -7,6 +7,7 @@ import com.pirimid.cryptotrade.websocket.publicWS.coinbase.CoinbaseWSpublic;
 import com.pirimid.cryptotrade.repository.AccountRepository;
 import com.pirimid.cryptotrade.websocket.coinbase.WSCoinbase;
 import com.pirimid.cryptotrade.websocket.gemini.WSGemini;
+import com.pirimid.cryptotrade.websocket.publicWS.gemini.GeminiWSPublic;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.annotation.Configuration;
@@ -31,16 +32,17 @@ public class WebSocketBootsrap {
     ExcCoinbase excCoinbase;
     @Autowired
     CoinbaseWSpublic coinbaseWSpublic;
+    @Autowired
+    GeminiWSPublic geminiWSPublic;
     private void connecToCoinbase(){
         wsCoinbase.connect();
     }
     private void connecToGemini(){ wsGemini.connect();    }
     @EventListener(ApplicationReadyEvent.class)
     public void run() throws Exception {
-//        List<SymbolResDTO> geminiPairs = excGemini.getPairs();
-        List<SymbolResDTO> coinbasePairs = excCoinbase.getPairs();
 //        connecToCoinbase();
-        coinbaseWSpublic.connect(coinbasePairs);
+        coinbaseWSpublic.connect();
+//        geminiWSPublic.connect();
 //        connecToGemini();
     }
 }

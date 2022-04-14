@@ -7,5 +7,5 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 
 public interface publicWS {
-    void connect(List<SymbolResDTO> pairs) throws ExecutionException, InterruptedException, TimeoutException;
+    void connect() throws ExecutionException, InterruptedException, TimeoutException;
 }
