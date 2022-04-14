@@ -41,7 +41,13 @@ public class sessionhandlerWScoinbasepublic implements WebSocketHandler {
         channels.add(ReqChannel.HEARTBEAT);
         channels.add(ReqChannel.TICKER);
         List<String> pids = new ArrayList<>();
-        pairs.forEach(pair->pids.add(pair.getSymbol()));
+//        pairs.forEach(pair->pids.add(pair.getSymbol()));
+        pids.add("BTC-GBP");
+        pids.add("LINK-USD");
+        pids.add("BTC-USD");
+        pids.add("ETH-BTC");
+        pids.add("BAT-USD");
+        pids.add("BTC-EUR");
         System.out.println(pids);
         ChannelReq req = ChannelReq.builder()
                 .type(ReqType.SUBSCRIBE)
@@ -99,7 +105,7 @@ public class sessionhandlerWScoinbasepublic implements WebSocketHandler {
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus closeStatus) throws Exception {
         isConnected = false;
-        this.coinbaseWSpublic.connect(pairs);
+        this.coinbaseWSpublic.connect();
     }
 
     @Override

@@ -1,6 +1,7 @@
 package com.pirimid.cryptotrade.websocket.publicWS.coinbase;
 
 import com.pirimid.cryptotrade.DTO.SymbolResDTO;
+import com.pirimid.cryptotrade.helper.exchange.coinbase.ExcCoinbase;
 import com.pirimid.cryptotrade.websocket.publicWS.WsTickerDto;
 import com.pirimid.cryptotrade.websocket.publicWS.coinbase.dto.TickerCoinbaseDto;
 import com.pirimid.cryptotrade.websocket.publicWS.coinbase.handler.sessionhandlerWScoinbasepublic;
@@ -30,6 +31,9 @@ public class CoinbaseWSpublic implements publicWS {
     @Autowired
     private PublicWebsocketService websocketService;
 
+    @Autowired
+    private ExcCoinbase excCoinbase;
+
     private WsTickerDto normaliseData(TickerCoinbaseDto tickerCoinbaseDto){
         WsTickerDto wsTickerDto = WsTickerDto.builder()
                 .symbol(tickerCoinbaseDto.getProductId())
@@ -51,12 +55,13 @@ public class CoinbaseWSpublic implements publicWS {
     }
 
     @Override
-    public void connect(List<SymbolResDTO> pairs){
+    public void connect(){
+        List<SymbolResDTO> pairs = excCoinbase.getPairs();
         WebSocketClient client = new StandardWebSocketClient();
         try {
             client
                     .doHandshake(new sessionhandlerWScoinbasepublic(this,pairs), new WebSocketHttpHeaders(), URI.create(baseUrl))
-                    .get(10000, TimeUnit.SECONDS);
+                    .get(1000, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
             e.printStackTrace();
         } catch (ExecutionException e) {
