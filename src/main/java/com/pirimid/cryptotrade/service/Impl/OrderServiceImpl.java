@@ -72,7 +72,9 @@ public class OrderServiceImpl implements OrderService {
         OrderResDTO orderResDTO = new OrderResDTO(order);
         return  orderResDTO;
     }
-
+    private void sendOrderUpdateToClient(OrderResDTO orderResDTO){
+        messagingTemplate.convertAndSend("/topic/order/"+user.getUserId().toString(),orderResDTO);
+    }
     @Override
     public Order getOrderById(UUID id) {
         Optional<Order> order = orderRepository.findById(id);
@@ -173,7 +175,7 @@ public class OrderServiceImpl implements OrderService {
         newOrder = orderRepository.save(newOrder);
         orderDto.setOrderId(newOrder.getOrderId());
         orderDto.setExchange(optAccount.get().getExchange());
-        messagingTemplate.convertAndSend("/topic/order/"+user.getUserId().toString(),orderDto);
+        this.sendOrderUpdateToClient(orderDto);
         return orderDto;
     }
 
@@ -209,8 +211,7 @@ public class OrderServiceImpl implements OrderService {
         trade.setOrder(order);
         tradeRepository.save(trade);
         OrderResDTO orderResDTO = this.orderToOrderResDto(order);
-        System.out.println(orderResDTO.toString());
-        messagingTemplate.convertAndSend("/topic/order/"+user.getUserId().toString(),orderResDTO);
+        this.sendOrderUpdateToClient(orderResDTO);
         return orderResDTO;
     }
 
@@ -225,7 +226,7 @@ public class OrderServiceImpl implements OrderService {
             orderDto.setOrderId(order.get().getOrderId());
             orderDto.setExchange(order.get().getAccount().getExchange());
             System.out.println("order completed");
-            messagingTemplate.convertAndSend("/topic/order/"+user.getUserId().toString(),orderDto);
+            this.sendOrderUpdateToClient(orderDto);
             orderRepository.save(order.get());
             return orderDto;
         }
@@ -240,7 +241,7 @@ public class OrderServiceImpl implements OrderService {
         Order order = optOrder.get();
         order.setOrderStatus(Status.REJECTED);
         order.setEndTime(timestamp);
-        messagingTemplate.convertAndSend("/topic/order/"+order.getAccount().getUser().getUserId()+"/order",order);
+        this.sendOrderUpdateToClient(orderToOrderResDto(order));
         orderRepository.save(order);
         return order.getOrderId().toString();
     }
@@ -253,7 +254,7 @@ public class OrderServiceImpl implements OrderService {
         Order order = optOrder.get();
         order.setOrderStatus(Status.CANCELLED);
         order.setEndTime(timestamp);
-        messagingTemplate.convertAndSend("/topic/order/"+order.getAccount().getUser().getUserId()+"/order",order);
+        this.sendOrderUpdateToClient(orderToOrderResDto(order));
         orderRepository.save(order);
         return order.getOrderId().toString();
     }
