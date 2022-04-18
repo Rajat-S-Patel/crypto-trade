@@ -1,4 +1,4 @@
-package com.pirimid.cryptotrade.websocket.gemini.handler;
+package com.pirimid.cryptotrade.websocket.privateWS.gemini.handler;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -8,17 +8,14 @@ import com.pirimid.cryptotrade.helper.exchange.EXCHANGE;
 import com.pirimid.cryptotrade.model.Account;
 import com.pirimid.cryptotrade.service.OrderService;
 import com.pirimid.cryptotrade.util.GeminiUtil;
-import com.pirimid.cryptotrade.websocket.WSExchange;
-import com.pirimid.cryptotrade.websocket.gemini.WSGemini;
-import com.pirimid.cryptotrade.websocket.gemini.response.OrderResponse;
-import com.pirimid.cryptotrade.websocket.gemini.response.RestypeGemini;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.pirimid.cryptotrade.websocket.privateWS.gemini.WSGemini;
+import com.pirimid.cryptotrade.websocket.privateWS.gemini.response.OrderResponse;
+import com.pirimid.cryptotrade.websocket.privateWS.gemini.response.RestypeGemini;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.WebSocketMessage;
 import org.springframework.web.socket.WebSocketSession;
 
-import java.util.EventListener;
 import java.util.List;
 
 public class GeminiSessionHandler implements WebSocketHandler {

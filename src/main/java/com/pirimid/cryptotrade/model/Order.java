@@ -74,7 +74,7 @@ public class Order {
 
     private Double commission;
 
-    @OneToMany(mappedBy = "tradeId",fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "order",fetch = FetchType.EAGER)
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     @JsonIgnore

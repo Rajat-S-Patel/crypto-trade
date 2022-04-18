@@ -52,5 +52,8 @@ public class OrderResDTO {
         this.setExecutedAmount(order.getFilledQuantity());
         this.setStatus(order.getOrderStatus());
         this.setAccountId(order.getAccount().getAccountId());
+        this.setExchange(order.getAccount().getExchange());
+        this.setTrades(order.getTrades());
+        this.setFee(order.getCommission());
     }
 }

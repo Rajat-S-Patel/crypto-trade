@@ -1,4 +1,4 @@
-package com.pirimid.cryptotrade.websocket.coinbase.req;
+package com.pirimid.cryptotrade.websocket.privateWS.coinbase.req;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;

@@ -11,8 +11,8 @@ import com.pirimid.cryptotrade.helper.exchange.gemini.dto.response.SymbolRespons
 import com.pirimid.cryptotrade.model.OrderType;
 import com.pirimid.cryptotrade.model.Side;
 import com.pirimid.cryptotrade.model.Status;
-import com.pirimid.cryptotrade.websocket.gemini.response.OrderResponse;
-import com.pirimid.cryptotrade.websocket.gemini.response.RestypeGemini;
+import com.pirimid.cryptotrade.websocket.privateWS.gemini.response.OrderResponse;
+import com.pirimid.cryptotrade.websocket.privateWS.gemini.response.RestypeGemini;
 import org.apache.tomcat.util.buf.HexUtils;
 import org.springframework.stereotype.Component;
 

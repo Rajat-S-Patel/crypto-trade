@@ -25,12 +25,14 @@ import com.pirimid.cryptotrade.service.TradeService;
 import com.pirimid.cryptotrade.service.UserService;
 import com.pirimid.cryptotrade.util.ExchangeUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -82,18 +84,20 @@ public class OrderServiceImpl implements OrderService {
     public Set<OrderResDTO> getOrdersByUserId(UUID userId) {
         User user = userService.getUserById(userId);
         if(user == null) return null;
-        Optional<Set<Order>> orders = orderRepository.findAllByAccount_User(user);
+        Optional<List<Order>> orders = orderRepository.findAllByAccount_User(user);
         if(orders.isPresent()){
-                Set<OrderResDTO> orderResponses = new HashSet<>();
-               for(Order order:orders.get()){
-                   OrderResDTO orderRes = orderToOrderResDto(order);
-                   Set<Trade>  trades = tradeService.getTradesByOrderId(order);
-                   orderRes.setTrades(trades);
-                   orderRes.setFee(order.getCommission());
-                   orderRes.setExchange(accountService.getAccountById(orderRes.getAccountId()).getExchange());
-                   orderResponses.add(orderRes);
-               }
-               return orderResponses;
+            Set<OrderResDTO> orderResponses = new HashSet<>();
+            orders.get()
+                    .stream()
+                    .forEach(order->{
+                        OrderResDTO orderRes = orderToOrderResDto(order);
+                        Set<Trade>  trades = order.getTrades();
+                        orderRes.setTrades(trades);
+                        orderRes.setFee(order.getCommission());
+                        orderRes.setExchange(order.getAccount().getExchange());
+                        orderResponses.add(orderRes);
+                    });
+            return orderResponses;
         }
         return null;
     }
@@ -164,11 +168,12 @@ public class OrderServiceImpl implements OrderService {
             orderDto.setOrderId(order.get().getOrderId());
             return orderDto;
         }
+        System.out.println("received order from ws");
         Order newOrder = orderResDtoToOrder(orderDto,optAccount.get());
-        System.out.println("/queue/"+optAccount.get().getUser().getUserId().toString());
-        messagingTemplate.convertAndSend("/queue/"+optAccount.get().getUser().getUserId().toString(),orderDto);
         newOrder = orderRepository.save(newOrder);
         orderDto.setOrderId(newOrder.getOrderId());
+        orderDto.setExchange(optAccount.get().getExchange());
+        messagingTemplate.convertAndSend("/topic/order/"+user.getUserId().toString(),orderDto);
         return orderDto;
     }
 
@@ -202,10 +207,10 @@ public class OrderServiceImpl implements OrderService {
         order = orderRepository.save(order);
         tradeDto.setOrderId(order.getOrderId());
         trade.setOrder(order);
-        messagingTemplate.convertAndSend("/queue/"+order.getAccount().getUser().getUserId()+"/trade",trade);
         tradeRepository.save(trade);
-
         OrderResDTO orderResDTO = this.orderToOrderResDto(order);
+        System.out.println(orderResDTO.toString());
+        messagingTemplate.convertAndSend("/topic/order/"+user.getUserId().toString(),orderResDTO);
         return orderResDTO;
     }
 
@@ -218,7 +223,9 @@ public class OrderServiceImpl implements OrderService {
             order.get().setOrderStatus(orderDto.getStatus());
             order.get().setEndTime(orderDto.getEndAt());
             orderDto.setOrderId(order.get().getOrderId());
-            messagingTemplate.convertAndSend("/queue/"+order.get().getAccount().getUser().getUserId()+"/order",orderDto);
+            orderDto.setExchange(order.get().getAccount().getExchange());
+            System.out.println("order completed");
+            messagingTemplate.convertAndSend("/topic/order/"+user.getUserId().toString(),orderDto);
             orderRepository.save(order.get());
             return orderDto;
         }
@@ -233,7 +240,7 @@ public class OrderServiceImpl implements OrderService {
         Order order = optOrder.get();
         order.setOrderStatus(Status.REJECTED);
         order.setEndTime(timestamp);
-        messagingTemplate.convertAndSend("/queue/"+order.getAccount().getUser().getUserId()+"/order",order);
+        messagingTemplate.convertAndSend("/topic/order/"+order.getAccount().getUser().getUserId()+"/order",order);
         orderRepository.save(order);
         return order.getOrderId().toString();
     }
@@ -246,7 +253,7 @@ public class OrderServiceImpl implements OrderService {
         Order order = optOrder.get();
         order.setOrderStatus(Status.CANCELLED);
         order.setEndTime(timestamp);
-        messagingTemplate.convertAndSend("/queue/"+order.getAccount().getUser().getUserId()+"/order",order);
+        messagingTemplate.convertAndSend("/topic/order/"+order.getAccount().getUser().getUserId()+"/order",order);
         orderRepository.save(order);
         return order.getOrderId().toString();
     }

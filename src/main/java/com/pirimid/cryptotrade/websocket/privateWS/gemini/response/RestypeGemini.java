@@ -1,4 +1,4 @@
-package com.pirimid.cryptotrade.websocket.gemini.response;
+package com.pirimid.cryptotrade.websocket.privateWS.gemini.response;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 

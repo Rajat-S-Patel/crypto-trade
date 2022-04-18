@@ -1,4 +1,4 @@
-package com.pirimid.cryptotrade.websocket.gemini;
+package com.pirimid.cryptotrade.websocket.privateWS.gemini;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -8,18 +8,16 @@ import com.pirimid.cryptotrade.model.Account;
 import com.pirimid.cryptotrade.service.AccountService;
 import com.pirimid.cryptotrade.service.OrderService;
 import com.pirimid.cryptotrade.util.GeminiUtil;
-import com.pirimid.cryptotrade.websocket.WSExchange;
-import com.pirimid.cryptotrade.websocket.gemini.handler.GeminiSessionHandler;
+import com.pirimid.cryptotrade.websocket.privateWS.WSExchange;
+import com.pirimid.cryptotrade.websocket.privateWS.gemini.handler.GeminiSessionHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.WebSocketHttpHeaders;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.client.WebSocketClient;
 import org.springframework.web.socket.client.standard.StandardWebSocketClient;
 
-import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;

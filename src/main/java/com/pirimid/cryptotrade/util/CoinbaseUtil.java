@@ -10,9 +10,9 @@ import com.pirimid.cryptotrade.helper.exchange.coinbase.dto.response.SymbolResCo
 import com.pirimid.cryptotrade.model.OrderType;
 import com.pirimid.cryptotrade.model.Side;
 import com.pirimid.cryptotrade.model.Status;
-import com.pirimid.cryptotrade.websocket.coinbase.res.Restype;
-import com.pirimid.cryptotrade.websocket.coinbase.res.WSCoinbaseOrderDto;
-import com.pirimid.cryptotrade.websocket.coinbase.res.WSCoinbaseTradeDto;
+import com.pirimid.cryptotrade.websocket.privateWS.coinbase.res.Restype;
+import com.pirimid.cryptotrade.websocket.privateWS.coinbase.res.WSCoinbaseOrderDto;
+import com.pirimid.cryptotrade.websocket.privateWS.coinbase.res.WSCoinbaseTradeDto;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.Mac;
@@ -27,7 +27,7 @@ import java.util.Map;
 
 @Component
 public class CoinbaseUtil {
-    private static Map<String,SymbolResDTO> symbolMap = null;
+    private static Map<String, SymbolResDTO> symbolMap = null;
 
     public static void setSymbolMap(Map<String,SymbolResDTO> map){
         symbolMap = map;

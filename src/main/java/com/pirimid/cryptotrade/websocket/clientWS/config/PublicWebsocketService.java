@@ -16,7 +16,11 @@ public class PublicWebsocketService {
     @Autowired
     private SimpMessageSendingOperations messagingTemplate;
 
-    public Map<String,Integer> subscribedPairs = new HashMap<>();
+    private Map<String,Integer> subscribedPairs = new HashMap<>();
+
+    public Map<String,Integer> getSubscribedPairs(){
+        return subscribedPairs;
+    }
 
     @EventListener
     public void subscribeEventListener(SessionSubscribeEvent event){

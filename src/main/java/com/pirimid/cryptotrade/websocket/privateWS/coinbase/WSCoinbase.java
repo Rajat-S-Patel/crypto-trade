@@ -1,12 +1,12 @@
-package com.pirimid.cryptotrade.websocket.coinbase;
+package com.pirimid.cryptotrade.websocket.privateWS.coinbase;
 
 import com.pirimid.cryptotrade.helper.exchange.EXCHANGE;
 import com.pirimid.cryptotrade.helper.exchange.coinbase.ExcCoinbase;
 import com.pirimid.cryptotrade.model.Account;
 import com.pirimid.cryptotrade.service.AccountService;
 import com.pirimid.cryptotrade.service.OrderService;
-import com.pirimid.cryptotrade.websocket.WSExchange;
-import com.pirimid.cryptotrade.websocket.coinbase.handler.CoinbaseSessionHandler;
+import com.pirimid.cryptotrade.websocket.privateWS.WSExchange;
+import com.pirimid.cryptotrade.websocket.privateWS.coinbase.handler.CoinbaseSessionHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;

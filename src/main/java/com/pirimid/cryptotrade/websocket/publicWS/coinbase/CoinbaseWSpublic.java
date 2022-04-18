@@ -1,7 +1,5 @@
 package com.pirimid.cryptotrade.websocket.publicWS.coinbase;
 
-import com.pirimid.cryptotrade.DTO.SymbolResDTO;
-import com.pirimid.cryptotrade.helper.exchange.coinbase.ExcCoinbase;
 import com.pirimid.cryptotrade.websocket.publicWS.WsTickerDto;
 import com.pirimid.cryptotrade.websocket.publicWS.coinbase.dto.TickerCoinbaseDto;
 import com.pirimid.cryptotrade.websocket.publicWS.coinbase.handler.sessionhandlerWScoinbasepublic;
@@ -16,7 +14,6 @@ import org.springframework.web.socket.client.WebSocketClient;
 import org.springframework.web.socket.client.standard.StandardWebSocketClient;
 
 import java.net.URI;
-import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -31,8 +28,6 @@ public class CoinbaseWSpublic implements publicWS {
     @Autowired
     private PublicWebsocketService websocketService;
 
-    @Autowired
-    private ExcCoinbase excCoinbase;
 
     private WsTickerDto normaliseData(TickerCoinbaseDto tickerCoinbaseDto){
         WsTickerDto wsTickerDto = WsTickerDto.builder()
@@ -48,19 +43,17 @@ public class CoinbaseWSpublic implements publicWS {
     public void sendDataToChannel(TickerCoinbaseDto tickerCoinbaseDto){
         WsTickerDto wsTickerDto = normaliseData(tickerCoinbaseDto);
         String destination = "/topic/price.coinbase."+tickerCoinbaseDto.getProductId();
-        if(websocketService.subscribedPairs.containsKey(destination)) {
-            System.out.println(tickerCoinbaseDto.toString());
+        if(websocketService.getSubscribedPairs().containsKey(destination)) {
             messagingTemplate.convertAndSend(destination, wsTickerDto);
         }
     }
 
     @Override
     public void connect(){
-        List<SymbolResDTO> pairs = excCoinbase.getPairs();
         WebSocketClient client = new StandardWebSocketClient();
         try {
             client
-                    .doHandshake(new sessionhandlerWScoinbasepublic(this,pairs), new WebSocketHttpHeaders(), URI.create(baseUrl))
+                    .doHandshake(new sessionhandlerWScoinbasepublic(this), new WebSocketHttpHeaders(), URI.create(baseUrl))
                     .get(1000, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
             e.printStackTrace();

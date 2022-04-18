@@ -24,7 +24,7 @@ public class GeminiPublicSessionHandler implements WebSocketHandler {
         if(message.getPayload().toString().contains("heartbeat")) return;
         TickerGeminiDto tickerGeminiDto = (new ObjectMapper()).readValue(message.getPayload().toString(),TickerGeminiDto.class);
         if(tickerGeminiDto.getType().equals("update"))
-            System.out.println(tickerGeminiDto);
+            this.geminiWSPublic.sendDataToChannel(tickerGeminiDto);
 
     }
 

@@ -2,12 +2,13 @@ package com.pirimid.cryptotrade.websocket.publicWS.coinbase.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pirimid.cryptotrade.DTO.SymbolResDTO;
+import com.pirimid.cryptotrade.util.CoinbaseUtil;
 import com.pirimid.cryptotrade.websocket.publicWS.coinbase.CoinbaseWSpublic;
 import com.pirimid.cryptotrade.websocket.publicWS.coinbase.dto.TickerCoinbaseDto;
-import com.pirimid.cryptotrade.websocket.coinbase.req.ChannelReq;
-import com.pirimid.cryptotrade.websocket.coinbase.req.ReqChannel;
-import com.pirimid.cryptotrade.websocket.coinbase.req.ReqType;
-import com.pirimid.cryptotrade.websocket.coinbase.res.Restype;
+import com.pirimid.cryptotrade.websocket.privateWS.coinbase.req.ChannelReq;
+import com.pirimid.cryptotrade.websocket.privateWS.coinbase.req.ReqChannel;
+import com.pirimid.cryptotrade.websocket.privateWS.coinbase.req.ReqType;
+import com.pirimid.cryptotrade.websocket.privateWS.coinbase.res.Restype;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketHandler;
@@ -25,10 +26,9 @@ public class sessionhandlerWScoinbasepublic implements WebSocketHandler {
     private Boolean isConnected = false;
     private WebSocketSession session;
     private CoinbaseWSpublic coinbaseWSpublic;
-    private List<SymbolResDTO> pairs;
-    public sessionhandlerWScoinbasepublic(CoinbaseWSpublic coinbaseWSpublic, List<SymbolResDTO> pairs) {
+    private List<SymbolResDTO> pairs = new ArrayList<>(CoinbaseUtil.getPairs().values());
+    public sessionhandlerWScoinbasepublic(CoinbaseWSpublic coinbaseWSpublic) {
         this.coinbaseWSpublic = coinbaseWSpublic;
-        this.pairs = pairs;
     }
 
     private void sendData(String data) throws IOException {
