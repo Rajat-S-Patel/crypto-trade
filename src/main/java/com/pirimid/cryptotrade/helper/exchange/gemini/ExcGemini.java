@@ -141,7 +141,7 @@ public class ExcGemini implements ExcParent {
             try {
                 orderResDTO.setSymbol(GeminiUtil.getStandardSymbol(orderResDTO.getSymbol()));
             }catch (RuntimeException e){
-                System.out.println("waiting...");
+                e.printStackTrace();
             }
             return orderResDTO;
         }

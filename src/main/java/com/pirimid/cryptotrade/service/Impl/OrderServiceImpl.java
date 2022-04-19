@@ -170,7 +170,6 @@ public class OrderServiceImpl implements OrderService {
             orderDto.setOrderId(order.get().getOrderId());
             return orderDto;
         }
-        System.out.println("received order from ws");
         Order newOrder = orderResDtoToOrder(orderDto,optAccount.get());
         newOrder = orderRepository.save(newOrder);
         orderDto.setOrderId(newOrder.getOrderId());
@@ -225,7 +224,6 @@ public class OrderServiceImpl implements OrderService {
             order.get().setEndTime(orderDto.getEndAt());
             orderDto.setOrderId(order.get().getOrderId());
             orderDto.setExchange(order.get().getAccount().getExchange());
-            System.out.println("order completed");
             this.sendOrderUpdateToClient(orderDto);
             orderRepository.save(order.get());
             return orderDto;

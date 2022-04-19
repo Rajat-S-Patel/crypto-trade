@@ -31,7 +31,6 @@ public class CoinbaseUtil {
 
     public static void setSymbolMap(Map<String,SymbolResDTO> map){
         symbolMap = map;
-        System.out.println("Coinbase symbol map initialized");
     }
     public static Map<String,SymbolResDTO> getPairs() {
         return symbolMap;

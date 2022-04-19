@@ -48,7 +48,6 @@ public class sessionhandlerWScoinbasepublic implements WebSocketHandler {
         pids.add("ETH-BTC");
         pids.add("BAT-USD");
         pids.add("BTC-EUR");
-        System.out.println(pids);
         ChannelReq req = ChannelReq.builder()
                 .type(ReqType.SUBSCRIBE)
                 .productIds(pids)
@@ -86,7 +85,6 @@ public class sessionhandlerWScoinbasepublic implements WebSocketHandler {
             isConnected = true;
             return;
         }else if(Restype.valueOf(tickerCoinbaseDto.getType().toUpperCase()) == Restype.ERROR){
-            System.out.println(message.getPayload().toString());
         }
         if (isConnected) {
             if(Restype.valueOf(tickerCoinbaseDto.getType().toUpperCase()) == Restype.TICKER){

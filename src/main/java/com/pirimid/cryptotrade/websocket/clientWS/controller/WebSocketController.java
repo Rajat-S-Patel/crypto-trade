@@ -1,4 +1,4 @@
-package com.pirimid.cryptotrade.websocket.client.config;
+package com.pirimid.cryptotrade.websocket.clientWS.controller;
 
 import com.pirimid.cryptotrade.DTO.OrderResDTO;
 import com.pirimid.cryptotrade.model.Side;
@@ -25,7 +25,6 @@ public class WebSocketController {
     @MessageMapping("/orders")
     public void sendOrderData(){
         messagingTemplate.convertAndSend("/topic/order/"+userService.getDefaultUser().getUserId().toString(),orderService.getOrdersByUserId(userService.getDefaultUser().getUserId()));
-        System.out.println("data send");
     }
 
 }

@@ -37,7 +37,6 @@ public class GeminiUtil {
     }
     public static void setSymbolMap(Map<String,SymbolResDTO> map){
         symbolMap = map;
-        System.out.println("Gemini symbol map initialized");
     }
     public static Map<String,SymbolResDTO> getPairs() {
         return symbolMap;
@@ -81,7 +80,6 @@ public class GeminiUtil {
         return symbol.substring(0,splitPosition)+symbol.substring(splitPosition+1);
     }
     public static CreateOrderRequest getCreateOrderReqDTO(PlaceOrderReqDTO req){
-        System.out.println(req.getSymbol());
         CreateOrderRequest createOrderRequest = CreateOrderRequest.builder()
                 .symbol(getExchangeSymbol(req.getSymbol()))
                 .amount(req.getSize())

@@ -18,6 +18,5 @@ public class CoinbaseWsPublicHelper {
 
     public void emitData(TickerCoinbaseDto tickerCoinbaseDto){
         WsTickerDto wsTickerDto = normaliseData(tickerCoinbaseDto);
-        System.out.println(wsTickerDto.toString());
     }
 }

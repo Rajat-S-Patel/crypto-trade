@@ -102,7 +102,7 @@ public class ExcCoinbase implements ExcParent {
             try {
                 orderResDTO.setSymbol(CoinbaseUtil.getStandardSymbol(orderResDTO.getSymbol()));
             }catch (RuntimeException e){
-                System.out.println("waiting...");
+                e.printStackTrace();
             }
             return orderResDTO;
         } catch (OrderFailedException e){

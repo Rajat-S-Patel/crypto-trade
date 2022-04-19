@@ -47,17 +47,14 @@ public class GeminiWSPublic implements publicWS {
                     .build();
             tickerDtoList.add(tickerDto);
         });
-//        System.out.println(tickerDtoList);
         return tickerDtoList;
     }
     public void sendDataToChannel(TickerGeminiDto geminiDto){
         List<WsTickerDto> wsTickerDtoList =  normaliseData(geminiDto);
         wsTickerDtoList.forEach(wsTickerDto -> {
             String destination = "/topic/price.gemini."+wsTickerDto.getSymbol();
-//            System.out.println(destination);
             if(websocketService.getSubscribedPairs().containsKey(destination)){
                 messagingTemplate.convertAndSend(destination,wsTickerDto);
-                System.out.println(destination);
             }
         });
     }
