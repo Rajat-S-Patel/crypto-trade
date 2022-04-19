@@ -35,9 +35,9 @@ public class CoinbaseUtil {
     public static Map<String,SymbolResDTO> getPairs() {
         return symbolMap;
     }
-    public static String getStandardSymbol(String symbol) throws RuntimeException{
+    public static String getStandardSymbol(String excSymbol) throws RuntimeException{
         if(symbolMap==null) throw new RuntimeException("Uninitialized Symbol Map");
-        return symbolMap.get(symbol).getSymbol();
+        return symbolMap.get(excSymbol).getSymbol();
     }
 
     public static String getSignature(String timestamp, String secretKeyString, String method, String path, String body) throws NoSuchAlgorithmException, InvalidKeyException {

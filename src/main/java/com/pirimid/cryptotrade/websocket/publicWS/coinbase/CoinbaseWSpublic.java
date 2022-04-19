@@ -20,7 +20,7 @@ import java.util.concurrent.TimeoutException;
 
 @Component
 public class CoinbaseWSpublic implements publicWS {
-    @Value("wss://ws-feed.exchange.coinbase.com")
+    @Value("${ws.pricing.coinbase.baseurl}")
     private String baseUrl;
     @Autowired
     private SimpMessagingTemplate messagingTemplate;

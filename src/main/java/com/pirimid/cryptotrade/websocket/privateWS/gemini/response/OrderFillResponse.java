@@ -6,17 +6,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-/*
-"fill" : {
-    "trade_id" : "652166",
-    "liquidity" : "Taker",
-    "price" : "714.00",
-    "amount" : "2",
-    "fee" : "3.57",
-    "fee_currency" : "USD"
-  },
- */
-
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

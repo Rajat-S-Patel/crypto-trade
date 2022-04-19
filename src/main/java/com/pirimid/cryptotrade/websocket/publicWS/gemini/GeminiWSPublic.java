@@ -29,7 +29,7 @@ public class GeminiWSPublic implements publicWS {
 
     private Map<String,SymbolResDTO> symbolMap;
 
-    @Value("wss://api.gemini.com/v1/multimarketdata?heartbeat=true&symbols=")
+    @Value("${ws.pricing.gemini.baseurl}")
     private String baseUrl;
 
     @Autowired

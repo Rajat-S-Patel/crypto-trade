@@ -41,9 +41,9 @@ public class GeminiUtil {
     public static Map<String,SymbolResDTO> getPairs() {
         return symbolMap;
     }
-    public static String getStandardSymbol(String symbol) throws RuntimeException{
+    public static String getStandardSymbol(String excSymbol) throws RuntimeException{
         if(symbolMap == null) throw new RuntimeException("Uninitialized Symbol Map");
-        return symbolMap.get(symbol).getSymbol();
+        return symbolMap.get(excSymbol).getSymbol();
     }
     public static String getSignature(byte[] payload,String secretKeyString) throws NoSuchAlgorithmException, InvalidKeyException, JsonProcessingException {
         byte [] encodedKey = secretKeyString.getBytes(StandardCharsets.UTF_8);

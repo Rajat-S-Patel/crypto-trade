@@ -37,7 +37,7 @@ public class WebSocketBootsrap {
     @EventListener(ApplicationReadyEvent.class)
     public void run() throws Exception {
 
-//        connecToGemini();
+        connecToGemini();
         exchangeService.fetchAllPairs();
         coinbaseWSpublic.connect();
         geminiWSPublic.connect();
