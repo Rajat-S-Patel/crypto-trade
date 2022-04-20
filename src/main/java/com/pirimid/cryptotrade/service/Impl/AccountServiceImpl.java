@@ -1,5 +1,6 @@
 package com.pirimid.cryptotrade.service.Impl;
 
+import com.pirimid.cryptotrade.DTO.AccountDTO;
 import com.pirimid.cryptotrade.helper.exchange.EXCHANGE;
 import com.pirimid.cryptotrade.model.Account;
 import com.pirimid.cryptotrade.model.Exchange;
@@ -13,6 +14,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -59,11 +62,41 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
+    public Account addAccount(AccountDTO accountDTO) {
+        // find if user has account in the mentioned exchange or not
+        Account account = accountRepository.findAccountByUserIdAndExchangeId(accountDTO.getUserId(),accountDTO.getExchange().getExchangeId());
+        if(account != null) return null;
+        Account newAccount = Account.builder()
+                .apiKey(accountDTO.getApiKey())
+                .passPhrase(accountDTO.getPassPhrase())
+                .secretKey(accountDTO.getSecretKey())
+                .build();
+        return newAccount;
+    }
+
+
+    @Override
     public void setProfileIdDetails(UUID id, String profileId, String profileName) {
         Optional<Account> optAccount = accountRepository.findById(id);
         if(!optAccount.isPresent()) return;
         optAccount.get().setUserIdExchange(profileId);
         optAccount.get().setUserNameExchange(profileName);
         accountRepository.save(optAccount.get());
+    }
+
+    @Override
+    public List<AccountDTO> getAccountsByUser(UUID userId) {
+        // TODO add check for user existence
+        Set<Account> accounts = accountRepository.findByUser(userService.getUserById(userId)).get();
+        List<AccountDTO> accountDTOList = new ArrayList<>();
+        accounts.stream().forEach(account -> {
+            AccountDTO dto = AccountDTO.builder()
+                    .accountId(account.getAccountId())
+                    .exchange(account.getExchange())
+                    .apiKey(account.getApiKey())
+                    .build();
+            accountDTOList.add(dto);
+        });
+        return accountDTOList;
     }
 }

@@ -30,6 +30,7 @@ public class GeminiSessionHandler implements WebSocketHandler {
     }
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
+        session.setTextMessageSizeLimit(1024*1024*2);
     }
 
     @Override

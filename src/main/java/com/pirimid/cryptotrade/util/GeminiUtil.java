@@ -29,9 +29,11 @@ import java.util.Map;
 @Component
 public class GeminiUtil {
     private static Map<String,SymbolResDTO> symbolMap = null;
+
     public static long getNonce(){
-        return new Date().getTime()*1000;
+        return new Date().getTime()*10000;
     }
+    
     public static byte[] getB64(String payload){
         return Base64.getEncoder().encode(payload.getBytes(StandardCharsets.UTF_8));
     }
