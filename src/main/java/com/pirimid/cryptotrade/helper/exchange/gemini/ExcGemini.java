@@ -186,6 +186,7 @@ public class ExcGemini implements ExcParent {
     public List<BalanceDTO> getBalance(String apiKey, String secretKey, String passPhrase) {
         Map<String,String> payload = new HashMap<>();
         payload.put("request","/v1/balances");
+        payload.put("account","primary");
         payload.put("nonce",String.valueOf(GeminiUtil.getNonce()));
         try {
             String json = new ObjectMapper().writeValueAsString(payload);
