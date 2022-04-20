@@ -3,6 +3,7 @@ package com.pirimid.cryptotrade.helper.exchange.gemini;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.pirimid.cryptotrade.DTO.BalanceDTO;
 import com.pirimid.cryptotrade.DTO.OrderResDTO;
 import com.pirimid.cryptotrade.DTO.PlaceOrderReqDTO;
 import com.pirimid.cryptotrade.DTO.SymbolResDTO;
@@ -178,6 +179,11 @@ public class ExcGemini implements ExcParent {
         }
 
         return false;
+    }
+
+    @Override
+    public List<BalanceDTO> getBalance(String apiKey, String secretKey, String passPhrase) {
+        return null;
     }
 
 }

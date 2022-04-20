@@ -1,7 +1,9 @@
 package com.pirimid.cryptotrade.controller;
 
+import com.pirimid.cryptotrade.DTO.BalanceDTO;
 import com.pirimid.cryptotrade.DTO.PlaceOrderReqDTO;
 import com.pirimid.cryptotrade.DTO.OrderResDTO;
+import com.pirimid.cryptotrade.helper.exchange.coinbase.dto.response.BalanceCoinbaseDTO;
 import com.pirimid.cryptotrade.model.Order;
 import com.pirimid.cryptotrade.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -18,6 +21,13 @@ public class OrderController {
     @Autowired
     OrderService orderService;
 
+    @GetMapping("/balance/{accountId}")
+    public ResponseEntity<List<BalanceDTO>> getBalance(@PathVariable(required = true) UUID accountId) {
+        List<BalanceDTO> orders = orderService.getBalance(accountId);
+        if(orders == null)
+            return ResponseEntity.badRequest().body(null);
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body(orders);
+    }
     @GetMapping("/orders/all") // orders/all?exchange=
     public ResponseEntity<Set<Order>> getAllOrders(@RequestParam(required = false) String exchange) {
         Set<Order> orders;

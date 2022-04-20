@@ -1,12 +1,15 @@
 package com.pirimid.cryptotrade.service.Impl;
 
+import com.pirimid.cryptotrade.DTO.BalanceDTO;
 import com.pirimid.cryptotrade.DTO.OrderResDTO;
 import com.pirimid.cryptotrade.DTO.PlaceOrderReqDTO;
 import com.pirimid.cryptotrade.DTO.TradeDto;
 import com.pirimid.cryptotrade.exception.AccountNotFoundException;
 import com.pirimid.cryptotrade.exception.OrderFailedException;
 import com.pirimid.cryptotrade.exception.OrderNotFoundException;
+import com.pirimid.cryptotrade.exception.InvalidApiKeyException;
 import com.pirimid.cryptotrade.helper.exchange.EXCHANGE;
+import com.pirimid.cryptotrade.helper.exchange.coinbase.dto.response.BalanceCoinbaseDTO;
 import com.pirimid.cryptotrade.model.Account;
 import com.pirimid.cryptotrade.model.Exchange;
 import com.pirimid.cryptotrade.model.Order;
@@ -276,5 +279,22 @@ public class OrderServiceImpl implements OrderService {
             }
         }
         throw new OrderNotFoundException("No such order exist in database");
+    }
+    public List<BalanceDTO> getBalance(UUID accountId) {
+        try {
+            Optional<Account> optAccount = accountRepository.findById(accountId);
+            if (!optAccount.isPresent()) {
+                throw new AccountNotFoundException("No such account exist in database");
+            }
+            Account account = optAccount.get();
+            List<BalanceDTO> balanceDTOS = exchangeUtil
+                    .getObject(EXCHANGE.valueOf(account.getExchange().getName().toUpperCase()))
+                    .getBalance(account.getApiKey(), account.getSecretKey(), account.getPassPhrase());
+            return balanceDTOS;
+        } catch(AccountNotFoundException e){
+            throw e;
+        } catch (InvalidApiKeyException e){
+            throw e;
+        }
     }
 }
