@@ -1,5 +1,4 @@
-package com.pirimid.cryptotrade.helper.exchange.coinbase.dto.response;
-
+package com.pirimid.cryptotrade.helper.exchange.gemini.dto.response;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
@@ -11,12 +10,8 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class BalanceCoinbaseDTO {
-    private UUID id;
+public class BalanceGeminiDTO {
     private String currency;
-    private float balance;
+    private float amount;
     private float available;
-    private float hold;
-    @JsonProperty("profile_id")
-    private UUID accountExchangeId;
 }

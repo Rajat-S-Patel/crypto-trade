@@ -9,6 +9,7 @@ import com.pirimid.cryptotrade.DTO.PlaceOrderReqDTO;
 import com.pirimid.cryptotrade.DTO.SymbolResDTO;
 import com.pirimid.cryptotrade.helper.exchange.ExcParent;
 import com.pirimid.cryptotrade.helper.exchange.gemini.dto.request.CreateOrderRequest;
+import com.pirimid.cryptotrade.helper.exchange.gemini.dto.response.BalanceGeminiDTO;
 import com.pirimid.cryptotrade.helper.exchange.gemini.dto.response.CancelOrderResponse;
 import com.pirimid.cryptotrade.helper.exchange.gemini.dto.response.CreateOrderResponse;
 import com.pirimid.cryptotrade.helper.exchange.gemini.dto.response.SymbolResponse;
@@ -183,6 +184,20 @@ public class ExcGemini implements ExcParent {
 
     @Override
     public List<BalanceDTO> getBalance(String apiKey, String secretKey, String passPhrase) {
+        Map<String,String> payload = new HashMap<>();
+        payload.put("request","/v1/balances");
+        payload.put("nonce",String.valueOf(GeminiUtil.getNonce()));
+        try {
+            String json = new ObjectMapper().writeValueAsString(payload);
+            byte[] b64 = GeminiUtil.getB64(json);
+            String signature = GeminiUtil.getSignature(b64,secretKey);
+            ResponseEntity<String> res = apiCaller(baseUrl+"/v1/balances","POST",b64,signature,apiKey);
+            List<BalanceGeminiDTO> balanceGeminiDTOs= new ObjectMapper().readValue(res.getBody(), new TypeReference<List<BalanceGeminiDTO>>() {});
+            List<BalanceDTO> balanceDTOS = GeminiUtil.getStandardBalanceDTOs(balanceGeminiDTOs);
+            return balanceDTOS;
+        } catch (NoSuchAlgorithmException | InvalidKeyException | IOException | InterruptedException e) {
+            e.printStackTrace();
+        }
         return null;
     }
 
