@@ -156,7 +156,7 @@ public class GeminiUtil {
     public static List<BalanceDTO> getStandardBalanceDTOs(List<BalanceGeminiDTO> balanceGeminiDTOS){
         List<BalanceDTO> balanceDTOS = new ArrayList<>();
         for(BalanceGeminiDTO balanceGeminiDTO: balanceGeminiDTOS){
-            if(balanceDTOS != null){
+            if(balanceGeminiDTO != null && balanceGeminiDTO.getAmount()>0){
                 BalanceDTO balanceDTO = BalanceDTO.builder()
                         .currency(balanceGeminiDTO.getCurrency())
                         .balance(balanceGeminiDTO.getAmount())

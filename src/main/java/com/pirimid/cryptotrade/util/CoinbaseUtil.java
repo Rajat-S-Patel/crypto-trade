@@ -145,7 +145,7 @@ public class CoinbaseUtil {
     public static List<BalanceDTO> getStandardBalanceDTOs(List<BalanceCoinbaseDTO> balanceCoinbaseDTOS) {
         List<BalanceDTO> balanceDTOS = new ArrayList<>();
         for(BalanceCoinbaseDTO balanceCoinbaseDTO: balanceCoinbaseDTOS) {
-            if(balanceCoinbaseDTO != null){
+            if(balanceCoinbaseDTO != null && balanceCoinbaseDTO.getBalance()>0){
                 BalanceDTO balanceDTO = BalanceDTO.builder()
                         .currency(balanceCoinbaseDTO.getCurrency())
                         .balance(balanceCoinbaseDTO.getBalance())
