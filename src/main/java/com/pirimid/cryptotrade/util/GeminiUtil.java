@@ -11,9 +11,8 @@ import com.pirimid.cryptotrade.helper.exchange.gemini.dto.response.SymbolRespons
 import com.pirimid.cryptotrade.model.OrderType;
 import com.pirimid.cryptotrade.model.Side;
 import com.pirimid.cryptotrade.model.Status;
-import com.pirimid.cryptotrade.websocket.coinbase.res.Restype;
-import com.pirimid.cryptotrade.websocket.gemini.response.OrderResponse;
-import com.pirimid.cryptotrade.websocket.gemini.response.RestypeGemini;
+import com.pirimid.cryptotrade.websocket.privateWS.gemini.response.OrderResponse;
+import com.pirimid.cryptotrade.websocket.privateWS.gemini.response.RestypeGemini;
 import org.apache.tomcat.util.buf.HexUtils;
 import org.springframework.stereotype.Component;
 
@@ -25,14 +24,26 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 import java.util.Date;
+import java.util.Map;
 
 @Component
 public class GeminiUtil {
+    private static Map<String,SymbolResDTO> symbolMap = null;
     public static long getNonce(){
-        return new Date().getTime();
+        return new Date().getTime()*1000;
     }
     public static byte[] getB64(String payload){
         return Base64.getEncoder().encode(payload.getBytes(StandardCharsets.UTF_8));
+    }
+    public static void setSymbolMap(Map<String,SymbolResDTO> map){
+        symbolMap = map;
+    }
+    public static Map<String,SymbolResDTO> getPairs() {
+        return symbolMap;
+    }
+    public static String getStandardSymbol(String excSymbol) throws RuntimeException{
+        if(symbolMap == null) throw new RuntimeException("Uninitialized Symbol Map");
+        return symbolMap.get(excSymbol).getSymbol();
     }
     public static String getSignature(byte[] payload,String secretKeyString) throws NoSuchAlgorithmException, InvalidKeyException, JsonProcessingException {
         byte [] encodedKey = secretKeyString.getBytes(StandardCharsets.UTF_8);
@@ -64,10 +75,13 @@ public class GeminiUtil {
         else orderResDTO.setStatus(Status.valueOf("FILLED"));
         return orderResDTO;
     }
-
+    public static String getExchangeSymbol(String symbol){
+        int splitPosition = symbol.indexOf("-");
+        return symbol.substring(0,splitPosition)+symbol.substring(splitPosition+1);
+    }
     public static CreateOrderRequest getCreateOrderReqDTO(PlaceOrderReqDTO req){
         CreateOrderRequest createOrderRequest = CreateOrderRequest.builder()
-                .symbol(req.getSymbol())    // logic to parse it to standard symbol DTO is not yet implemented
+                .symbol(getExchangeSymbol(req.getSymbol()))
                 .amount(req.getSize())
                 .price(req.getPrice())
                 .side(req.getSide().getValue())
@@ -78,7 +92,7 @@ public class GeminiUtil {
 
     public static SymbolResDTO getSymbolResDTO(SymbolResponse response) {
         SymbolResDTO dto = SymbolResDTO.builder()
-                .symbol(response.getBaseCurrency()+"/"+response.getQuoteCurrency())
+                .symbol(response.getBaseCurrency()+"-"+response.getQuoteCurrency())
                 .base(response.getBaseCurrency())
                 .quote(response.getQuoteCurrency())
                 .minOrderSize(response.getMinOrderSize())

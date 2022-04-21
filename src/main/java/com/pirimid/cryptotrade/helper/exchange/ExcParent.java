@@ -18,4 +18,6 @@ public interface ExcParent {
     OrderResDTO createOrder(String apiKey, String secretKey, String passphrase, PlaceOrderReqDTO req);
 
     boolean cancelOrder(String apiKey, String secretKey, String passphrase, String orderId);
+
+    void fetchPairs();
 }

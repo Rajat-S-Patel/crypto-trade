@@ -3,6 +3,9 @@ package com.pirimid.cryptotrade.service.Impl;
 import com.pirimid.cryptotrade.DTO.OrderResDTO;
 import com.pirimid.cryptotrade.DTO.PlaceOrderReqDTO;
 import com.pirimid.cryptotrade.DTO.TradeDto;
+import com.pirimid.cryptotrade.exception.AccountNotFoundException;
+import com.pirimid.cryptotrade.exception.OrderFailedException;
+import com.pirimid.cryptotrade.exception.OrderNotFoundException;
 import com.pirimid.cryptotrade.helper.exchange.EXCHANGE;
 import com.pirimid.cryptotrade.model.Account;
 import com.pirimid.cryptotrade.model.Exchange;
@@ -16,21 +19,28 @@ import com.pirimid.cryptotrade.repository.AccountRepository;
 import com.pirimid.cryptotrade.repository.UserRepository;
 import com.pirimid.cryptotrade.repository.TradeRepository;
 import com.pirimid.cryptotrade.repository.OrderRepository;
+import com.pirimid.cryptotrade.service.AccountService;
 import com.pirimid.cryptotrade.service.OrderService;
+import com.pirimid.cryptotrade.service.TradeService;
 import com.pirimid.cryptotrade.service.UserService;
 import com.pirimid.cryptotrade.util.ExchangeUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
 @Service
 public class OrderServiceImpl implements OrderService {
+    @Autowired
+    SimpMessagingTemplate messagingTemplate;
     @Autowired
     OrderRepository orderRepository;
     @Autowired
@@ -45,6 +55,10 @@ public class OrderServiceImpl implements OrderService {
     ExchangeUtil exchangeUtil;
     @Autowired
     UserService userService;
+    @Autowired
+    AccountService accountService;
+    @Autowired
+    TradeService tradeService;
     User user=null;
     @PostConstruct
     private void postConstructor(){
@@ -58,12 +72,36 @@ public class OrderServiceImpl implements OrderService {
         OrderResDTO orderResDTO = new OrderResDTO(order);
         return  orderResDTO;
     }
-
+    private void sendOrderUpdateToClient(OrderResDTO orderResDTO){
+        messagingTemplate.convertAndSend("/topic/order/"+user.getUserId().toString(),orderResDTO);
+    }
     @Override
     public Order getOrderById(UUID id) {
         Optional<Order> order = orderRepository.findById(id);
         if (order.isEmpty()) return null;
         return order.get();
+    }
+
+    @Override
+    public Set<OrderResDTO> getOrdersByUserId(UUID userId) {
+        User user = userService.getUserById(userId);
+        if(user == null) return null;
+        Optional<List<Order>> orders = orderRepository.findAllByAccount_User(user);
+        if(orders.isPresent()){
+            Set<OrderResDTO> orderResponses = new HashSet<>();
+            orders.get()
+                    .stream()
+                    .forEach(order->{
+                        OrderResDTO orderRes = orderToOrderResDto(order);
+                        Set<Trade>  trades = order.getTrades();
+                        orderRes.setTrades(trades);
+                        orderRes.setFee(order.getCommission());
+                        orderRes.setExchange(order.getAccount().getExchange());
+                        orderResponses.add(orderRes);
+                    });
+            return orderResponses;
+        }
+        return null;
     }
 
     @Override
@@ -103,19 +141,22 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public OrderResDTO createOrder(PlaceOrderReqDTO req) {
-        Optional<Account> optAccount = accountRepository.findById(req.getAccountId());
-        if (!optAccount.isPresent()) {
-            return null;
+        try {
+            Optional<Account> optAccount = accountRepository.findById(req.getAccountId());
+            if (!optAccount.isPresent()) {
+                throw new AccountNotFoundException("No such account exist in database");
+            }
+            Account account = optAccount.get();
+            OrderResDTO orderResDTO = exchangeUtil
+                    .getObject(EXCHANGE.valueOf(account.getExchange().getName().toUpperCase()))
+                    .createOrder(account.getApiKey(), account.getSecretKey(), account.getPassPhrase(), req);
+            orderResDTO.setAccountId(optAccount.get().getAccountId());
+            return orderResDTO;
+        } catch(AccountNotFoundException e){
+          throw e;
+        } catch (OrderFailedException e){
+            throw e;
         }
-        Account account = optAccount.get();
-        OrderResDTO orderResDTO = exchangeUtil
-                .getObject(EXCHANGE.valueOf(account.getExchange().getName().toUpperCase()))
-                .createOrder(account.getApiKey(), account.getSecretKey(), account.getPassPhrase(), req);
-        if (orderResDTO == null) {
-            return null;
-        }
-        orderResDTO.setAccountId(optAccount.get().getAccountId());
-        return orderResDTO;
     }
 
     @Override
@@ -132,7 +173,8 @@ public class OrderServiceImpl implements OrderService {
         Order newOrder = orderResDtoToOrder(orderDto,optAccount.get());
         newOrder = orderRepository.save(newOrder);
         orderDto.setOrderId(newOrder.getOrderId());
-        orderDto.setAccountId(newOrder.getAccount().getAccountId());
+        orderDto.setExchange(optAccount.get().getExchange());
+        this.sendOrderUpdateToClient(orderDto);
         return orderDto;
     }
 
@@ -149,22 +191,26 @@ public class OrderServiceImpl implements OrderService {
         trade.setQuantity(tradeDto.getSize());
         trade.setTimestamp(tradeDto.getTime());
         trade.setTradeIdExchange(tradeDto.getTradeId());
-
+        trade.setFee(tradeDto.getFee());
         Order order = optOrder.get();
+        order.getTrades().add(trade);
         order.setCommission((order.getCommission() == null ? 0 : order.getCommission()) + tradeDto.getFee());
         order.setOrderStatus(Status.PARTIALLY_FILLED);
-
+        if(order.getOrderType().equals(OrderType.MARKET)){
+            Double prevPrice = order.getPrice()==null?0:order.getPrice();
+            order.setPrice((prevPrice*(order.getTrades().size()-1) + trade.getMarketPrice())/(order.getTrades().size()));
+        }
         if (order.getOrderType().equals(OrderType.MARKET))
             order.setFilledQuantity((order.getFilledQuantity() == null ? 0 : order.getFilledQuantity()) + (order.getOrderQty() == null ? tradeDto.getFunds() : tradeDto.getSize()));
-         else if(order.getOrderType().equals(OrderType.LIMIT))
+        else if(order.getOrderType().equals(OrderType.LIMIT))
             order.setFilledQuantity((order.getFilledQuantity() == null ? 0 : order.getFilledQuantity()) + tradeDto.getSize());
 
         order = orderRepository.save(order);
         tradeDto.setOrderId(order.getOrderId());
         trade.setOrder(order);
         tradeRepository.save(trade);
-
         OrderResDTO orderResDTO = this.orderToOrderResDto(order);
+        this.sendOrderUpdateToClient(orderResDTO);
         return orderResDTO;
     }
 
@@ -177,6 +223,8 @@ public class OrderServiceImpl implements OrderService {
             order.get().setOrderStatus(orderDto.getStatus());
             order.get().setEndTime(orderDto.getEndAt());
             orderDto.setOrderId(order.get().getOrderId());
+            orderDto.setExchange(order.get().getAccount().getExchange());
+            this.sendOrderUpdateToClient(orderDto);
             orderRepository.save(order.get());
             return orderDto;
         }
@@ -191,6 +239,7 @@ public class OrderServiceImpl implements OrderService {
         Order order = optOrder.get();
         order.setOrderStatus(Status.REJECTED);
         order.setEndTime(timestamp);
+        this.sendOrderUpdateToClient(orderToOrderResDto(order));
         orderRepository.save(order);
         return order.getOrderId().toString();
     }
@@ -203,6 +252,7 @@ public class OrderServiceImpl implements OrderService {
         Order order = optOrder.get();
         order.setOrderStatus(Status.CANCELLED);
         order.setEndTime(timestamp);
+        this.sendOrderUpdateToClient(orderToOrderResDto(order));
         orderRepository.save(order);
         return order.getOrderId().toString();
     }
@@ -225,6 +275,6 @@ public class OrderServiceImpl implements OrderService {
                 return null;
             }
         }
-        return null;
+        throw new OrderNotFoundException("No such order exist in database");
     }
 }

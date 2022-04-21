@@ -1,5 +1,6 @@
 package com.pirimid.cryptotrade.controller;
 
+import com.pirimid.cryptotrade.exception.AccountNotFoundException;
 import com.pirimid.cryptotrade.model.Account;
 import com.pirimid.cryptotrade.model.Order;
 import com.pirimid.cryptotrade.service.AccountService;
@@ -21,20 +22,19 @@ public class AccountController {
     @GetMapping("/accounts")    // accounts?exchange=
     public ResponseEntity<Set<Account>> getAccountsByExchange(@RequestParam String exchange){
         Set<Account> accounts = accountService.getAllAccounts();
-        if(accounts == null || accounts.isEmpty()) return ResponseEntity.badRequest().body(null);
         return ResponseEntity.status(HttpStatus.ACCEPTED).body(accounts);
     }
 
     @GetMapping("/accounts/{accountId}/orders")
     public ResponseEntity<Set<Order>> getOrderByAccount(@PathVariable UUID accountId){
         Set<Order> orders = accountService.getOrderByAccount(accountId);
-        if(orders == null || orders.isEmpty()) return ResponseEntity.badRequest().body(null);
+        if(orders == null || orders.isEmpty()) throw new AccountNotFoundException("No such account in database");
         return ResponseEntity.status(HttpStatus.ACCEPTED).body(orders);
     }
     @GetMapping("/account-info/{accountId}")
     public ResponseEntity<Account> getAccountInfo(@PathVariable UUID accountId){
         Account account = accountService.getAccountById(accountId);
-        if(account==null) return ResponseEntity.badRequest().body(null);
+        if(account==null) throw new AccountNotFoundException("No such account in database");
         return ResponseEntity.status(HttpStatus.ACCEPTED).body(account);
     }
 }

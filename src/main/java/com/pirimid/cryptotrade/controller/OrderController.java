@@ -12,17 +12,11 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Set;
 import java.util.UUID;
 
+@CrossOrigin
 @RestController
 public class OrderController {
     @Autowired
     OrderService orderService;
-
-    @GetMapping("/orders/{orderId}")
-    public ResponseEntity<Order> getOrderById(@PathVariable UUID orderId) {
-        Order order = orderService.getOrderById(orderId);
-        if (order == null) return ResponseEntity.badRequest().body(null);
-        return ResponseEntity.status(HttpStatus.ACCEPTED).body(order);
-    }
 
     @GetMapping("/orders/all") // orders/all?exchange=
     public ResponseEntity<Set<Order>> getAllOrders(@RequestParam(required = false) String exchange) {
@@ -35,6 +29,13 @@ public class OrderController {
         return ResponseEntity.status(HttpStatus.ACCEPTED).body(orders);
     }
 
+    @GetMapping("/orders/{userId}")
+    public ResponseEntity<Set<OrderResDTO>> getOrdersByUser(@PathVariable(required = true) UUID userId) {
+        Set<OrderResDTO> orders = orderService.getOrdersByUserId(userId);
+        if(orders == null)
+            return ResponseEntity.badRequest().body(null);
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body(orders);
+    }
     @PostMapping("/orders")
     public ResponseEntity<OrderResDTO> createNewOrder(@RequestBody PlaceOrderReqDTO placeOrder) {
         OrderResDTO order = orderService.createOrder(placeOrder);

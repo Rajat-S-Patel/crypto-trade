@@ -5,8 +5,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pirimid.cryptotrade.DTO.OrderResDTO;
 import com.pirimid.cryptotrade.DTO.PlaceOrderReqDTO;
 import com.pirimid.cryptotrade.DTO.SymbolResDTO;
+import com.pirimid.cryptotrade.exception.OrderFailedException;
 import com.pirimid.cryptotrade.helper.exchange.ExcParent;
 import com.pirimid.cryptotrade.helper.exchange.coinbase.dto.request.PlaceOrderReqCoinbaseDTO;
+import com.pirimid.cryptotrade.helper.exchange.coinbase.dto.response.ErrorMessage;
 import com.pirimid.cryptotrade.helper.exchange.coinbase.dto.response.PlaceOrderResCoinbaseDTO;
 import com.pirimid.cryptotrade.helper.exchange.coinbase.dto.response.SymbolResCoinbaseDTO;
 import com.pirimid.cryptotrade.util.CoinbaseUtil;
@@ -23,7 +25,10 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Component
 public class ExcCoinbase implements ExcParent {
@@ -60,22 +65,7 @@ public class ExcCoinbase implements ExcParent {
 
     @Override
     public List<SymbolResDTO> getPairs() {
-        SymbolResCoinbaseDTO symbolResCoinbaseDTO;
-        List<SymbolResCoinbaseDTO> symbolResCoinbaseDTOS;
-        List<SymbolResDTO> symbolResDTOS;
-        try {
-            ResponseEntity<String> response = apiCallerOpen(baseUrl + "/products");
-            symbolResCoinbaseDTOS = new ObjectMapper().readValue(response.getBody(), new TypeReference<List<SymbolResCoinbaseDTO>>() {});
-            symbolResDTOS = CoinbaseUtil.getPairsResDTO(symbolResCoinbaseDTOS);
-            return symbolResDTOS;
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-        return null;
+        return new ArrayList<>(CoinbaseUtil.getPairs().values());
     }
 
     @Override
@@ -104,11 +94,19 @@ public class ExcCoinbase implements ExcParent {
             ResponseEntity<String> response = apiCallerRestricted(baseUrl + "/orders", "POST", apiKey, passphrase, signature, timestamp, b);
             String responseBody = response.getBody().toString();
             if(response.getStatusCode() == HttpStatus.BAD_REQUEST ){
-                return null;
+                ErrorMessage errorMessage = new ObjectMapper().readValue(responseBody, ErrorMessage.class);
+                throw new OrderFailedException(errorMessage.getMessage());
             }
             placeOrderResCoinbaseDTO = new ObjectMapper().readValue(responseBody, PlaceOrderResCoinbaseDTO.class);
             OrderResDTO orderResDTO = CoinbaseUtil.getPlaceOrderResDTO(placeOrderResCoinbaseDTO);
+            try {
+                orderResDTO.setSymbol(CoinbaseUtil.getStandardSymbol(orderResDTO.getSymbol()));
+            }catch (RuntimeException e){
+                e.printStackTrace();
+            }
             return orderResDTO;
+        } catch (OrderFailedException e){
+            throw e;
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -135,6 +133,28 @@ public class ExcCoinbase implements ExcParent {
             return true;
         return false;
 
+    }
+
+    @Override
+    public void fetchPairs() {
+        List<SymbolResCoinbaseDTO> symbolResCoinbaseDTOS;
+        List<SymbolResDTO> symbolResDTOS;
+        try {
+            ResponseEntity<String> response = apiCallerOpen(baseUrl + "/products");
+            symbolResCoinbaseDTOS = new ObjectMapper().readValue(response.getBody(), new TypeReference<List<SymbolResCoinbaseDTO>>() {});
+            symbolResDTOS = CoinbaseUtil.getPairsResDTO(symbolResCoinbaseDTOS);
+            Map<String,SymbolResDTO> symbolMap = new HashMap<String,SymbolResDTO>();
+            for(int i=0;i<symbolResDTOS.size();i++){
+                symbolMap.put(symbolResCoinbaseDTOS.get(i).getId(),symbolResDTOS.get(i));
+            }
+            CoinbaseUtil.setSymbolMap(symbolMap);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
 }

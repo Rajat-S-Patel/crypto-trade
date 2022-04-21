@@ -45,9 +45,8 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public Account getAccountById(UUID id) {
         Optional<Account> optAccount = accountRepository.findById(id);
-        if (optAccount.isPresent() && user.getAccountSet().contains(optAccount.get()))
-            return optAccount.get();
-        return null;
+        // TODO ask vishwas for user account related checks
+        return optAccount.isPresent()?optAccount.get():null;
     }
 
     @Override
