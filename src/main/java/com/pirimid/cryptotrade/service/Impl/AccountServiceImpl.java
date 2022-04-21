@@ -62,16 +62,20 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public Account addAccount(AccountDTO accountDTO) {
+    public AccountDTO addAccount(AccountDTO accountDTO) {
         // find if user has account in the mentioned exchange or not
-        Account account = accountRepository.findAccountByUserIdAndExchangeId(accountDTO.getUserId(),accountDTO.getExchange().getExchangeId());
+        Account account = accountRepository.findAccountByUser_UserIdAndExchange_ExchangeId(accountDTO.getUserId(),accountDTO.getExchange().getExchangeId());
         if(account != null) return null;
         Account newAccount = Account.builder()
-                .apiKey(accountDTO.getApiKey())
+                .accountLabel(accountDTO.getAccountLabel())
                 .passPhrase(accountDTO.getPassPhrase())
+                .apiKey(accountDTO.getApiKey())
                 .secretKey(accountDTO.getSecretKey())
+                .exchange(accountDTO.getExchange())
+                .user(userService.getUserById(accountDTO.getUserId()))
                 .build();
-        return newAccount;
+        accountRepository.save(newAccount);
+        return getAccountDTO(newAccount);
     }
 
 
@@ -90,13 +94,23 @@ public class AccountServiceImpl implements AccountService {
         Set<Account> accounts = accountRepository.findByUser(userService.getUserById(userId)).get();
         List<AccountDTO> accountDTOList = new ArrayList<>();
         accounts.stream().forEach(account -> {
-            AccountDTO dto = AccountDTO.builder()
-                    .accountId(account.getAccountId())
-                    .exchange(account.getExchange())
-                    .apiKey(account.getApiKey())
-                    .build();
-            accountDTOList.add(dto);
+            accountDTOList.add(getAccountDTO(account));
         });
         return accountDTOList;
     }
+
+    @Override
+    public void deleteAccountById(UUID accountId) {
+        accountRepository.deleteById(accountId);
+    }
+    private AccountDTO getAccountDTO(Account account) {
+        AccountDTO dto = AccountDTO.builder()
+                .accountId(account.getAccountId())
+                .exchange(account.getExchange())
+                .apiKey(account.getApiKey())
+                .accountLabel(account.getAccountLabel())
+                .build();
+        return dto;
+    }
+
 }

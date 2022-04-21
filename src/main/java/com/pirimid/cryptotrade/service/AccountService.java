@@ -14,7 +14,8 @@ public interface AccountService {
     Set<Account> getAllAccountsByExchangeName(EXCHANGE name);
     Account getAccountById(UUID id);
     Set<Order> getOrderByAccount(UUID id);
-    Account addAccount(AccountDTO accountDTO);
+    AccountDTO addAccount(AccountDTO accountDTO);
     void setProfileIdDetails(UUID id,String profileId,String profileName);
     List<AccountDTO> getAccountsByUser(UUID userId);
+    void deleteAccountById(UUID accountId);
 }

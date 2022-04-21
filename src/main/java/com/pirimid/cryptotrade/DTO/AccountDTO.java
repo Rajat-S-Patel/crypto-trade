@@ -8,7 +8,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-
 import java.util.UUID;
 
 @Builder
@@ -20,6 +19,7 @@ import java.util.UUID;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class AccountDTO {
     private Exchange exchange;
+    private String accountLabel;
     private String apiKey;
     private String secretKey;
     private String passPhrase;

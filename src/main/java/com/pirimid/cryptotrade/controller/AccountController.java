@@ -10,6 +10,7 @@ import com.pirimid.cryptotrade.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -39,10 +40,11 @@ public class AccountController {
         return ResponseEntity.status(HttpStatus.ACCEPTED).body(accountService.getAccountsByUser(userId));
     }
     @PostMapping("/accounts")
-    public void addAccountForUser(@RequestBody AccountDTO account){
+    public ResponseEntity<AccountDTO> addAccountForUser(@RequestBody AccountDTO account){
         // TODO return proper response message
-        Account newAccount  = accountService.addAccount(account);
-        System.out.println(newAccount);
+        AccountDTO newAccount  = accountService.addAccount(account);
+        if(newAccount == null) return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        return ResponseEntity.ok(newAccount);
     }
     @GetMapping("/accounts/{accountId}/orders")
     public ResponseEntity<Set<Order>> getOrderByAccount(@PathVariable UUID accountId){
@@ -55,5 +57,10 @@ public class AccountController {
         Account account = accountService.getAccountById(accountId);
         if(account==null) throw new AccountNotFoundException("No such account in database");
         return ResponseEntity.status(HttpStatus.ACCEPTED).body(account);
+    }
+    @DeleteMapping("/accounts/{accountId}")
+    public ResponseEntity<?> deleteAccountById(@PathVariable UUID accountId){
+//        accountService.deleteAccountById(accountId);
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body("Delete account with accountId = "+accountId);
     }
 }

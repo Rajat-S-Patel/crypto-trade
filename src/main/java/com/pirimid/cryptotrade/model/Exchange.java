@@ -19,6 +19,7 @@ import java.util.UUID;
 @Entity
 @Getter
 @Setter
+@ToString
 public class Exchange {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

@@ -46,6 +46,8 @@ public class Account {
     @NotNull
     private String secretKey;
     private String passPhrase;
+    @NotNull
+    private String accountLabel;
 
 
 
