@@ -1,5 +1,6 @@
 package com.pirimid.cryptotrade.service.Impl;
 
+import com.pirimid.cryptotrade.DTO.AccountDTO;
 import com.pirimid.cryptotrade.DTO.BalanceDTO;
 import com.pirimid.cryptotrade.DTO.OrderResDTO;
 import com.pirimid.cryptotrade.DTO.PlaceOrderReqDTO;
@@ -296,5 +297,22 @@ public class OrderServiceImpl implements OrderService {
         } catch (InvalidApiKeyException e){
             throw e;
         }
+    }
+    public String getBalance(AccountDTO accountDTO) {
+        System.out.println(accountDTO.toString());
+        try {
+            List<BalanceDTO> balanceDTOS = exchangeUtil
+                    .getObject(EXCHANGE.valueOf(accountDTO.getExchange().getName().toUpperCase()))
+                    .getBalance(accountDTO.getApiKey(), accountDTO.getSecretKey(), accountDTO.getPassPhrase());
+            if(balanceDTOS == null){
+                return "not verified";
+            }
+            return "verified";
+        } catch (InvalidApiKeyException e){
+            e.printStackTrace();
+        }catch ( Exception e){
+            e.printStackTrace();
+        }
+        return "not verified";
     }
 }

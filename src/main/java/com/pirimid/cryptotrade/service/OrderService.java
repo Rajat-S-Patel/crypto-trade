@@ -1,5 +1,6 @@
 package com.pirimid.cryptotrade.service;
 
+import com.pirimid.cryptotrade.DTO.AccountDTO;
 import com.pirimid.cryptotrade.DTO.BalanceDTO;
 import com.pirimid.cryptotrade.DTO.OrderResDTO;
 import com.pirimid.cryptotrade.DTO.PlaceOrderReqDTO;
@@ -27,4 +28,5 @@ public interface OrderService {
     String cancelOrderById(UUID id,String exchangeName);
 
     List<BalanceDTO> getBalance(UUID accountId);
+    String getBalance(AccountDTO accountDTO);
 }

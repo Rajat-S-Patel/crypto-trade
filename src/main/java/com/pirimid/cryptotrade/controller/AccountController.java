@@ -6,6 +6,7 @@ import com.pirimid.cryptotrade.model.Account;
 import com.pirimid.cryptotrade.model.Order;
 import com.pirimid.cryptotrade.model.User;
 import com.pirimid.cryptotrade.service.AccountService;
+import com.pirimid.cryptotrade.service.OrderService;
 import com.pirimid.cryptotrade.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -28,6 +29,8 @@ public class AccountController {
     private AccountService accountService;
     @Autowired
     private UserService userService;
+    @Autowired
+    private OrderService orderService;
 
     @GetMapping("/accounts")    // accounts?exchange=
     public ResponseEntity<Set<Account>> getAccountsByExchange(@RequestParam String exchange){
@@ -38,6 +41,13 @@ public class AccountController {
     public ResponseEntity<List<AccountDTO>> getAccountsByUserId(@PathVariable UUID userId){
         // TODO check for account existence
         return ResponseEntity.status(HttpStatus.ACCEPTED).body(accountService.getAccountsByUser(userId));
+    }
+    @PostMapping("/verifybalance")
+    public ResponseEntity<String> getBalance(@RequestBody AccountDTO accountDTO) {
+        String message = orderService.getBalance(accountDTO);
+        if(message != "verified")
+            return ResponseEntity.badRequest().body("not verified");
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body(message);
     }
     @PostMapping("/accounts")
     public ResponseEntity<AccountDTO> addAccountForUser(@RequestBody AccountDTO account){

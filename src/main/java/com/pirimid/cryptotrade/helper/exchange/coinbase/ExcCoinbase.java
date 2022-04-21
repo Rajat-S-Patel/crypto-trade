@@ -153,8 +153,8 @@ public class ExcCoinbase implements ExcParent {
         }
         catch(Exception e){
             e.printStackTrace();
+            throw new InvalidApiKeyException("not verified");
         }
-        return null;
     }
 
     @Override
