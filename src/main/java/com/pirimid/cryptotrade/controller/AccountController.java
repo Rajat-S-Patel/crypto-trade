@@ -54,12 +54,13 @@ public class AccountController {
         // TODO return proper response message
         AccountDTO newAccount  = accountService.addAccount(account);
         if(newAccount == null) return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
-        return ResponseEntity.ok(newAccount);
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body(newAccount);
     }
     @GetMapping("/accounts/{accountId}/orders")
     public ResponseEntity<Set<Order>> getOrderByAccount(@PathVariable UUID accountId){
+        Account account = accountService.getAccountById(accountId);
+        if(account == null) throw new AccountNotFoundException("No such account in database");
         Set<Order> orders = accountService.getOrderByAccount(accountId);
-        if(orders == null || orders.isEmpty()) throw new AccountNotFoundException("No such account in database");
         return ResponseEntity.status(HttpStatus.ACCEPTED).body(orders);
     }
     @GetMapping("/account-info/{accountId}")
@@ -70,7 +71,7 @@ public class AccountController {
     }
     @DeleteMapping("/accounts/{accountId}")
     public ResponseEntity<?> deleteAccountById(@PathVariable UUID accountId){
-//        accountService.deleteAccountById(accountId);
+        accountService.deleteAccountById(accountId);
         return ResponseEntity.status(HttpStatus.ACCEPTED).body("Delete account with accountId = "+accountId);
     }
 }

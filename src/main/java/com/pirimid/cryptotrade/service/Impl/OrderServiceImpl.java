@@ -146,6 +146,8 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public OrderResDTO createOrder(PlaceOrderReqDTO req) {
         try {
+            // TODO replace accountId with userId (create order with userId)
+            System.out.println(req.getAccountId());
             Optional<Account> optAccount = accountRepository.findById(req.getAccountId());
             if (!optAccount.isPresent()) {
                 throw new AccountNotFoundException("No such account exist in database");
@@ -299,7 +301,6 @@ public class OrderServiceImpl implements OrderService {
         }
     }
     public String getBalance(AccountDTO accountDTO) {
-        System.out.println(accountDTO.toString());
         try {
             List<BalanceDTO> balanceDTOS = exchangeUtil
                     .getObject(EXCHANGE.valueOf(accountDTO.getExchange().getName().toUpperCase()))
