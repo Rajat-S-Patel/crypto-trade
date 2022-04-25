@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -55,7 +56,7 @@ public class Account {
     @JoinColumn(name = "exchange_id",referencedColumnName = "exchangeId",nullable = false)
     private Exchange exchange;
 
-    @OneToMany(mappedBy = "account")
+    @OneToMany(mappedBy = "account",cascade = CascadeType.REMOVE)
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     @JsonIgnore

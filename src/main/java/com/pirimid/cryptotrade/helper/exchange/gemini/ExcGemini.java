@@ -137,7 +137,7 @@ public class ExcGemini implements ExcParent {
             byte[] b64 = GeminiUtil.getB64(json);
             String signature = GeminiUtil.getSignature(b64,secretKey);
             ResponseEntity<String> res = apiCaller(baseUrl+"/v1/order/new","POST",b64,signature,apiKey);
-
+            // TODO exception handling if order fails
             CreateOrderResponse orderResponse = new ObjectMapper().readValue(res.getBody(), CreateOrderResponse.class);
             OrderResDTO orderResDTO = GeminiUtil.getPlaceOrderResDTO(orderResponse);
             try {
