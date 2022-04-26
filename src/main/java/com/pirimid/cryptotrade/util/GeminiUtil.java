@@ -9,6 +9,7 @@ import com.pirimid.cryptotrade.DTO.TradeDto;
 import com.pirimid.cryptotrade.helper.exchange.gemini.dto.request.CreateOrderRequest;
 import com.pirimid.cryptotrade.helper.exchange.gemini.dto.response.BalanceGeminiDTO;
 import com.pirimid.cryptotrade.helper.exchange.gemini.dto.response.CreateOrderResponse;
+import com.pirimid.cryptotrade.helper.exchange.gemini.dto.response.PriceFeedRes;
 import com.pirimid.cryptotrade.helper.exchange.gemini.dto.response.SymbolResponse;
 import com.pirimid.cryptotrade.model.OrderType;
 import com.pirimid.cryptotrade.model.Side;
@@ -96,12 +97,13 @@ public class GeminiUtil {
         return createOrderRequest;
     }
 
-    public static SymbolResDTO getSymbolResDTO(SymbolResponse response) {
+    public static SymbolResDTO getSymbolResDTO(SymbolResponse response, Double open24h) {
         SymbolResDTO dto = SymbolResDTO.builder()
                 .symbol(response.getBaseCurrency()+"-"+response.getQuoteCurrency())
                 .base(response.getBaseCurrency())
                 .quote(response.getQuoteCurrency())
                 .minOrderSize(response.getMinOrderSize())
+                .open24h(open24h)
                 .build();
         return dto;
     }

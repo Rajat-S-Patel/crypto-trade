@@ -264,16 +264,16 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public String cancelOrderById(UUID id, String exchangeName) {
-        EXCHANGE exchange = EXCHANGE.valueOf(exchangeName.toUpperCase());
+    public String cancelOrderById(UUID id) {
         Optional<Order> optOrder = orderRepository.findById(id);
         if (optOrder.isPresent()) {
             Account account = optOrder.get().getAccount();
-
+            EXCHANGE exchange = EXCHANGE.valueOf(account.getExchange().getName().toUpperCase());
             if (exchangeUtil
                     .getObject(exchange)
                     .cancelOrder(account.getApiKey(), account.getSecretKey(), account.getPassPhrase(), optOrder.get().getOrderIdExchange())) {
                 optOrder.get().setOrderStatus(Status.CANCELLED);
+                this.sendOrderUpdateToClient(orderToOrderResDto(optOrder.get()));
                 orderRepository.save(optOrder.get());
                 return String.valueOf(id);
             } else {

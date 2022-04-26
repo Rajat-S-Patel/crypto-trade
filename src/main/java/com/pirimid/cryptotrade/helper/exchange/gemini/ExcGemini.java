@@ -12,6 +12,7 @@ import com.pirimid.cryptotrade.helper.exchange.gemini.dto.request.CreateOrderReq
 import com.pirimid.cryptotrade.helper.exchange.gemini.dto.response.BalanceGeminiDTO;
 import com.pirimid.cryptotrade.helper.exchange.gemini.dto.response.CancelOrderResponse;
 import com.pirimid.cryptotrade.helper.exchange.gemini.dto.response.CreateOrderResponse;
+import com.pirimid.cryptotrade.helper.exchange.gemini.dto.response.PriceFeedRes;
 import com.pirimid.cryptotrade.helper.exchange.gemini.dto.response.SymbolResponse;
 import com.pirimid.cryptotrade.util.GeminiUtil;
 import org.springframework.beans.factory.annotation.Value;
@@ -35,6 +36,7 @@ import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Component
@@ -86,11 +88,23 @@ public class ExcGemini implements ExcParent {
                     "btceur",
                     "btcgbp");
             List<String> filterSymbols = symbols.stream().filter(symbol->filter.contains(symbol)).collect(Collectors.toList());
+
+            //price feed
+            ResponseEntity<String> resPriceFeed = apiCaller(baseUrl+"/v1/pricefeed","GET");
+            List<PriceFeedRes> priceFeedRes = new ObjectMapper().readValue(resPriceFeed.getBody(), new TypeReference<List<PriceFeedRes>>() {});
+            List<PriceFeedRes> filterPriceFeedRes = priceFeedRes.stream().filter(priceFeed->filter.contains(priceFeed.getPair().toLowerCase())).collect(Collectors.toList());
+
             Map<String,SymbolResDTO> symbolMap = new HashMap<String,SymbolResDTO>();
             for(String symbol : filterSymbols){
                 ResponseEntity<String> symRes = apiCaller(baseUrl+"/v1/symbols/details/"+symbol,"GET");
                 SymbolResponse response = new ObjectMapper().readValue(symRes.getBody(),SymbolResponse.class);
-                SymbolResDTO symbolResDTO = GeminiUtil.getSymbolResDTO(response);
+
+                Optional<PriceFeedRes> priceFeed = filterPriceFeedRes.stream().filter(p->p.getPair().toLowerCase().equals(response.getSymbol().toLowerCase())).findFirst();
+                Double open24h = 0.0;
+                if(priceFeed!=null &priceFeed.isPresent()){
+                    open24h = priceFeed.get().getPrice() / (1 + (priceFeed.get().getPercentChange24h()/100));
+                }
+                SymbolResDTO symbolResDTO = GeminiUtil.getSymbolResDTO(response,open24h);
                 symbolMap.put(response.getSymbol().toLowerCase(),symbolResDTO);
                 symbolDetails.add(symbolResDTO);
             }

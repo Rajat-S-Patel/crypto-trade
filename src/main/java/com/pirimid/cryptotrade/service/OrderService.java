@@ -25,7 +25,7 @@ public interface OrderService {
     OrderResDTO completeOrder(OrderResDTO orderResDTO);
     String rejectOrderByExchangeOrderId(String excOrderId, EXCHANGE exchangeName, Date timestamp);
     String cancelOrderByExchangeOrderId(String excOrderId, EXCHANGE exchangeName, Date timestamp);
-    String cancelOrderById(UUID id,String exchangeName);
+    String cancelOrderById(UUID id);
 
     List<BalanceDTO> getBalance(UUID accountId);
     String getBalance(AccountDTO accountDTO);

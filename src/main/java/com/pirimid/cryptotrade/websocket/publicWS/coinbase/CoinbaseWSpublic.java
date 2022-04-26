@@ -41,9 +41,9 @@ public class CoinbaseWSpublic implements publicWS {
         return wsTickerDto;
     }
     public void sendDataToChannel(TickerCoinbaseDto tickerCoinbaseDto){
-        WsTickerDto wsTickerDto = normaliseData(tickerCoinbaseDto);
         String destination = "/topic/price.coinbase."+tickerCoinbaseDto.getProductId();
         if(websocketService.getSubscribedPairs().containsKey(destination)) {
+            WsTickerDto wsTickerDto = normaliseData(tickerCoinbaseDto);
             messagingTemplate.convertAndSend(destination, wsTickerDto);
         }
     }
