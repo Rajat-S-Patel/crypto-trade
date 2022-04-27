@@ -31,6 +31,7 @@ public class CoinbaseWSpublic implements publicWS {
 
     private WsTickerDto normaliseData(TickerCoinbaseDto tickerCoinbaseDto){
         WsTickerDto wsTickerDto = WsTickerDto.builder()
+                .exchange("coinbase")
                 .symbol(tickerCoinbaseDto.getProductId())
                 .price(tickerCoinbaseDto.getPrice())
                 .high(tickerCoinbaseDto.getHigh24h())

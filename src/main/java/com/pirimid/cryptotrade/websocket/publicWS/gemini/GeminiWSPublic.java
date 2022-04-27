@@ -45,6 +45,7 @@ public class GeminiWSPublic implements publicWS {
             if(symbol!=null) {
                 Double percentChange = ((event.getPrice()/symbol.getOpen24h())-1)*100;
                 WsTickerDto tickerDto = WsTickerDto.builder()
+                        .exchange("gemini")
                         .price(event.getPrice())
                         .symbol(symbol.getSymbol())
                         .percentChange(percentChange)
