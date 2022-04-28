@@ -20,5 +20,5 @@ import java.util.UUID;
 public class ExchangeDto {
     private UUID exchangeId;
     private String name;
-    private UUID accountid;
+    private UUID accountId;
 }

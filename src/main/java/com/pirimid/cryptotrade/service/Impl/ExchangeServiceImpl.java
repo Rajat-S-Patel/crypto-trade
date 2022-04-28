@@ -41,7 +41,7 @@ public class ExchangeServiceImpl implements ExchangeService {
                         .exchangeId(exchange.getExchangeId())
                         .build();
             if (account != null) {
-                exchangeDto.setAccountid(account.getAccountId());
+                exchangeDto.setAccountId(account.getAccountId());
             }
             exchangeDtos.add(exchangeDto);
             }
