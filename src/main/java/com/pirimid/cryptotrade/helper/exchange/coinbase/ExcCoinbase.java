@@ -145,7 +145,7 @@ public class ExcCoinbase implements ExcParent {
             signature = CoinbaseUtil.getSignature(timestamp, secretKey, "GET", "/accounts/", "");
             ResponseEntity<String> response = apiCallerRestricted(baseUrl + "/accounts/", "GET", apiKey, passphrase, signature, timestamp, "");
             if(response.getStatusCode() == HttpStatus.BAD_REQUEST){
-                throw new InvalidApiKeyException("Invalid Api key or passphrase");
+                throw new InvalidApiKeyException("Invalid API key or secret key");
             }
             List<BalanceCoinbaseDTO> balanceCoinbaseDTOS = new ObjectMapper().readValue(response.getBody(), new TypeReference<List<BalanceCoinbaseDTO>>() {});
             List<BalanceDTO> balanceDTOS = CoinbaseUtil.getStandardBalanceDTOs(balanceCoinbaseDTOS);
@@ -153,7 +153,7 @@ public class ExcCoinbase implements ExcParent {
         }
         catch(Exception e){
             e.printStackTrace();
-            throw new InvalidApiKeyException("not verified");
+            throw new InvalidApiKeyException("Invalid API key or secret key");
         }
     }
 

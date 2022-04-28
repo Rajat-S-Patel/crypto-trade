@@ -7,6 +7,7 @@ import com.pirimid.cryptotrade.DTO.BalanceDTO;
 import com.pirimid.cryptotrade.DTO.OrderResDTO;
 import com.pirimid.cryptotrade.DTO.PlaceOrderReqDTO;
 import com.pirimid.cryptotrade.DTO.SymbolResDTO;
+import com.pirimid.cryptotrade.exception.InvalidApiKeyException;
 import com.pirimid.cryptotrade.helper.exchange.ExcParent;
 import com.pirimid.cryptotrade.helper.exchange.gemini.dto.request.CreateOrderRequest;
 import com.pirimid.cryptotrade.helper.exchange.gemini.dto.response.BalanceGeminiDTO;
@@ -207,6 +208,7 @@ public class ExcGemini implements ExcParent {
             byte[] b64 = GeminiUtil.getB64(json);
             String signature = GeminiUtil.getSignature(b64,secretKey);
             ResponseEntity<String> res = apiCaller(baseUrl+"/v1/balances","POST",b64,signature,apiKey);
+            if(res.getBody().contains("error")) throw new InvalidApiKeyException("Invalid API key or secret key");
             List<BalanceGeminiDTO> balanceGeminiDTOs= new ObjectMapper().readValue(res.getBody(), new TypeReference<List<BalanceGeminiDTO>>() {});
             List<BalanceDTO> balanceDTOS = GeminiUtil.getStandardBalanceDTOs(balanceGeminiDTOs);
             return balanceDTOS;

@@ -26,6 +26,7 @@ public class PublicWebsocketService {
     public void subscribeEventListener(SessionSubscribeEvent event){
         StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(event.getMessage());
         String key = headerAccessor.getDestination();
+        if(!key.contains("price")) return;
         if(subscribedPairs.containsKey(key))
             subscribedPairs.compute(key,(k,v)->v+1);
         else
@@ -35,6 +36,7 @@ public class PublicWebsocketService {
     public void unsubscribeEventListener(SessionUnsubscribeEvent event){
         StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(event.getMessage());
         String key = headerAccessor.getNativeHeader("id").get(0);
+        if(!key.contains("price")) return;
         if(subscribedPairs.containsKey(key))
             subscribedPairs.compute(key,(k,v)->(v==1)?null:v-1);
     }

@@ -42,4 +42,16 @@ public class ControllerAdvisor extends ResponseEntityExceptionHandler {
         Map<String,Object> body = getMessageBody(e.getMessage());
         return new ResponseEntity<>(body,HttpStatus.BAD_REQUEST);
     }
+
+    @ExceptionHandler(InvalidApiKeyException.class)
+    public ResponseEntity<Object> handleInvalidApiKeyException(InvalidApiKeyException e, WebRequest request){
+        Map<String,Object> body = getMessageBody(e.getMessage());
+        return new ResponseEntity<>(body,HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(AccountAlreadyExistException.class)
+    public ResponseEntity<Object> handleAccountAlreadyExistException(AccountAlreadyExistException e, WebRequest request){
+        Map<String,Object> body = getMessageBody(e.getMessage());
+        return new ResponseEntity<>(body,HttpStatus.BAD_REQUEST);
+    }
 }

@@ -1,6 +1,9 @@
 package com.pirimid.cryptotrade.service.Impl;
 
 import com.pirimid.cryptotrade.DTO.AccountDTO;
+import com.pirimid.cryptotrade.DTO.BalanceDTO;
+import com.pirimid.cryptotrade.exception.AccountAlreadyExistException;
+import com.pirimid.cryptotrade.exception.InvalidApiKeyException;
 import com.pirimid.cryptotrade.helper.exchange.EXCHANGE;
 import com.pirimid.cryptotrade.model.Account;
 import com.pirimid.cryptotrade.model.Exchange;
@@ -9,7 +12,9 @@ import com.pirimid.cryptotrade.model.User;
 import com.pirimid.cryptotrade.repository.AccountRepository;
 import com.pirimid.cryptotrade.repository.ExchangeRepository;
 import com.pirimid.cryptotrade.service.AccountService;
+import com.pirimid.cryptotrade.service.OrderService;
 import com.pirimid.cryptotrade.service.UserService;
+import com.pirimid.cryptotrade.util.ExchangeUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -28,6 +33,8 @@ public class AccountServiceImpl implements AccountService {
     private ExchangeRepository exchangeRepository;
     @Autowired
     UserService userService;
+    @Autowired
+    ExchangeUtil exchangeUtil;
     User user;
     @PostConstruct
     private void postConstructor(){
@@ -63,9 +70,8 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public AccountDTO addAccount(AccountDTO accountDTO) {
-        // find if user has account in the mentioned exchange or not
         Account account = accountRepository.findAccountByUser_UserIdAndExchange_ExchangeId(accountDTO.getUserId(),accountDTO.getExchange().getExchangeId());
-        if(account != null) return null;
+        if(account != null) throw new AccountAlreadyExistException("This account already exist from some other users id");
         Account newAccount = Account.builder()
                 .accountLabel(accountDTO.getAccountLabel())
                 .passPhrase(accountDTO.getPassPhrase())
@@ -74,6 +80,10 @@ public class AccountServiceImpl implements AccountService {
                 .exchange(accountDTO.getExchange())
                 .user(userService.getUserById(accountDTO.getUserId()))
                 .build();
+        List<BalanceDTO> balanceDTOS = exchangeUtil
+                .getObject(EXCHANGE.valueOf(newAccount.getExchange().getName().toUpperCase()))
+                .getBalance(newAccount.getApiKey(), newAccount.getSecretKey(), newAccount.getPassPhrase());
+        if(balanceDTOS == null) throw new InvalidApiKeyException("Invalid API, Secret Key or passphrase");
         accountRepository.save(newAccount);
         return getAccountDTO(newAccount);
     }
