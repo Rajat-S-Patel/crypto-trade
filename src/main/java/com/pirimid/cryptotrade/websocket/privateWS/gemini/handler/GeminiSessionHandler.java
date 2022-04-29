@@ -42,6 +42,8 @@ public class GeminiSessionHandler implements WebSocketHandler {
             return;
         }
         if(isConnected) {
+            System.out.println("gemini message = "+message.getPayload().toString());
+
             List<OrderResponse> orders =  new ObjectMapper().readValue(payload, new TypeReference<List<OrderResponse>>() {});
             for(OrderResponse order:orders){
                 if(RestypeGemini.valueOf(order.getType().toUpperCase()) == RestypeGemini.ACCEPTED){

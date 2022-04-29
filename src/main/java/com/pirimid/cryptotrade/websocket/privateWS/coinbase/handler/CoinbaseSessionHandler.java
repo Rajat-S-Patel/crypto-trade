@@ -113,7 +113,7 @@ public class CoinbaseSessionHandler implements WebSocketHandler {
         }
         if (isConnected) {
 
-
+            System.out.println("coinbase message = "+message.getPayload().toString());
             switch (Restype.valueOf(typedto.getType().toUpperCase())) {
                 case RECEIVED: {
                     WSCoinbaseOrderDto wsCoinbaseOrderDto = new ObjectMapper().readValue(message.getPayload().toString(), WSCoinbaseOrderDto.class);

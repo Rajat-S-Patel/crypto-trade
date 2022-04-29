@@ -228,8 +228,8 @@ public class OrderServiceImpl implements OrderService {
         if (order.isPresent()) {
             order.get().setOrderStatus(orderDto.getStatus());
             order.get().setEndTime(orderDto.getEndAt());
-            orderDto.setOrderId(order.get().getOrderId());
-            orderDto.setExchange(order.get().getAccount().getExchange());
+
+            orderDto = orderToOrderResDto(order.get());
             this.sendOrderUpdateToClient(orderDto);
             orderRepository.save(order.get());
             return orderDto;
