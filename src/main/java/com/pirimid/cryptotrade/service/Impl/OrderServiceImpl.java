@@ -1,12 +1,16 @@
 package com.pirimid.cryptotrade.service.Impl;
 
+import com.pirimid.cryptotrade.DTO.AccountDTO;
+import com.pirimid.cryptotrade.DTO.BalanceDTO;
 import com.pirimid.cryptotrade.DTO.OrderResDTO;
 import com.pirimid.cryptotrade.DTO.PlaceOrderReqDTO;
 import com.pirimid.cryptotrade.DTO.TradeDto;
 import com.pirimid.cryptotrade.exception.AccountNotFoundException;
 import com.pirimid.cryptotrade.exception.OrderFailedException;
 import com.pirimid.cryptotrade.exception.OrderNotFoundException;
+import com.pirimid.cryptotrade.exception.InvalidApiKeyException;
 import com.pirimid.cryptotrade.helper.exchange.EXCHANGE;
+import com.pirimid.cryptotrade.helper.exchange.coinbase.dto.response.BalanceCoinbaseDTO;
 import com.pirimid.cryptotrade.model.Account;
 import com.pirimid.cryptotrade.model.Exchange;
 import com.pirimid.cryptotrade.model.Order;
@@ -142,6 +146,8 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public OrderResDTO createOrder(PlaceOrderReqDTO req) {
         try {
+            // TODO replace accountId with userId (create order with userId)
+            System.out.println(req.getAccountId());
             Optional<Account> optAccount = accountRepository.findById(req.getAccountId());
             if (!optAccount.isPresent()) {
                 throw new AccountNotFoundException("No such account exist in database");
@@ -222,8 +228,8 @@ public class OrderServiceImpl implements OrderService {
         if (order.isPresent()) {
             order.get().setOrderStatus(orderDto.getStatus());
             order.get().setEndTime(orderDto.getEndAt());
-            orderDto.setOrderId(order.get().getOrderId());
-            orderDto.setExchange(order.get().getAccount().getExchange());
+
+            orderDto = orderToOrderResDto(order.get());
             this.sendOrderUpdateToClient(orderDto);
             orderRepository.save(order.get());
             return orderDto;
@@ -258,16 +264,16 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public String cancelOrderById(UUID id, String exchangeName) {
-        EXCHANGE exchange = EXCHANGE.valueOf(exchangeName.toUpperCase());
+    public String cancelOrderById(UUID id) {
         Optional<Order> optOrder = orderRepository.findById(id);
         if (optOrder.isPresent()) {
             Account account = optOrder.get().getAccount();
-
+            EXCHANGE exchange = EXCHANGE.valueOf(account.getExchange().getName().toUpperCase());
             if (exchangeUtil
                     .getObject(exchange)
                     .cancelOrder(account.getApiKey(), account.getSecretKey(), account.getPassPhrase(), optOrder.get().getOrderIdExchange())) {
                 optOrder.get().setOrderStatus(Status.CANCELLED);
+                this.sendOrderUpdateToClient(orderToOrderResDto(optOrder.get()));
                 orderRepository.save(optOrder.get());
                 return String.valueOf(id);
             } else {
@@ -276,5 +282,38 @@ public class OrderServiceImpl implements OrderService {
             }
         }
         throw new OrderNotFoundException("No such order exist in database");
+    }
+    public List<BalanceDTO> getBalance(UUID accountId) {
+        try {
+            Optional<Account> optAccount = accountRepository.findById(accountId);
+            if (!optAccount.isPresent()) {
+                throw new AccountNotFoundException("No such account exist in database");
+            }
+            Account account = optAccount.get();
+            List<BalanceDTO> balanceDTOS = exchangeUtil
+                    .getObject(EXCHANGE.valueOf(account.getExchange().getName().toUpperCase()))
+                    .getBalance(account.getApiKey(), account.getSecretKey(), account.getPassPhrase());
+            return balanceDTOS;
+        } catch(AccountNotFoundException e){
+            throw e;
+        } catch (InvalidApiKeyException e){
+            throw e;
+        }
+    }
+    public String getBalance(AccountDTO accountDTO) {
+        try {
+            List<BalanceDTO> balanceDTOS = exchangeUtil
+                    .getObject(EXCHANGE.valueOf(accountDTO.getExchange().getName().toUpperCase()))
+                    .getBalance(accountDTO.getApiKey(), accountDTO.getSecretKey(), accountDTO.getPassPhrase());
+            if(balanceDTOS == null){
+                return "not verified";
+            }
+            return "verified";
+        } catch (InvalidApiKeyException e){
+            e.printStackTrace();
+        }catch ( Exception e){
+            e.printStackTrace();
+        }
+        return "not verified";
     }
 }

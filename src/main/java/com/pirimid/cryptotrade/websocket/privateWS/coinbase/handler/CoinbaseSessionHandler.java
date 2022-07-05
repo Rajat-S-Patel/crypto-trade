@@ -2,6 +2,7 @@ package com.pirimid.cryptotrade.websocket.privateWS.coinbase.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pirimid.cryptotrade.DTO.OrderResDTO;
+import com.pirimid.cryptotrade.DTO.SymbolResDTO;
 import com.pirimid.cryptotrade.DTO.TradeDto;
 import com.pirimid.cryptotrade.helper.exchange.EXCHANGE;
 import com.pirimid.cryptotrade.model.Account;
@@ -16,6 +17,7 @@ import com.pirimid.cryptotrade.websocket.privateWS.coinbase.res.Restype;
 import com.pirimid.cryptotrade.websocket.privateWS.coinbase.res.Typedto;
 import com.pirimid.cryptotrade.websocket.privateWS.coinbase.res.WSCoinbaseOrderDto;
 import com.pirimid.cryptotrade.websocket.privateWS.coinbase.res.WSCoinbaseTradeDto;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketHandler;
@@ -29,6 +31,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 public class CoinbaseSessionHandler implements WebSocketHandler {
 
@@ -37,6 +40,8 @@ public class CoinbaseSessionHandler implements WebSocketHandler {
     private Boolean isConnected = false;
     private WebSocketSession session;
     private WSCoinbase coinbase;
+    @Autowired
+    CoinbaseUtil coinbaseUtil;
 
 
     public CoinbaseSessionHandler(Account account, OrderService orderService, WSCoinbase coinbase) {
@@ -58,7 +63,10 @@ public class CoinbaseSessionHandler implements WebSocketHandler {
         channels.add(ReqChannel.USER);
         channels.add(ReqChannel.HEARTBEAT);
         List<String> pids = new ArrayList<>();
-        pids.add("BTC-USD");
+        Map<String, SymbolResDTO> symbolMap = coinbaseUtil.getPairs();
+        for (Map.Entry<String, SymbolResDTO> entry : symbolMap.entrySet()){
+            pids.add(entry.getKey());
+        }
         ChannelReq req = ChannelReq.builder()
                 .type(ReqType.SUBSCRIBE)
                 .productIds(pids)
@@ -105,7 +113,7 @@ public class CoinbaseSessionHandler implements WebSocketHandler {
         }
         if (isConnected) {
 
-
+            System.out.println("coinbase message = "+message.getPayload().toString());
             switch (Restype.valueOf(typedto.getType().toUpperCase())) {
                 case RECEIVED: {
                     WSCoinbaseOrderDto wsCoinbaseOrderDto = new ObjectMapper().readValue(message.getPayload().toString(), WSCoinbaseOrderDto.class);

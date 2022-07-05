@@ -1,12 +1,16 @@
 package com.pirimid.cryptotrade.service;
 
+import com.pirimid.cryptotrade.DTO.AccountDTO;
+import com.pirimid.cryptotrade.DTO.BalanceDTO;
 import com.pirimid.cryptotrade.DTO.OrderResDTO;
 import com.pirimid.cryptotrade.DTO.PlaceOrderReqDTO;
 import com.pirimid.cryptotrade.DTO.TradeDto;
 import com.pirimid.cryptotrade.helper.exchange.EXCHANGE;
+import com.pirimid.cryptotrade.helper.exchange.coinbase.dto.response.BalanceCoinbaseDTO;
 import com.pirimid.cryptotrade.model.Order;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 public interface OrderService {
@@ -21,5 +25,8 @@ public interface OrderService {
     OrderResDTO completeOrder(OrderResDTO orderResDTO);
     String rejectOrderByExchangeOrderId(String excOrderId, EXCHANGE exchangeName, Date timestamp);
     String cancelOrderByExchangeOrderId(String excOrderId, EXCHANGE exchangeName, Date timestamp);
-    String cancelOrderById(UUID id,String exchangeName);
+    String cancelOrderById(UUID id);
+
+    List<BalanceDTO> getBalance(UUID accountId);
+    String getBalance(AccountDTO accountDTO);
 }

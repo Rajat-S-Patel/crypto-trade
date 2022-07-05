@@ -41,11 +41,17 @@ public class GeminiWSPublic implements publicWS {
     private List<WsTickerDto> normaliseData(TickerGeminiDto geminiDto){
         List<WsTickerDto> tickerDtoList = new ArrayList<>();
         geminiDto.getEvents().forEach(event->{
-            WsTickerDto tickerDto = WsTickerDto.builder()
-                    .price(event.getPrice())
-                    .symbol(symbolMap.get(event.getSymbol().toLowerCase()).getSymbol())
-                    .build();
-            tickerDtoList.add(tickerDto);
+            SymbolResDTO symbol = symbolMap.get(event.getSymbol().toLowerCase());
+            if(symbol!=null) {
+                Double percentChange = ((event.getPrice()/symbol.getOpen24h())-1)*100;
+                WsTickerDto tickerDto = WsTickerDto.builder()
+                        .exchange("gemini")
+                        .price(event.getPrice())
+                        .symbol(symbol.getSymbol())
+                        .percentChange(percentChange)
+                        .build();
+                tickerDtoList.add(tickerDto);
+            }
         });
         return tickerDtoList;
     }

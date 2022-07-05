@@ -33,5 +33,4 @@ public class UserServiceImpl implements UserService {
     public User getUserById(UUID userId) {
         return userRepository.findById(userId).orElse(null);
     }
-
 }

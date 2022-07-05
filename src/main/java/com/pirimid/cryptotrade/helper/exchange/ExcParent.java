@@ -1,5 +1,6 @@
 package com.pirimid.cryptotrade.helper.exchange;
 
+import com.pirimid.cryptotrade.DTO.BalanceDTO;
 import com.pirimid.cryptotrade.DTO.OrderResDTO;
 import com.pirimid.cryptotrade.DTO.PlaceOrderReqDTO;
 import com.pirimid.cryptotrade.DTO.SymbolResDTO;
@@ -20,4 +21,5 @@ public interface ExcParent {
     boolean cancelOrder(String apiKey, String secretKey, String passphrase, String orderId);
 
     void fetchPairs();
+    List<BalanceDTO> getBalance(String apiKey, String secretKey, String passPhrase);
 }

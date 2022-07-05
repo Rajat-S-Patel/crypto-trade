@@ -3,13 +3,17 @@ package com.pirimid.cryptotrade.helper.exchange.gemini;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.pirimid.cryptotrade.DTO.BalanceDTO;
 import com.pirimid.cryptotrade.DTO.OrderResDTO;
 import com.pirimid.cryptotrade.DTO.PlaceOrderReqDTO;
 import com.pirimid.cryptotrade.DTO.SymbolResDTO;
+import com.pirimid.cryptotrade.exception.InvalidApiKeyException;
 import com.pirimid.cryptotrade.helper.exchange.ExcParent;
 import com.pirimid.cryptotrade.helper.exchange.gemini.dto.request.CreateOrderRequest;
+import com.pirimid.cryptotrade.helper.exchange.gemini.dto.response.BalanceGeminiDTO;
 import com.pirimid.cryptotrade.helper.exchange.gemini.dto.response.CancelOrderResponse;
 import com.pirimid.cryptotrade.helper.exchange.gemini.dto.response.CreateOrderResponse;
+import com.pirimid.cryptotrade.helper.exchange.gemini.dto.response.PriceFeedRes;
 import com.pirimid.cryptotrade.helper.exchange.gemini.dto.response.SymbolResponse;
 import com.pirimid.cryptotrade.util.GeminiUtil;
 import org.springframework.beans.factory.annotation.Value;
@@ -33,6 +37,7 @@ import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Component
@@ -84,11 +89,23 @@ public class ExcGemini implements ExcParent {
                     "btceur",
                     "btcgbp");
             List<String> filterSymbols = symbols.stream().filter(symbol->filter.contains(symbol)).collect(Collectors.toList());
+
+            //price feed
+            ResponseEntity<String> resPriceFeed = apiCaller(baseUrl+"/v1/pricefeed","GET");
+            List<PriceFeedRes> priceFeedRes = new ObjectMapper().readValue(resPriceFeed.getBody(), new TypeReference<List<PriceFeedRes>>() {});
+            List<PriceFeedRes> filterPriceFeedRes = priceFeedRes.stream().filter(priceFeed->filter.contains(priceFeed.getPair().toLowerCase())).collect(Collectors.toList());
+
             Map<String,SymbolResDTO> symbolMap = new HashMap<String,SymbolResDTO>();
             for(String symbol : filterSymbols){
                 ResponseEntity<String> symRes = apiCaller(baseUrl+"/v1/symbols/details/"+symbol,"GET");
                 SymbolResponse response = new ObjectMapper().readValue(symRes.getBody(),SymbolResponse.class);
-                SymbolResDTO symbolResDTO = GeminiUtil.getSymbolResDTO(response);
+
+                Optional<PriceFeedRes> priceFeed = filterPriceFeedRes.stream().filter(p->p.getPair().toLowerCase().equals(response.getSymbol().toLowerCase())).findFirst();
+                Double open24h = 0.0;
+                if(priceFeed!=null &priceFeed.isPresent()){
+                    open24h = priceFeed.get().getPrice() / (1 + (priceFeed.get().getPercentChange24h()/100));
+                }
+                SymbolResDTO symbolResDTO = GeminiUtil.getSymbolResDTO(response,open24h);
                 symbolMap.put(response.getSymbol().toLowerCase(),symbolResDTO);
                 symbolDetails.add(symbolResDTO);
             }
@@ -135,7 +152,7 @@ public class ExcGemini implements ExcParent {
             byte[] b64 = GeminiUtil.getB64(json);
             String signature = GeminiUtil.getSignature(b64,secretKey);
             ResponseEntity<String> res = apiCaller(baseUrl+"/v1/order/new","POST",b64,signature,apiKey);
-
+            // TODO exception handling if order fails
             CreateOrderResponse orderResponse = new ObjectMapper().readValue(res.getBody(), CreateOrderResponse.class);
             OrderResDTO orderResDTO = GeminiUtil.getPlaceOrderResDTO(orderResponse);
             try {
@@ -178,6 +195,27 @@ public class ExcGemini implements ExcParent {
         }
 
         return false;
+    }
+
+    @Override
+    public List<BalanceDTO> getBalance(String apiKey, String secretKey, String passPhrase) {
+        Map<String,String> payload = new HashMap<>();
+        payload.put("request","/v1/balances");
+        payload.put("account","primary");
+        payload.put("nonce",String.valueOf(GeminiUtil.getNonce()));
+        try {
+            String json = new ObjectMapper().writeValueAsString(payload);
+            byte[] b64 = GeminiUtil.getB64(json);
+            String signature = GeminiUtil.getSignature(b64,secretKey);
+            ResponseEntity<String> res = apiCaller(baseUrl+"/v1/balances","POST",b64,signature,apiKey);
+            if(res.getBody().contains("error")) throw new InvalidApiKeyException("Invalid API key or secret key");
+            List<BalanceGeminiDTO> balanceGeminiDTOs= new ObjectMapper().readValue(res.getBody(), new TypeReference<List<BalanceGeminiDTO>>() {});
+            List<BalanceDTO> balanceDTOS = GeminiUtil.getStandardBalanceDTOs(balanceGeminiDTOs);
+            return balanceDTOS;
+        } catch (NoSuchAlgorithmException | InvalidKeyException | IOException | InterruptedException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
 }

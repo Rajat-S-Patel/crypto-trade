@@ -1,10 +1,12 @@
 package com.pirimid.cryptotrade.util;
 
+import com.pirimid.cryptotrade.DTO.BalanceDTO;
 import com.pirimid.cryptotrade.DTO.OrderResDTO;
 import com.pirimid.cryptotrade.DTO.PlaceOrderReqDTO;
 import com.pirimid.cryptotrade.DTO.SymbolResDTO;
 import com.pirimid.cryptotrade.DTO.TradeDto;
 import com.pirimid.cryptotrade.helper.exchange.coinbase.dto.request.PlaceOrderReqCoinbaseDTO;
+import com.pirimid.cryptotrade.helper.exchange.coinbase.dto.response.BalanceCoinbaseDTO;
 import com.pirimid.cryptotrade.helper.exchange.coinbase.dto.response.PlaceOrderResCoinbaseDTO;
 import com.pirimid.cryptotrade.helper.exchange.coinbase.dto.response.SymbolResCoinbaseDTO;
 import com.pirimid.cryptotrade.model.OrderType;
@@ -139,6 +141,20 @@ public class CoinbaseUtil {
         }
         return symbolResDTOS;
 
+    }
+    public static List<BalanceDTO> getStandardBalanceDTOs(List<BalanceCoinbaseDTO> balanceCoinbaseDTOS) {
+        List<BalanceDTO> balanceDTOS = new ArrayList<>();
+        for(BalanceCoinbaseDTO balanceCoinbaseDTO: balanceCoinbaseDTOS) {
+            if(balanceCoinbaseDTO != null && balanceCoinbaseDTO.getBalance()>0){
+                BalanceDTO balanceDTO = BalanceDTO.builder()
+                        .currency(balanceCoinbaseDTO.getCurrency())
+                        .balance(balanceCoinbaseDTO.getBalance())
+                        .available(balanceCoinbaseDTO.getAvailable())
+                        .build();
+                 balanceDTOS.add(balanceDTO);
+            }
+        }
+        return balanceDTOS;
     }
 
 

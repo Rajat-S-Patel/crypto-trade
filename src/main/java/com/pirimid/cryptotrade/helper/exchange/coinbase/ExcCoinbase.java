@@ -2,6 +2,7 @@ package com.pirimid.cryptotrade.helper.exchange.coinbase;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.pirimid.cryptotrade.DTO.BalanceDTO;
 import com.pirimid.cryptotrade.DTO.OrderResDTO;
 import com.pirimid.cryptotrade.DTO.PlaceOrderReqDTO;
 import com.pirimid.cryptotrade.DTO.SymbolResDTO;
@@ -9,6 +10,8 @@ import com.pirimid.cryptotrade.exception.OrderFailedException;
 import com.pirimid.cryptotrade.helper.exchange.ExcParent;
 import com.pirimid.cryptotrade.helper.exchange.coinbase.dto.request.PlaceOrderReqCoinbaseDTO;
 import com.pirimid.cryptotrade.helper.exchange.coinbase.dto.response.ErrorMessage;
+import com.pirimid.cryptotrade.exception.InvalidApiKeyException;
+import com.pirimid.cryptotrade.helper.exchange.coinbase.dto.response.BalanceCoinbaseDTO;
 import com.pirimid.cryptotrade.helper.exchange.coinbase.dto.response.PlaceOrderResCoinbaseDTO;
 import com.pirimid.cryptotrade.helper.exchange.coinbase.dto.response.SymbolResCoinbaseDTO;
 import com.pirimid.cryptotrade.util.CoinbaseUtil;
@@ -133,6 +136,25 @@ public class ExcCoinbase implements ExcParent {
             return true;
         return false;
 
+    }
+    @Override
+    public List<BalanceDTO> getBalance(String apiKey, String secretKey, String passphrase){
+        String timestamp = Instant.now().getEpochSecond() + "";
+        String signature;
+        try {
+            signature = CoinbaseUtil.getSignature(timestamp, secretKey, "GET", "/accounts/", "");
+            ResponseEntity<String> response = apiCallerRestricted(baseUrl + "/accounts/", "GET", apiKey, passphrase, signature, timestamp, "");
+            if(response.getStatusCode() == HttpStatus.BAD_REQUEST){
+                throw new InvalidApiKeyException("Invalid API key or secret key");
+            }
+            List<BalanceCoinbaseDTO> balanceCoinbaseDTOS = new ObjectMapper().readValue(response.getBody(), new TypeReference<List<BalanceCoinbaseDTO>>() {});
+            List<BalanceDTO> balanceDTOS = CoinbaseUtil.getStandardBalanceDTOs(balanceCoinbaseDTOS);
+            return balanceDTOS;
+        }
+        catch(Exception e){
+            e.printStackTrace();
+            throw new InvalidApiKeyException("Invalid API key or secret key");
+        }
     }
 
     @Override

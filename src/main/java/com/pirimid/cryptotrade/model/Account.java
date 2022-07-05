@@ -3,12 +3,14 @@ package com.pirimid.cryptotrade.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.sun.istack.NotNull;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -20,6 +22,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
+@Builder
 @Entity
 @ToString
 @EqualsAndHashCode
@@ -44,6 +47,8 @@ public class Account {
     @NotNull
     private String secretKey;
     private String passPhrase;
+    @NotNull
+    private String accountLabel;
 
 
 
@@ -51,7 +56,7 @@ public class Account {
     @JoinColumn(name = "exchange_id",referencedColumnName = "exchangeId",nullable = false)
     private Exchange exchange;
 
-    @OneToMany(mappedBy = "account")
+    @OneToMany(mappedBy = "account",cascade = CascadeType.REMOVE)
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     @JsonIgnore

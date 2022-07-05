@@ -1,12 +1,15 @@
 package com.pirimid.cryptotrade.util;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.pirimid.cryptotrade.DTO.BalanceDTO;
 import com.pirimid.cryptotrade.DTO.OrderResDTO;
 import com.pirimid.cryptotrade.DTO.PlaceOrderReqDTO;
 import com.pirimid.cryptotrade.DTO.SymbolResDTO;
 import com.pirimid.cryptotrade.DTO.TradeDto;
 import com.pirimid.cryptotrade.helper.exchange.gemini.dto.request.CreateOrderRequest;
+import com.pirimid.cryptotrade.helper.exchange.gemini.dto.response.BalanceGeminiDTO;
 import com.pirimid.cryptotrade.helper.exchange.gemini.dto.response.CreateOrderResponse;
+import com.pirimid.cryptotrade.helper.exchange.gemini.dto.response.PriceFeedRes;
 import com.pirimid.cryptotrade.helper.exchange.gemini.dto.response.SymbolResponse;
 import com.pirimid.cryptotrade.model.OrderType;
 import com.pirimid.cryptotrade.model.Side;
@@ -22,16 +25,20 @@ import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Date;
 import java.util.Map;
+import java.util.List;
 
 @Component
 public class GeminiUtil {
     private static Map<String,SymbolResDTO> symbolMap = null;
+
     public static long getNonce(){
-        return new Date().getTime()*1000;
+        return new Date().getTime()*10000;
     }
+    
     public static byte[] getB64(String payload){
         return Base64.getEncoder().encode(payload.getBytes(StandardCharsets.UTF_8));
     }
@@ -90,12 +97,13 @@ public class GeminiUtil {
         return createOrderRequest;
     }
 
-    public static SymbolResDTO getSymbolResDTO(SymbolResponse response) {
+    public static SymbolResDTO getSymbolResDTO(SymbolResponse response, Double open24h) {
         SymbolResDTO dto = SymbolResDTO.builder()
                 .symbol(response.getBaseCurrency()+"-"+response.getQuoteCurrency())
                 .base(response.getBaseCurrency())
                 .quote(response.getQuoteCurrency())
                 .minOrderSize(response.getMinOrderSize())
+                .open24h(open24h)
                 .build();
         return dto;
     }
@@ -146,5 +154,19 @@ public class GeminiUtil {
                 .symbol(response.getSymbol())
                 .build();
         return trade;
+    }
+    public static List<BalanceDTO> getStandardBalanceDTOs(List<BalanceGeminiDTO> balanceGeminiDTOS){
+        List<BalanceDTO> balanceDTOS = new ArrayList<>();
+        for(BalanceGeminiDTO balanceGeminiDTO: balanceGeminiDTOS){
+            if(balanceGeminiDTO != null && balanceGeminiDTO.getAmount()>0){
+                BalanceDTO balanceDTO = BalanceDTO.builder()
+                        .currency(balanceGeminiDTO.getCurrency())
+                        .balance(balanceGeminiDTO.getAmount())
+                        .available(balanceGeminiDTO.getAvailable())
+                        .build();
+                balanceDTOS.add(balanceDTO);
+            }
+        }
+        return balanceDTOS;
     }
 }

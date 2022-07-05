@@ -31,6 +31,7 @@ public class CoinbaseWSpublic implements publicWS {
 
     private WsTickerDto normaliseData(TickerCoinbaseDto tickerCoinbaseDto){
         WsTickerDto wsTickerDto = WsTickerDto.builder()
+                .exchange("coinbase")
                 .symbol(tickerCoinbaseDto.getProductId())
                 .price(tickerCoinbaseDto.getPrice())
                 .high(tickerCoinbaseDto.getHigh24h())
@@ -41,9 +42,10 @@ public class CoinbaseWSpublic implements publicWS {
         return wsTickerDto;
     }
     public void sendDataToChannel(TickerCoinbaseDto tickerCoinbaseDto){
-        WsTickerDto wsTickerDto = normaliseData(tickerCoinbaseDto);
         String destination = "/topic/price.coinbase."+tickerCoinbaseDto.getProductId();
         if(websocketService.getSubscribedPairs().containsKey(destination)) {
+            WsTickerDto wsTickerDto = normaliseData(tickerCoinbaseDto);
+//            System.out.println(wsTickerDto);
             messagingTemplate.convertAndSend(destination, wsTickerDto);
         }
     }

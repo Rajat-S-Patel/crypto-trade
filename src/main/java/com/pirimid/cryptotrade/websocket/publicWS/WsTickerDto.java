@@ -9,6 +9,7 @@ import lombok.ToString;
 @Builder
 @ToString
 public class WsTickerDto {
+    private String exchange;
     private String symbol;
     private Double price;
     private Double volume;
